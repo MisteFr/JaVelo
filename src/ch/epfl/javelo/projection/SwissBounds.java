@@ -21,8 +21,6 @@ public final class SwissBounds {
     public static final double HEIGHT = MAX_N - MIN_N;
 
     /**
-     * Should we search for a more elegant way to write the condition ?
-     *
      * @param e first coordination E of the point.
      * @param n second coordinate N of the point.
      * @return true if the point is between the borders defined by the constants (see FIELDS)

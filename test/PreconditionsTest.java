@@ -1,5 +1,4 @@
-package ch.epfl.javelo;
-
+import ch.epfl.javelo.Preconditions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
