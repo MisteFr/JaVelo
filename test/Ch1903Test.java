@@ -67,7 +67,7 @@ class Ch1903Test {
 
     @Test
     public void lonWorksOnKnownValues() {
-      var actual1 = Ch1903.lon(2600000, 1200000);
+        var actual1 = Ch1903.lon(2600000, 1200000);
         var expected1 = 0.12982871138918287;
         assertEquals(expected1, actual1, DELTA);
 
@@ -94,7 +94,7 @@ class Ch1903Test {
 
     @Test
     public void latWorksOnKnownValues() {
-      var actual1 = Ch1903.lat(2600000, 1200000);
+        var actual1 = Ch1903.lat(2600000, 1200000);
         var expected1 = 0.8194509527598063;
         assertEquals(expected1, actual1, DELTA);
 

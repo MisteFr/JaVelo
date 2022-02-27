@@ -8,8 +8,9 @@ package ch.epfl.javelo;
  */
 
 public final class Preconditions {
-    private Preconditions() {
-    }
+
+    // Non-instantiable class
+    private Preconditions() {}
 
     /**
      * That method is used to check the validity of the shouldBeTrue argument.

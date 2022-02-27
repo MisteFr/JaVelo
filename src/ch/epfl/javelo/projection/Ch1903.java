@@ -12,8 +12,7 @@ import java.lang.Math;
 public final class Ch1903 {
 
     // Non-instantiable class
-    private Ch1903() {
-    }
+    private Ch1903() {}
 
 
     /**

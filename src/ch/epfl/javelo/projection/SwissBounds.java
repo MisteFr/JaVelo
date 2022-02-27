@@ -10,7 +10,7 @@ package ch.epfl.javelo.projection;
 public final class SwissBounds {
 
     // Non-instantiable class
-    private SwissBounds(){}
+    private SwissBounds() {}
 
     // FIELDS
     public static final double MIN_E = 2485000;

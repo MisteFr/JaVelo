@@ -3,41 +3,34 @@ package ch.epfl.javelo;
 /**
  * Math 2 Class
  *
- * TODO: Tu as lancé des exceptions sans utiliser Preconditions, ce qui permet d'avoir des messages d'erreur plus précis, mais
- * TODO: je pense qu'on attend de nous d'utiliser Preconditions ici.
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
 
 public final class Math2 {
 
-    private Math2() {
-    }
+    // Non-instantiable class
+    private Math2() {}
 
     /**
      * Return the integral part of the division of x by y
      *
      * @param x, x value
      * @param y, y value
-     * @throws IllegalArgumentException if y value is zero or x is negative or null.
      * @return ceil of the division
+     * @throws IllegalArgumentException if y value is zero or x is negative or null.
      */
     public static int ceilDiv(int x, int y) {
-        if (y == 0) {
-            throw new IllegalArgumentException("Division by zero error.");
-        }
-        if (x < 0) {
-            throw new IllegalArgumentException("X should be positive or null.");
-        }
+        Preconditions.checkArgument(y != 0 && x > 0);
         return (int) Math.floor((x + y - 1) / y);
     }
 
     /**
      * Interpolate the y coordinate of the point of coordinate x using the coordinates of the point (x0, y0)
-     * TODO? compress interpolate function.
+     *
      * @param y0 y0 value
      * @param y1 y1 value
-     * @param x x value
+     * @param x  x value
      * @return The y coordinate of the point of coordinate x
      */
     public static double interpolate(double y0, double y1, double x) {
@@ -51,15 +44,13 @@ public final class Math2 {
      * Limit the v-value to the interval from min to max.
      *
      * @param min min value
-     * @param v v value
+     * @param v   v value
      * @param max max value
-     * @throws IllegalArgumentException if max is inferior to min value
      * @return a value in the interval from min to max included.
+     * @throws IllegalArgumentException if max is inferior to min value
      */
     public static int clamp(int min, int v, int max) {
-        if (min > max) {
-            throw new IllegalArgumentException("max is inferior to min value in int clamp();");
-        }
+        Preconditions.checkArgument(min < max);
         if (v < min) {
             return min;
         } else return Math.min(v, max);
@@ -69,15 +60,13 @@ public final class Math2 {
      * Limit the v-value to the interval from min to max.
      *
      * @param min min value
-     * @param v v value
+     * @param v   v value
      * @param max max value
-     * @throws IllegalArgumentException if max is inferior to min value
      * @return a value in the interval from min to max included.
+     * @throws IllegalArgumentException if max is inferior to min value
      */
     public static double clamp(double min, double v, double max) {
-        if (min > max) {
-            throw new IllegalArgumentException("max is inferior to min value in double clamp();");
-        }
+        Preconditions.checkArgument(min < max);
         if (v < min) {
             return min;
         } else return Math.min(v, max);

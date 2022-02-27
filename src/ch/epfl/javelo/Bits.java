@@ -10,21 +10,22 @@ package ch.epfl.javelo;
 public final class Bits {
 
     // Non-instantiable class
-    private Bits(){}
+    private Bits() {}
 
     /**
      * Extract from the 32 bits vector the range of 'length' bits starting at the bit of index 'start' that
      * it interprets as a signed value.
-     * @param value the 32 bits vector
-     * @param start start bit
+     *
+     * @param value  the 32 bits vector
+     * @param start  start bit
      * @param length length of the range
-     * @throws IllegalArgumentException if the range is invalid
      * @return the signed value extracted
+     * @throws IllegalArgumentException if the range is invalid
      */
-    public static int extractSigned(int value, int start, int length){
+    public static int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0));
         //left arithmetic shift
-        int leftArithmeticShift = value << (32 - (start  + length));
+        int leftArithmeticShift = value << (32 - (start + length));
         //right arithmetic shift
         return leftArithmeticShift >> (32 - length);
     }
@@ -32,15 +33,16 @@ public final class Bits {
     /**
      * Extract from the 32 bits vector the range of 'length' bits starting at the bit of index 'start' that
      * it interprets as a unsigned value.
-     * @param value the 32 bits vector
-     * @param start start bit
+     *
+     * @param value  the 32 bits vector
+     * @param start  start bit
      * @param length length of the range
      * @return the unsigned value extracted
      */
-    public static int extractUnsigned(int value, int start, int length){
+    public static int extractUnsigned(int value, int start, int length) {
         Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0));
         //left arithmetic shift
-        int leftArithmeticShifted = value << (32 - (start  + length));
+        int leftArithmeticShifted = value << (32 - (start + length));
         //right logical shift
         return leftArithmeticShifted >>> (32 - length);
     }
