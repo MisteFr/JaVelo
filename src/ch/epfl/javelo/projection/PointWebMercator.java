@@ -1,5 +1,6 @@
 package ch.epfl.javelo.projection;
 import ch.epfl.javelo.Preconditions;
+import java.awt.*;
 
 /**
  * PointWebMercator Class

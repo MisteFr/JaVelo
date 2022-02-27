@@ -3,6 +3,8 @@ package ch.epfl.javelo;
 /**
  * Math 2 Class
  *
+ * TODO: Tu as lancé des exceptions sans utiliser Preconditions, ce qui permet d'avoir des messages d'erreur plus précis, mais
+ * TODO: je pense qu'on attend de nous d'utiliser Preconditions ici.
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
@@ -32,7 +34,7 @@ public final class Math2 {
 
     /**
      * Interpolate the y coordinate of the point of coordinate x using the coordinates of the point (x0, y0)
-     *
+     * TODO? compress interpolate function.
      * @param y0 y0 value
      * @param y1 y1 value
      * @param x x value
