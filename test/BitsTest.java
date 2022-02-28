@@ -1,5 +1,4 @@
 import ch.epfl.javelo.Bits;
-import ch.epfl.javelo.projection.PointCh;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,39 +7,27 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BitsTest {
 
     @Test
-    void testRangeFunction() {
+    void testRangeUnsignedFunction() {
         //out of range as start+length > 31
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, 31, 4);
         });
-    }
 
-    @Test
-    void testRangeFunction2() {
         //start is < 0
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, -2, 4);
         });
-    }
 
-    @Test
-    void testRangeFunction3() {
         //length+start > 32
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, 0, 33);
         });
-    }
 
-    @Test
-    void testRangeFunction4() {
         //length < 0
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, 8, -3);
         });
-    }
 
-    @Test
-    void testRangeFunction5() {
         //start > 31
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(0b11001010111111101011101010111110, 32, 4);

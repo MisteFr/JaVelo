@@ -21,7 +21,7 @@ public final class Math2 {
      * @throws IllegalArgumentException if y value is zero or x is negative or null.
      */
     public static int ceilDiv(int x, int y) {
-        Preconditions.checkArgument(y != 0 && x > 0);
+        Preconditions.checkArgument(y > 0 && x >= 0);
         return (int) Math.floor((x + y - 1) / y);
     }
 

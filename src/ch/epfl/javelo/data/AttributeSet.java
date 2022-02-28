@@ -15,8 +15,9 @@ public record AttributeSet(long bits) {
 
     /**
      * Compact constructor that checks for invalid bits
+     *
      * @throws IllegalArgumentException if bits value contains a bit value of 1 corresponding to an attribute
-     * that doesn't exist
+     *                                  that doesn't exist
      */
 
     public AttributeSet {
@@ -28,14 +29,13 @@ public record AttributeSet(long bits) {
     /**
      * Construct an AttributeSet with a given number of attributes.
      *
-     *
      * @param attributes attributes for the new AttributeSet
      * @return AttributeSet object containing the desired attributes
      */
 
-    public static AttributeSet of(Attribute... attributes){
+    public static AttributeSet of(Attribute... attributes) {
         long bits = 0L;
-        for (Attribute attr : attributes){
+        for (Attribute attr : attributes) {
             //we create a mask at attribute index value to set the bit to 1 in bits.
             long maskPos = 1L << attr.ordinal();
             bits = bits | maskPos;
@@ -49,34 +49,37 @@ public record AttributeSet(long bits) {
      * @param attribute attribute to test
      * @return Boolean if the attribute is in AttributeSet or not
      */
-    public boolean contains (Attribute attribute){
+    public boolean contains(Attribute attribute) {
         long maskPos = 1L << attribute.ordinal();
         return (bits & maskPos) == maskPos;
     }
 
     /**
-     * Test if the intersection if this AttributeSet (this) and the argument that is empty
-     * TODO: optimize/improve?
+     * Test if the intersection of this AttributeSet (this) and the argument (that) is empty or not
+     *
      * @param that AttributeSet to intersect with this instance
-     * @return Boolean if the intersection if empty or not
+     * @return Boolean if the intersection is empty or not
      */
 
-    public boolean intersects(AttributeSet that){
-        for(int i = 0; i < Attribute.COUNT; i ++){
-            long maskPos = 1L << i;
-            if((that.bits & maskPos) == maskPos && (bits & maskPos) == maskPos){
-                return  true;
+    public boolean intersects(AttributeSet that) {
+        for (Attribute attr : Attribute.ALL) {
+            if (contains(attr) && that.contains(attr)) {
+                return true;
             }
         }
         return false;
     }
 
-
+    /**
+     * Redefinition of toString() method
+     *
+     * @return String Textual representation of the AttributeSet
+     */
     @Override
     public String toString() {
         StringJoiner j = new StringJoiner(",", "{", "}");
-        for(Attribute attr : Attribute.ALL){
-            if(contains(attr)){
+        for (Attribute attr : Attribute.ALL) {
+            if (contains(attr)) {
                 j.add(attr.keyValue());
             }
         }

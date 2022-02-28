@@ -49,11 +49,26 @@ public class AttributeSetTest {
 
     @Test
     void testContainsFunction() {
-        //TODO
+        AttributeSet set = AttributeSet.of(Attribute.TRACKTYPE_GRADE2, Attribute.HIGHWAY_TRACK);
+        //testing the before and after bit
+        assertEquals(false, set.contains(Attribute.TRACKTYPE_GRADE1));
+        assertEquals(false, set.contains(Attribute.TRACKTYPE_GRADE3));
+        assertEquals(true, set.contains(Attribute.TRACKTYPE_GRADE2));
+
+        //testing the before and after bit
+        assertEquals(false, set.contains(Attribute.HIGHWAY_CYCLEWAY));
+        assertEquals(false, set.contains(Attribute.HIGHWAY_SERVICE));
+        assertEquals(true, set.contains(Attribute.HIGHWAY_TRACK));
     }
 
     @Test
     void testIntersectFunction() {
-        //TODO
+        AttributeSet set1 = AttributeSet.of(Attribute.TRACKTYPE_GRADE1, Attribute.HIGHWAY_TRACK);
+        AttributeSet set2 = AttributeSet.of(Attribute.TRACKTYPE_GRADE2, Attribute.HIGHWAY_CYCLEWAY);
+        AttributeSet set3 = AttributeSet.of(Attribute.TRACKTYPE_GRADE1, Attribute.HIGHWAY_CYCLEWAY);
+
+        assertEquals(false, set1.intersects(set2));
+        assertEquals(true, set2.intersects(set3));
+        assertEquals(true, set1.intersects(set3));
     }
 }
