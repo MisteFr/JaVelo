@@ -20,6 +20,7 @@ public final class WebMercator {
      * @param lon longitude in radians
      * @return the x coordinate
      */
+
     public static double x(double lon) {
         return (1 / (2 * Math.PI)) * (lon + Math.PI);
     }

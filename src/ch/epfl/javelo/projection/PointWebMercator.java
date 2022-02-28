@@ -28,8 +28,6 @@ public record PointWebMercator(double x, double y) {
 
     /**
      * Construct a PointWebMercator with a desired zoom level.
-     * <p>
-     * TODO: negative values to second parameter of {@link Math#scalb(double, int)} ? (voir énoncé)
      *
      * @param zoomLevel zoom Level of the new Mercator point
      * @param x         x coordinate
@@ -38,7 +36,7 @@ public record PointWebMercator(double x, double y) {
      */
 
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, zoomLevel + 8), Math.scalb(y, zoomLevel + 8));
+        return new PointWebMercator(Math.scalb(x, - zoomLevel - 8), Math.scalb(y, - zoomLevel - 8));
     }
 
     /**
