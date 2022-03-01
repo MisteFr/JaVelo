@@ -2,8 +2,6 @@ package ch.epfl.javelo.projection;
 
 import ch.epfl.javelo.Preconditions;
 
-import java.awt.*;
-
 /**
  * PointWebMercator Class
  *
@@ -19,6 +17,8 @@ public record PointWebMercator(double x, double y) {
      *
      * @param x x coordinate
      * @param y y coordinate
+     *
+     * @throws IllegalArgumentException if coordinates are not between 0 and 1.
      */
 
     public PointWebMercator {

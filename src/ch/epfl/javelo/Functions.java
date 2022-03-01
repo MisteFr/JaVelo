@@ -28,7 +28,10 @@ public final class Functions {
      * @param samples samples that will serve as a basis for our function, must contain at least two elements.
      * @param xMax must be > 0
      * @return Proper Sampled function.
+     *
+     * @throws IllegalArgumentException if there is less than two elements in samples argument or if xMax is negative.
      */
+    
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         Preconditions.checkArgument((samples.length >= 2) && (xMax > 0));
         return new Sampled(samples, xMax);
@@ -46,10 +49,9 @@ public final class Functions {
     private static final record Constant(double y) implements DoubleUnaryOperator {
 
         /**
-         * TODO: Verifier assistant si la bonne valeur est retournée.
          * the constant function returns the value it was given at construction.
          * @param z is not used
-         * @return
+         * @return y value given at construction
          */
 
         @Override
@@ -116,7 +118,7 @@ public final class Functions {
             int upperBound = (int) Math.ceil(xOnUnitSteps);
 
             if (lowerBound != upperBound) {
-                return Math2.interpolate((double) samples[lowerBound], (double) samples[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
+                return Math2.interpolate(samples[lowerBound], samples[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
             } else {
                 return samples[(int) xOnUnitSteps];
             }

@@ -21,14 +21,15 @@ class Q28_4Test {
         assertEquals(0b00000001001111000110100000000000, Q28_4.ofInt((int)SwissBounds.MAX_N));
     }
 
-    //TODO: test sur le type de l'objet retourné.
     @Test
     void asDoubleTest(){
         assertEquals((double) 1, Q28_4.asDouble(0b00000000000000000000000000010000));
+        assertEquals((double) 0.25, Q28_4.asDouble(0b00000000000000000000000000000100));
     }
 
     @Test
     void asFloatTest(){
         assertEquals((float) 16, Q28_4.asFloat(0b00000000000000000000000100000000));
+        assertEquals((float) 0.25, Q28_4.asDouble(0b00000000000000000000000000000100));
     }
 }
