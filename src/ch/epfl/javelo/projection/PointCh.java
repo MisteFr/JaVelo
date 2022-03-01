@@ -1,6 +1,7 @@
 package ch.epfl.javelo.projection;
 
 import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.Preconditions;
 
 /**
  * PointCh Class
@@ -11,9 +12,7 @@ import ch.epfl.javelo.Math2;
 
 public record PointCh(double e, double n) {
     public PointCh {
-        if (!SwissBounds.containsEN(e, n)) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(SwissBounds.containsEN(e, n));
     }
 
     /**

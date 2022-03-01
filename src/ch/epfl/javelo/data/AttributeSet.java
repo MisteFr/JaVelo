@@ -62,12 +62,7 @@ public record AttributeSet(long bits) {
      */
 
     public boolean intersects(AttributeSet that) {
-        for (Attribute attr : Attribute.ALL) {
-            if (contains(attr) && that.contains(attr)) {
-                return true;
-            }
-        }
-        return false;
+        return (that.bits & bits) != 0;
     }
 
     /**
