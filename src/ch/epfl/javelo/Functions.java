@@ -19,6 +19,7 @@ public final class Functions {
      * @param y value of the constant
      * @return Proper Constant object
      */
+
     public static DoubleUnaryOperator constant(double y) {
         return new Constant(y);
     }
@@ -31,7 +32,7 @@ public final class Functions {
      *
      * @throws IllegalArgumentException if there is less than two elements in samples argument or if xMax is negative.
      */
-    
+
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         Preconditions.checkArgument((samples.length >= 2) && (xMax > 0));
         return new Sampled(samples, xMax);
