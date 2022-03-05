@@ -49,6 +49,7 @@ public record AttributeSet(long bits) {
      * @param attribute attribute to test
      * @return Boolean if the attribute is in AttributeSet or not
      */
+
     public boolean contains(Attribute attribute) {
         long maskPos = 1L << attribute.ordinal();
         return (bits & maskPos) == maskPos;
@@ -70,6 +71,7 @@ public record AttributeSet(long bits) {
      *
      * @return String Textual representation of the AttributeSet
      */
+
     @Override
     public String toString() {
         StringJoiner j = new StringJoiner(",", "{", "}");
