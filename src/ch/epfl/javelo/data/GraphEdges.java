@@ -99,7 +99,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public double length(int edgeId) {
-        return Q28_4.asDouble(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_LENGTH));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_LENGTH)));
     }
 
     /**
@@ -111,7 +111,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public double elevationGain(int edgeId) {
-        return Q28_4.asDouble(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_ALTITUDE_DIFFERENCE));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_ALTITUDE_DIFFERENCE)));
     }
 
     /**
@@ -148,7 +148,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             case 1:
                 //data isn't compressed
                 for (int i = 0; i < samplesNumber; i++) {
-                    data[i] = Q28_4.asFloat(elevations().get(indexFirstSample + i));
+                    data[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample + i)));
                 }
                 break;
 
@@ -218,6 +218,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public int attributesIndex(int edgeId) {
-        return edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_IDENTITY_ATTRIBUTE_SET);
+        return Short.toUnsignedInt(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_IDENTITY_ATTRIBUTE_SET));
     }
 }

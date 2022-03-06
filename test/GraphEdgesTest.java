@@ -147,6 +147,7 @@ public class GraphEdgesTest {
         edgesBuffer.putShort(34, (short) 0x180C);
         edgesBuffer.putShort(44, (short) 28);
         edgesBuffer.putShort(54, (short) 40);
+        //we shouldn't expect a negative length, will be interpreted as an unsigned short
         edgesBuffer.putShort(64, (short) -2);
 
         IntBuffer profileIds = IntBuffer.wrap(new int[]{
@@ -169,7 +170,7 @@ public class GraphEdgesTest {
         assertEquals(Q28_4.asFloat(28), edges.length(4));
         assertEquals(Q28_4.asFloat(40), edges.length(5));
         //should never happen but it works
-        assertEquals(Q28_4.asFloat(-2), edges.length(6));
+        assertEquals(Q28_4.asFloat(Short.toUnsignedInt((short) -2)), edges.length(6));
     }
 
     @Test
@@ -185,6 +186,7 @@ public class GraphEdgesTest {
         edgesBuffer.putShort(8, (short) 2022);
 
         edgesBuffer.putShort(16, (short) 0);
+        //-2 will be interpreted as unsigned short so we shouldn't expect a negative elevation
         edgesBuffer.putShort(26, (short) -2);
         edgesBuffer.putShort(36, (short) 30);
         edgesBuffer.putShort(46, (short) 100);
@@ -205,7 +207,7 @@ public class GraphEdgesTest {
 
         assertEquals(16.0, edges.elevationGain(0));
         assertEquals(0, edges.elevationGain(1));
-        assertEquals(Q28_4.asFloat(-2), edges.elevationGain(2));
+        assertEquals(Q28_4.asFloat(Short.toUnsignedInt((short) -2)), edges.elevationGain(2));
         assertEquals(Q28_4.asFloat(30), edges.elevationGain(3));
         assertEquals(Q28_4.asFloat(100), edges.elevationGain(4));
         assertEquals(Q28_4.asFloat(1), edges.elevationGain(5));
@@ -258,6 +260,7 @@ public class GraphEdgesTest {
         edgesBuffer.putShort(18, (short) 100);
         edgesBuffer.putShort(28, (short) 1);
         edgesBuffer.putShort(38, (short) 0);
+        //we shouldn't expect a negative attribute index, will be interpreted as an unsigned short
         edgesBuffer.putShort(48, (short) -2);
         edgesBuffer.putShort(58, (short) 10);
 
@@ -279,7 +282,7 @@ public class GraphEdgesTest {
         assertEquals(100, edges.attributesIndex(1));
         assertEquals(1, edges.attributesIndex(2));
         assertEquals(0, edges.attributesIndex(3));
-        assertEquals(-2, edges.attributesIndex(4));
+        assertEquals(Short.toUnsignedInt((short) -2), edges.attributesIndex(4));
         assertEquals(10, edges.attributesIndex(5));
     }
 
