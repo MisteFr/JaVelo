@@ -123,29 +123,28 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public boolean hasProfile(int edgeId) {
-        int profileValue = Bits.extractUnsigned(profileIds.get(edgeId), 30, 2);
-        return (profileValue == 1) || (profileValue == 2) || (profileValue == 3);
+        return Bits.extractUnsigned(profileIds.get(edgeId), 30, 2) > 0;
     }
 
     /**
      * Return the profile sample of the edge of identity 'edgeId'
      *
      * @param edgeId identity of the edge
-     * @return float[] the profileSample of the edge of identity 'edgeId'
+     * @return float[] the profileSample of the edge of identity 'edgeId', empty float[] if profileType == 0.
      */
 
     public float[] profileSamples(int edgeId) {
-        int profilType = Bits.extractUnsigned(profileIds.get(edgeId), OFFSET_TYPE_PROFILE, LENGTH_TYPE_PROFILE);
+        int profileType = Bits.extractUnsigned(profileIds.get(edgeId), OFFSET_TYPE_PROFILE, LENGTH_TYPE_PROFILE);
         int indexFirstSample = Bits.extractUnsigned(profileIds.get(edgeId), OFFSET_IDENTITY_FIRST_SAMPLE, LENGTH_IDENTITY_FIRST_SAMPLE);
         int samplesNumber = 1 + Math2.ceilDiv((int) Math.ceil(length(edgeId)), 2);
 
-        if (profilType == 0) {
+        if (profileType == 0) {
             return new float[]{};
         }
 
         float[] data = new float[samplesNumber];
 
-        switch (profilType) {
+        switch (profileType) {
             case 1:
                 //data isn't compressed
                 for (int i = 0; i < samplesNumber; i++) {
