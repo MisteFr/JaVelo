@@ -136,7 +136,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     public float[] profileSamples(int edgeId) {
         int profileType = Bits.extractUnsigned(profileIds.get(edgeId), OFFSET_TYPE_PROFILE, LENGTH_TYPE_PROFILE);
         int indexFirstSample = Bits.extractUnsigned(profileIds.get(edgeId), OFFSET_IDENTITY_FIRST_SAMPLE, LENGTH_IDENTITY_FIRST_SAMPLE);
-        int samplesNumber = 1 + Math2.ceilDiv((int) Math.ceil(length(edgeId)), 2);
+        int samplesNumber = 1 + Math2.ceilDiv(Short.toUnsignedInt(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_LENGTH)), Q28_4.ofInt(2));
+
 
         if (profileType == 0) {
             return new float[]{};
