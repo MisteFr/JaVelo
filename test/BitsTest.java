@@ -7,6 +7,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BitsTest {
 
     @Test
+    void bitsExtractThrowsWithInvalidLength() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            Bits.extractUnsigned(0, 10, -1);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Bits.extractUnsigned(0, 0, Integer.SIZE);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Bits.extractSigned(0, 10, -1);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Bits.extractSigned(0, 0, Integer.SIZE + 1);
+        });
+    }
+
+    @Test
     void testRangeUnsignedFunction() {
         //out of range as start+length > 31
         assertThrows(IllegalArgumentException.class, () -> {
