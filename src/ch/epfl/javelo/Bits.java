@@ -40,7 +40,7 @@ public final class Bits {
      * @return the unsigned value extracted
      */
     public static int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 31 || length < 0));
+        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0 || length > 31 ));
         //left arithmetic shift
         int leftArithmeticShifted = value << (32 - (start + length));
         //right logical shift
