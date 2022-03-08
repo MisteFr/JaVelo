@@ -17,11 +17,9 @@ public record GraphSectors(ByteBuffer buffer) {
     public record Sector(int startNodeId, int endNodeId) {}
 
 
-    // TODO: Premier problème, et si un de mes deux points est au dessus ou en dessous des valeurs possibles ?
-    //  Facile à patch, je mets une condition sur la donnée avec un ternary operator pour aller plus vite.
+    //TODO que se passe-t-il si un des bytes a son bit de poids fort à 1 ? Pas possible ?
 
-    //TODO que se passe-t-il si un des bytes a son bit de poids fort à 1 ?
-
+    //TODO: Utiliser Width de Swissbounds !! Pour faire plus propre, par exemple Width / 128
 
     public List<Sector> sectorsInArea(PointCh center, double distance) {
 
