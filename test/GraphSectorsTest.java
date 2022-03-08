@@ -1,3 +1,4 @@
+import ch.epfl.javelo.data.GraphNodes;
 import ch.epfl.javelo.data.GraphSectors;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
@@ -125,5 +126,25 @@ class GraphSectorsTest {
         assertThrows(AssertionError.class, () -> {
             gs.sectorsInArea(new PointCh(SwissBounds.MIN_E,SwissBounds.MIN_N),-1);
         });
+    }
+
+    @Test
+    public void sectorsInAreaAdvancedTest(){
+        byte[] tab = new byte[98304];
+        tab[49536] = 0b01111111;
+        /*
+        for (int i = 0; i < 98304; ++i){
+        }*/
+        GraphSectors gs = new GraphSectors(ByteBuffer.wrap(tab));
+
+
+        int j = 0;
+        for(GraphSectors.Sector o :  gs.sectorsInArea(new PointCh(SwissBounds.MIN_E + 126*(2.7265625 * 1000),
+                SwissBounds.MIN_N + 126*(1.7265625 * 1000)), 600)){
+            System.out.println(o);
+            j += 1;
+        }
+        System.out.println(j);
+
     }
 }
