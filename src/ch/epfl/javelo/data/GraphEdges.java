@@ -155,7 +155,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
             case 2:
                 //data is compressed (8 bits Q4.4)
-                data[0] = Q28_4.asFloat(elevations().get(indexFirstSample));
+                data[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample)));
 
                 //We know we have x samplesNumber samples across 16 + (samplesNumber - 1) * 8 bits.
                 //We want to stay 2 iterations in a row on the same portion of 16 bits and counter allows to switch from one portion of 16 bits to another when we are at 2 iterations
@@ -174,7 +174,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
             case 3:
                 //data is compressed (4 bits Q4.4)
-                data[0] = Q28_4.asFloat(elevations().get(indexFirstSample));
+                data[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample)));
 
                 //We know we have x samplesNumber samples across 16 + (samplesNumber - 1) * 4 bits.
                 //We want to stay 4 iterations in a row on the same portion of 16 bits and counter allows to switch from one portion of 16 bits to another when we are at 4 iterations

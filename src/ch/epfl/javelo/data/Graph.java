@@ -7,6 +7,7 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class Graph {
@@ -16,10 +17,10 @@ public final class Graph {
     }
 
     static Graph loadFrom(Path basePath) throws IOException {
-        Path basePath = Path.of("lausanne");
+        Path basePathFile = Path.of("lausanne");
 
         //initialize nodes
-        Path filePathNodes = basePath.resolve("nodes.bin");
+        Path filePathNodes = basePathFile.resolve("nodes.bin");
         IntBuffer nodesBuffer;
         try (FileChannel channel = FileChannel.open(filePathNodes)) {
             nodesBuffer = channel
@@ -28,7 +29,7 @@ public final class Graph {
         }
 
         //initialize GraphEdge - edges
-        Path filePathEdges = basePath.resolve("edges.bin");
+        Path filePathEdges = basePathFile.resolve("edges.bin");
         ByteBuffer edgesBuffer;
         try (FileChannel channel = FileChannel.open(filePathEdges)) {
             edgesBuffer = channel
@@ -37,7 +38,7 @@ public final class Graph {
         }
 
         //initialize GraphEdge - profiles
-        Path filePathProfiles = basePath.resolve("profiles_ids.bin");
+        Path filePathProfiles = basePathFile.resolve("profiles_ids.bin");
         IntBuffer profilesBuffer;
         try (FileChannel channel = FileChannel.open(filePathProfiles)) {
             profilesBuffer = channel
@@ -46,7 +47,7 @@ public final class Graph {
         }
 
         //initialize GraphEdge - elevations
-        Path filePathElevations = basePath.resolve("elevations.bin");
+        Path filePathElevations = basePathFile.resolve("elevations.bin");
         ShortBuffer elevationsBuffer;
         try (FileChannel channel = FileChannel.open(filePathElevations)) {
             elevationsBuffer = channel
@@ -55,7 +56,7 @@ public final class Graph {
         }
 
         //initialize sectors
-        Path filePathSectors = basePath.resolve("sectors.bin");
+        Path filePathSectors = basePathFile.resolve("sectors.bin");
         ByteBuffer sectorsBuffer;
         try (FileChannel channel = FileChannel.open(filePathElevations)) {
             sectorsBuffer = channel
@@ -64,7 +65,7 @@ public final class Graph {
         }
 
         //initialize attributes
-        Path filePathAttributes = basePath.resolve("attributes.bin");
+        Path filePathAttributes = basePathFile.resolve("attributes.bin");
         LongBuffer sectorsAttributes;
         try (FileChannel channel = FileChannel.open(filePathElevations)) {
             sectorsAttributes = channel
@@ -74,6 +75,6 @@ public final class Graph {
 
         }
 
-        return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer, profilesBuffer, elevationsBuffer));
+        return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer, profilesBuffer, elevationsBuffer), new ArrayList<>());
     }
 }
