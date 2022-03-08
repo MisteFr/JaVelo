@@ -37,6 +37,7 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     //TODO: Verify if interpretation of int in Q28.4 format is correct in nodeE and nodeN methods.
+    // To align myself with the tests that they gave me, I considered that the data was stored as Q28.4 and that I needed to translate the byte string into a double value.
 
     /**
      * Gets E coordinate of nodeId node in buffer IntBuffer.
@@ -46,7 +47,7 @@ public record GraphNodes(IntBuffer buffer) {
      */
 
     public double nodeE(int nodeId) {
-        return Q28_4.ofInt(buffer.get(nodeId * NODE_INTS + OFFSET_E));
+        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_E));
     }
 
     /**
@@ -57,7 +58,7 @@ public record GraphNodes(IntBuffer buffer) {
      */
 
     public double nodeN(int nodeId) {
-        return Q28_4.ofInt(buffer.get(nodeId * NODE_INTS + OFFSET_N));
+        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_N));
     }
 
     /**
@@ -73,7 +74,6 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     /**
-     * TODO: Verify if the identity of an edge is its index in the table indexing all the edges.
      * Returns the int identity of the edgeIndex edge. The identity of the edge is its index in the buffer that lists
      * all the edges. We can compute this index by adding (the index of the first out edge of the nodeId node stored in
      * the 28 LSB of the third value associated with the nodeId node) and (the edgeIndex index).
