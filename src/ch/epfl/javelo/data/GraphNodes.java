@@ -36,8 +36,6 @@ public record GraphNodes(IntBuffer buffer) {
         return buffer.capacity() / NODE_INTS;
     }
 
-    //TODO: Verify if interpretation of int in Q28.4 format is correct in nodeE and nodeN methods.
-    // To align myself with the tests that they gave me, I considered that the data was stored as Q28.4 and that I needed to translate the byte string into a double value.
 
     /**
      * Gets E coordinate of nodeId node in buffer IntBuffer.
@@ -62,7 +60,6 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     /**
-     * TODO: Verify if I am taking the 4 good bits
      * Gets number of out edges of nodeId node in buffer IntBuffer, stored in the 4 MSB of the third int of the nodeId node.
      *
      * @param nodeId starts at 0

@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 
@@ -31,8 +32,6 @@ public record GraphSectors(ByteBuffer buffer) {
 
     //TODO que se passe-t-il si un des bytes a son bit de poids fort à 1 ? Normalement ce n'est pas possible ?
 
-    //TODO: Utiliser Width de Swissbounds !! Pour faire plus propre, par exemple Width / 128
-
     /**
      *
      * @param center PointCh parameter that corresponds to the center of the drawn square
@@ -46,30 +45,32 @@ public record GraphSectors(ByteBuffer buffer) {
         int nSecteursParDimension = 3;
         ArrayList<Sector> result = new ArrayList<>();
 
-        int bottomEIndex = (int) (((center.e() - distance) - SwissBounds.MIN_E) / (SwissBounds.WIDTH / SECTORS_ON_AXIS));
-        bottomEIndex = (bottomEIndex < 0) ? 0 : bottomEIndex;
-        int bottomNIndex = (int) (((center.n() - distance) - SwissBounds.MIN_N) / (SwissBounds.HEIGHT / SECTORS_ON_AXIS));
-        bottomNIndex = (bottomNIndex < 0) ? 0 : bottomNIndex;
-        // I have the (bottomEIndex, bottomNIndex) sector, I need to find its index in the buffer.
+        int bottomEIndex = Math2.clamp(0,
+                (int) (((center.e() - distance) - SwissBounds.MIN_E) / (SwissBounds.WIDTH / SECTORS_ON_AXIS)), 127);
 
-        int topEIndex = (int) (((center.e() + distance) - SwissBounds.MIN_E) / (SwissBounds.WIDTH / SECTORS_ON_AXIS));
-        topEIndex = (topEIndex > 127) ? 127: topEIndex;
-        int topNIndex = (int) (((center.n() + distance) - SwissBounds.MIN_N) / (SwissBounds.HEIGHT / SECTORS_ON_AXIS));
-        topNIndex = (topNIndex > 127) ? 127: topNIndex;
-        // I have the (topEIndex, topNIndex) sector, I need to find its index in the buffer.
+        int bottomNIndex = Math2.clamp(0,
+                (int) (((center.n() - distance) - SwissBounds.MIN_N) / (SwissBounds.HEIGHT / SECTORS_ON_AXIS)), 127);
+        // We have the (bottomEIndex, bottomNIndex) sector, that corresponds to the sector included in the bottom left of the square.
 
-        // This is what I do now.
+        int topEIndex = Math2.clamp(0,
+                (int) (((center.e() + distance) - SwissBounds.MIN_E) / (SwissBounds.WIDTH / SECTORS_ON_AXIS)), 127);
+
+        int topNIndex = Math2.clamp(0,
+                (int) (((center.n() + distance) - SwissBounds.MIN_N) / (SwissBounds.HEIGHT / SECTORS_ON_AXIS)), 127);
+        // We have the (topEIndex, topNIndex) sector, that corresponds to the sector included in the top right of the square.
+
+
         int index;
         int indexBytes;
         int identityOfFirstNode;
         int identityOfLastNode;
 
-        //We loop through the appropriate sectors (borders of our scope was defined earlier in the method) to add them to the result ArrayList.
+        //We loop through the appropriate sectors (the borders of our scope were defined earlier in the method) to add them to the result ArrayList.
         for (int i = bottomNIndex; i <= topNIndex; i++) { //TODO : vérifier inégalités strictes.
             for (int j = bottomEIndex; j <= topEIndex; j++) {
 
                 index = 128 * i + j;
-                indexBytes = index * SECTOR_BYTES;
+                indexBytes = index * SECTOR_BYTES; // We can translate the two-dimensional array of the coordinates of a sector in our grid to an index in the one-dimensional buffer attribute.
                 identityOfFirstNode = buffer.getInt(indexBytes);
                 identityOfLastNode = identityOfFirstNode + Short.toUnsignedInt(buffer.getShort(indexBytes + OFFSET_NB));
 
