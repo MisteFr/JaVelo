@@ -30,19 +30,15 @@ public record GraphSectors(ByteBuffer buffer) {
     public record Sector(int startNodeId, int endNodeId) {}
 
 
-    //TODO que se passe-t-il si un des bytes a son bit de poids fort à 1 ? Normalement ce n'est pas possible ?
-
     /**
-     *
+     * Models a two-dimensional grid of sectors and iterates through the sectors in the scope of the square to add them
+     * to the returned List<Sector>. See comments in the method for more insights.
      * @param center PointCh parameter that corresponds to the center of the drawn square
      * @param distance The distance of the middle of each side of the square from the center PointCh parameter.
      * @return A list of the Sectors that are, even partly, in the scope of the square.
      */
     public List<Sector> sectorsInArea(PointCh center, double distance) {
 
-        assert distance >= 0; // TODO: Est ce attendu ?
-
-        int nSecteursParDimension = 3;
         ArrayList<Sector> result = new ArrayList<>();
 
         int bottomEIndex = Math2.clamp(0,
@@ -66,7 +62,7 @@ public record GraphSectors(ByteBuffer buffer) {
         int identityOfLastNode;
 
         //We loop through the appropriate sectors (the borders of our scope were defined earlier in the method) to add them to the result ArrayList.
-        for (int i = bottomNIndex; i <= topNIndex; i++) { //TODO : vérifier inégalités strictes.
+        for (int i = bottomNIndex; i <= topNIndex; i++) {
             for (int j = bottomEIndex; j <= topEIndex; j++) {
 
                 index = 128 * i + j;

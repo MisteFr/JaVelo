@@ -44,7 +44,7 @@ public final class Graph {
     }
 
     /**
-     * @param basePath path where is stored data files
+     * @param basePath path where are stored data files
      * @return Graph instance
      * @throws IOException if something went wrong while loading data from resources
      */
