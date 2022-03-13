@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 
 /**
- * Graph class
+ * ElevationProfile class
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -36,6 +36,7 @@ public class ElevationProfile {
      * @param length The length of the edge.
      * @param elevationSamples The array containing the samples of raw elevation (not compressed)
      */
+
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument((length > 0) && (elevationSamples.length >= 2));
         LENGTH = length;
@@ -71,25 +72,59 @@ public class ElevationProfile {
         FUNC = Functions.sampled(elevationSamples, length);
     }
 
+    /**
+     * Returns the length of the edge given at construction
+     * @return double length
+     */
+
     public double length(){
         return LENGTH;
     }
+
+    /**
+     * returns the minimum elevation of the elevation samples in the float array given at construction
+     * @return double MIN_ELEVATION
+     */
 
     public double minElevation(){
         return MIN_ELEVATION;
     }
 
+    /**
+     * returns the maximum elevation of the elevation samples in the float array given at construction
+     * @return double MAX_ELEVATION
+     */
+
     public double maxElevation(){
         return MAX_ELEVATION;
     }
+
+    /**
+     * returns the sum of the positive differences between each pair of consecutive samples in the float array given at construction.
+     * @return double TOTAL_ASCENT
+     */
 
     public double totalAscent(){
         return TOTAL_ASCENT;
     }
 
+    /**
+     * returns the absolute value of the sum of the negative differences between each pair of consecutive samples in the float array given at construction.
+     * @return double TOTAL_ASCENT
+     */
+
     public double totalDescent(){
         return TOTAL_DESCENT;
     }
+
+    /**
+     * Returns the height approximated by the sampled FUNC function initialized at construction for x = position.
+     * The function is explicitly defined from 0 to LENGTH but x can take any double value.
+     * If x < 0, the value of the first sample is returned.
+     * If x > LENGTH, the value of the last sample is returned.
+     * @param position x value that will be given to the FUNC function.
+     * @return double y = FUNC(x)
+     */
 
     public double elevationAt(double position){
         return FUNC.applyAsDouble(position);

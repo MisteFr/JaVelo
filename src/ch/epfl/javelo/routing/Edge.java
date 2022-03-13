@@ -7,10 +7,10 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.function.DoubleUnaryOperator;
 
 
-//TODO: pourquoi est ce que le profil en long de l'arêt est de type DoubleUnaryOperator et pas ElevationProfile alors qu'on a spécifiquement défini ça ?
+//TODO: pourquoi est ce que le profil en long de l'arête est de type DoubleUnaryOperator et pas ElevationProfile alors qu'on a spécifiquement défini ça ?
 
 /**
- * Graph class
+ * Edge class
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -20,12 +20,13 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
 
     /**
      * Creates an Edge objet using a Graph object.
-     * @param graph
-     * @param edgeId
-     * @param fromNodeId
-     * @param toNodeId
-     * @return
+     * @param graph The Graph object to which the Edge belongs
+     * @param edgeId the ID of the edge.
+     * @param fromNodeId ID of the first node of the edge
+     * @param toNodeId ID of the last node of the edge
+     * @return new Edge object constructed according to the arguments.
      */
+
     //TODO relire, fait à la va vite.
     public static Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId){
         return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId), graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
@@ -37,6 +38,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param point The pointCh to project on this edge.
      * @return the position on the edge, ranging from 0 to the length of the edge, on which the point parameter is projected.
      */
+
     public double positionClosestTo(PointCh point){
         return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(), toPoint.n(), point.e(), point.n());
     }
@@ -47,7 +49,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param position in meters on the edge of the searched PointCh
      * @return
      */
-    //TODO: Verify if it works fine with fromPoint beeing higher and more on the right than toPoint. (negative values for deltas)
+
+    //TODO: Verify if it works fine with fromPoint being higher and more on the right than toPoint. (negative values for deltas)
     public PointCh pointAt(double position){
         double proportions = position / length;
         double deltaE = toPoint.e() - fromPoint.e();
@@ -58,10 +61,11 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     }
 
     /**
-     * Returns the height on the edge at a given position (TODO ranging from 0 to length ?)
+     * Returns the height on the edge at a given position (TODO ranging from 0 to length ? Pas tellement, x peut prendre n'importe quelle valeur via profile. Je devrais faire une vérification supplémentaire ? Je ne pense pas.)
      * @param position
      * @return
      */
+
     public double elevationAt(double position){
         return profile.applyAsDouble(position);
     }
