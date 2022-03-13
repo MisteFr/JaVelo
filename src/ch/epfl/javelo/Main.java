@@ -1,10 +1,6 @@
 package ch.epfl.javelo;
 
-import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.projection.PointCh;
-
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
@@ -20,8 +16,9 @@ public class Main {
             osmIdBuffer = channel
                     .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                     .asLongBuffer();
+            //on va avoir l'identité OSM du noeud d'identité (index) 2022 dans JaVelo
             System.out.println(osmIdBuffer.get(2022));
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println(e);
         }
     }

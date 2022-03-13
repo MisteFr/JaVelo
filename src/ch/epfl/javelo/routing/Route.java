@@ -16,6 +16,7 @@ public interface Route {
 
     /**
      * Returns the index of the segment at the given position parameter
+     *
      * @param position double
      * @return int index of the segment at the given position parameter
      */
@@ -24,6 +25,7 @@ public interface Route {
 
     /**
      * Returns the length of the Route in meters
+     *
      * @return the length of the Route in meters
      */
 
@@ -31,6 +33,7 @@ public interface Route {
 
     /**
      * Returns all the Edges of the Route.
+     *
      * @return List<Edge> a list of the edges that make up the path
      */
 
@@ -38,6 +41,7 @@ public interface Route {
 
     /**
      * Returns all the points that are on an extremity of an edge that belongs to the Route.
+     *
      * @return A List<PointCh> of those points
      */
 
@@ -45,6 +49,7 @@ public interface Route {
 
     /**
      * Returns the point that is located at the (position param) position on the Route.
+     *
      * @param position the position of the point.
      * @return PointCh object that is located at the (position param) position on the Route.
      */
@@ -53,6 +58,7 @@ public interface Route {
 
     /**
      * Returns the identity of the node belonging to the Route that is the closest to the position param in the track.
+     *
      * @param position the position of the reference to approach.
      * @return int id of the node belonging to the Route that is the closest to the position param in the track.
      */
@@ -61,6 +67,7 @@ public interface Route {
 
     /**
      * Returns the RoutePoint closest to the point PointCh argument
+     *
      * @param point the PointCh object of reference
      * @return RoutePoint object that is the closest to the point PointCh argument
      */
