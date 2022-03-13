@@ -47,7 +47,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * We can find the coordinates of the point at the position param on this edge by adding to the fromPoint
      * coordinates (position / Edge's length) times the vector that links the fromPoint to the toPoint.
      * @param position in meters on the edge of the searched PointCh
-     * @return
+     * @return pointCh at the position param on this edge. If it is not on the edge, it is on the straight line that extends the edge.
      */
 
     //TODO: Verify if it works fine with fromPoint being higher and more on the right than toPoint. (negative values for deltas)

@@ -18,8 +18,7 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     public static final RoutePoint NONE = new RoutePoint(null, Double.NaN, Double.POSITIVE_INFINITY);
 
     //TODO verify if I'm doing this correctly (numerous abstract concepts, what would be the behaviour of this NONE RoutePoint ?)
-
-    //TODO: Vérifier que j'utilise bien NONE ? Personne d'autre ne l'a utilisé...
+    //TODO: Vérifier que j'utilise bien NONE ? Mais personne d'autre ne l'a utilisé...
 
     /**
      * Returns a new RoutePoint that has the same reference and position but is located with

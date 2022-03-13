@@ -32,7 +32,7 @@ public class ElevationProfile {
     //TODO Pas de problème de conversion float (le tableau en param) double (le retour) ?
     //TODO: Vérifier qu'elevation samples n'est pas compressé.
     /**
-     * Constructor for ElevationProfile, initializes all the fields seen above.
+     * Constructor for ElevationProfile, initializes all of the final fields of the instance.
      * @param length The length of the edge.
      * @param elevationSamples The array containing the samples of raw elevation (not compressed)
      */
@@ -49,14 +49,17 @@ public class ElevationProfile {
         for (int i = 0; i < elevationSamples.length; ++i) {
             s.accept(elevationSamples[i]); // I initialize the DoubleSummaryStatistics with all the values of the array.
 
-            if(i < elevationSamples.length - 2){ // For as long as I can take the elements i and i + 1 from elevationSamples...
-                diff = elevationSamples[i] - elevationSamples[i+1];
+            if(i < elevationSamples.length - 1){ // For as long as I can take the elements i and i + 1 from elevationSamples...
+                diff = (double)elevationSamples[i+1] - (double)elevationSamples[i];
                 //... I verify if there is a descent or an ascent between those two elements of the array and increment the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
                 if (diff > 0){
                     tempTotalAscent += diff;
                 }else{
                     tempTotalDescent -= diff;
                 }
+                System.out.println("The elements that diff computes : " + elevationSamples[i] + " and " + elevationSamples[i + 1]);
+                System.out.println("The value of diff : " + diff +", tempTotalAscent: "+ tempTotalAscent + ", tempTotalDescent: " + tempTotalDescent);
+                System.out.println("#################");
             }
 
         }
