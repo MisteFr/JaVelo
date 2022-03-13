@@ -36,7 +36,7 @@ public final class Graph {
      * @param edges         GraphEdges
      * @param attributeSets List<AttributeSet>
      */
-    Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
+    public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
         NODES = nodes;
         SECTORS = sectors;
         EDGES = edges;

@@ -8,7 +8,6 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 
 
-
 /**
  * ElevationProfile class
  *
@@ -31,13 +30,15 @@ public class ElevationProfile {
 
     //TODO Pas de problème de conversion float (le tableau en param) double (le retour) ?
     //TODO: Vérifier qu'elevation samples n'est pas compressé.
+
     /**
      * Constructor for ElevationProfile, initializes all the fields seen above.
-     * @param length The length of the edge.
+     *
+     * @param length           The length of the edge.
      * @param elevationSamples The array containing the samples of raw elevation (not compressed)
      */
 
-    public ElevationProfile(double length, float[] elevationSamples){
+    public ElevationProfile(double length, float[] elevationSamples) {
         Preconditions.checkArgument((length > 0) && (elevationSamples.length >= 2));
         LENGTH = length;
 
@@ -49,12 +50,12 @@ public class ElevationProfile {
         for (int i = 0; i < elevationSamples.length; ++i) {
             s.accept(elevationSamples[i]); // I initialize the DoubleSummaryStatistics with all the values of the array.
 
-            if(i < elevationSamples.length - 2){ // For as long as I can take the elements i and i + 1 from elevationSamples...
-                diff = elevationSamples[i] - elevationSamples[i+1];
+            if (i < elevationSamples.length - 2) { // For as long as I can take the elements i and i + 1 from elevationSamples...
+                diff = elevationSamples[i] - elevationSamples[i + 1];
                 //... I verify if there is a descent or an ascent between those two elements of the array and increment the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
-                if (diff > 0){
+                if (diff > 0) {
                     tempTotalAscent += diff;
-                }else{
+                } else {
                     tempTotalDescent -= diff;
                 }
             }
@@ -74,46 +75,51 @@ public class ElevationProfile {
 
     /**
      * Returns the length of the edge given at construction
+     *
      * @return double length
      */
 
-    public double length(){
+    public double length() {
         return LENGTH;
     }
 
     /**
      * returns the minimum elevation of the elevation samples in the float array given at construction
+     *
      * @return double MIN_ELEVATION
      */
 
-    public double minElevation(){
+    public double minElevation() {
         return MIN_ELEVATION;
     }
 
     /**
      * returns the maximum elevation of the elevation samples in the float array given at construction
+     *
      * @return double MAX_ELEVATION
      */
 
-    public double maxElevation(){
+    public double maxElevation() {
         return MAX_ELEVATION;
     }
 
     /**
      * returns the sum of the positive differences between each pair of consecutive samples in the float array given at construction.
+     *
      * @return double TOTAL_ASCENT
      */
 
-    public double totalAscent(){
+    public double totalAscent() {
         return TOTAL_ASCENT;
     }
 
     /**
      * returns the absolute value of the sum of the negative differences between each pair of consecutive samples in the float array given at construction.
+     *
      * @return double TOTAL_ASCENT
      */
 
-    public double totalDescent(){
+    public double totalDescent() {
         return TOTAL_DESCENT;
     }
 
@@ -122,11 +128,12 @@ public class ElevationProfile {
      * The function is explicitly defined from 0 to LENGTH but x can take any double value.
      * If x < 0, the value of the first sample is returned.
      * If x > LENGTH, the value of the last sample is returned.
+     *
      * @param position x value that will be given to the FUNC function.
      * @return double y = FUNC(x)
      */
 
-    public double elevationAt(double position){
+    public double elevationAt(double position) {
         return FUNC.applyAsDouble(position);
     }
 }
