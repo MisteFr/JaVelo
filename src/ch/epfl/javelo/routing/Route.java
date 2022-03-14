@@ -57,6 +57,15 @@ public interface Route {
     abstract PointCh pointAt(double position);
 
     /**
+     * Returns the elevation at the given position on the Route.
+     *
+     * @param position the position on the Route.
+     * @return double the elevation at the given position.
+     */
+
+    abstract double elevationAt(double position);
+
+    /**
      * Returns the identity of the node belonging to the Route that is the closest to the position param in the track.
      *
      * @param position the position of the reference to approach.
