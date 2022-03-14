@@ -53,6 +53,7 @@ final class SignatureChecks_4 {
 
     void checkRoute() throws Exception {
         v19 = v18.edges();
+        v09 = v18.elevationAt(v09);
         v07 = v18.indexOfSegmentAt(v09);
         v09 = v18.length();
         v07 = v18.nodeClosestTo(v09);
