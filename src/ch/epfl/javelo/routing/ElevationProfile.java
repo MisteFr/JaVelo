@@ -43,8 +43,8 @@ public class ElevationProfile {
         LENGTH = length;
 
         DoubleSummaryStatistics s = new DoubleSummaryStatistics();
-        var tempTotalAscent = 0d;
-        var tempTotalDescent = 0d;
+        double tempTotalAscent = 0;
+        double tempTotalDescent = 0;
         double diff;
 
         for (int i = 0; i < elevationSamples.length; ++i) {
