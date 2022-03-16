@@ -3,11 +3,10 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.projection.SwissBounds;
 
 import java.util.function.DoubleUnaryOperator;
 
-
-//TODO: pourquoi est ce que le profil en long de l'arête est de type DoubleUnaryOperator et pas ElevationProfile alors qu'on a spécifiquement défini ça ?
 
 /**
  * Edge class, it represents an edge of an itinerary.
@@ -59,8 +58,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
         double proportions = position / length;
         double deltaE = toPoint.e() - fromPoint.e();
         double deltaN = toPoint.n() - fromPoint.n();
-        double e = fromPoint.e() + proportions * deltaE;
-        double n = fromPoint.n() + proportions * deltaN;
+        double e = Math2.clamp(SwissBounds.MIN_E, fromPoint.e() + proportions * deltaE, SwissBounds.MAX_E);
+        double n = Math2.clamp(SwissBounds.MIN_N, fromPoint.n() + proportions * deltaN,SwissBounds.MAX_N);
         return new PointCh(e, n);
     }
 

@@ -8,18 +8,6 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println(Bits.extractUnsigned(0b11110000000000000000000000000000, 28, 4));
-
-        Path filePath = Path.of("lausanne/nodes_osmid.bin");
-        LongBuffer osmIdBuffer;
-        try (FileChannel channel = FileChannel.open(filePath)) {
-            osmIdBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                    .asLongBuffer();
-            //on va avoir l'identité OSM du noeud d'identité (index) 2022 dans JaVelo
-            System.out.println(osmIdBuffer.get(2022));
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+        System.out.println(Math2.ceilDiv(3,2));
     }
 }
