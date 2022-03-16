@@ -101,8 +101,11 @@ public final class Graph {
                     .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                     .asLongBuffer();
 
+            int i = 0;
             while (sectorsAttributesBuffer.hasRemaining()) {
                 attributeSets.add(new AttributeSet(sectorsAttributesBuffer.get()));
+                //System.out.println(attributeSets.get(i));
+                i++;
             }
         }
 
@@ -161,7 +164,7 @@ public final class Graph {
         //we get all the sectors in the area
         List<GraphSectors.Sector> sectorsInArea = SECTORS.sectorsInArea(point, searchDistance);
 
-        double lowestDistance = Double.MAX_VALUE;
+        double lowestDistance = searchDistance > 0 ? Math.pow(searchDistance, 2) : 0;
         int nearestNodeId = -1;
 
         //we loop through all the nodes of every sector to find out which one is the nearest
@@ -205,7 +208,7 @@ public final class Graph {
      * @return AttributeSet
      */
     public AttributeSet edgeAttributes(int edgeId) {
-        return ATTRIBUTE_SETS.get(edgeId);
+        return ATTRIBUTE_SETS.get(EDGES.attributesIndex(edgeId));
     }
 
     /**
