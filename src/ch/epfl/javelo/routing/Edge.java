@@ -33,7 +33,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     }
 
     /**
-     * We use projectionLength from Math2, that returns the length of the projection of a vector AP on a vector AB. //TODO: verify if my comprehension of the method is right. (that is to say I identify A,B and P points to their right PointCh)
+     * We use projectionLength from Math2, that returns the length of the projection of a vector AP on a vector AB.
      * Here, A is the fromPoint PointCh, B is the toPoint PointCh, and P is the point argument PointCh.
      *
      * @param point The pointCh to project on this edge.
@@ -56,10 +56,11 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     }
 
     /**
-     * Returns the height on the edge at a given position (TODO ranging from 0 to length ? Pas tellement, x peut prendre n'importe quelle valeur via profile. Je devrais faire une vérification supplémentaire ? Je ne pense pas.)
+     * Returns the height on the edge at a given position.
+     * If position is negative, returns the first elevation. If position is
      *
-     * @param position
-     * @return
+     * @param position the position on the edge where we search for the elevation.
+     * @return double elevation at position param.
      */
 
     public double elevationAt(double position) {

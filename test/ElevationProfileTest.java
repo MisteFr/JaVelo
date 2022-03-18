@@ -27,7 +27,6 @@ class ElevationProfileTest {
         assertEquals(98, (new ElevationProfile(98, new float[4])).length());
     }
 
-    //TODO correct approximation problem with diff, conversion float double. Apart from that, works well.
     @Test
     public void totalAscentAndDescentTests(){
         float[] s = {380, 381.5F, 379, 378, 382, 382.1F, 383.7F, 381}; // pretty realistic sample
@@ -36,8 +35,6 @@ class ElevationProfileTest {
     }
 
 
-    //TODO same problem with approximations. Arthur a certainement réglé ça par le passé. Je sais que je peux rajouter un delta pour les comparaisons,
-    //TODO mais il doit y avoir moyen d'avoir la bonne valeur exactement comme on l'attend à la fin plutôt que de rendre le testing plus permissif.
     @Test
     public void minAndMaxElevationTests(){
         float[] s = {380, 381.5F, 379, 378.01F, 382, 382.1F, 383.7F, 381};

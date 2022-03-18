@@ -17,7 +17,7 @@ class RoutePointTest {
 
     @Test
     public void minTest(){
-        PointCh p = new PointCh(SwissBounds.MIN_E + 1000, SwissBounds.MIN_N + 1000); //  TODO it even works with negative distances to reference...
+        PointCh p = new PointCh(SwissBounds.MIN_E + 1000, SwissBounds.MIN_N + 1000);
         RoutePoint r0 = new RoutePoint(p, 900, -100);
         RoutePoint r1 = new RoutePoint(p, 900, 100);
         RoutePoint r2 = new RoutePoint(p, 900, 200);

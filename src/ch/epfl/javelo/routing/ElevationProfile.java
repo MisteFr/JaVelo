@@ -28,9 +28,6 @@ public class ElevationProfile {
     private final DoubleUnaryOperator FUNC;
 
 
-    //TODO Pas de problème de conversion float (le tableau en param) double (le retour) ?
-    //TODO: Vérifier qu'elevation samples n'est pas compressé.
-
     /**
      * Constructor for ElevationProfile, initializes all the fields seen above.
      *

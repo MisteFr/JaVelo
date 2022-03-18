@@ -104,7 +104,7 @@ public class GraphEdgesTest1 {
         edgesBuffer.putShort(8, (short) 2022);
         GraphEdges edges =
                 new GraphEdges(edgesBuffer, profileIds, elevations);
-        //assertEquals(2,edges.typeOfProfile(0)); TODO: typeOfProfile ?
+        //assertEquals(2,edges.typeOfProfile(0)); 
     }
 
     @Test
@@ -142,7 +142,7 @@ public class GraphEdgesTest1 {
                 384.125f, 384.25f, 384.3125f, 384.375f,
                 384.4375f, 384.5f, 384.5625f, 384.6875f, 384.75f
         };
-        //float[] type3Array = GraphEdges.inverse(type3InvertedArray.clone()); //TODO inverse() ?
+        //float[] type3Array = GraphEdges.inverse(type3InvertedArray.clone());
         float[] type2Array = new float[]{
                 384.75f, 385.875f, 387f
         }; //0x0180 - 0x1212
