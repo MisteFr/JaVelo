@@ -28,7 +28,6 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return new Edge object constructed according to the arguments.
      */
 
-    //TODO relire, fait à la va vite.
     public static Edge of(Graph graph, int edgeId, int fromNodeId, int toNodeId) {
         return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId), graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
     }
@@ -40,7 +39,6 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param point The pointCh to project on this edge.
      * @return the position on the edge, ranging from 0 to the length of the edge, on which the point parameter is projected.
      */
-
     public double positionClosestTo(PointCh point) {
         return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(), toPoint.n(), point.e(), point.n());
     }
@@ -53,14 +51,8 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return pointCh at the position param on this edge. If it is not on the edge, it is on the straight line that extends the edge.
      */
 
-    //TODO: Verify if it works fine with fromPoint being higher and more on the right than toPoint. (negative values for deltas)
     public PointCh pointAt(double position) {
-        double proportions = position / length;
-        double deltaE = toPoint.e() - fromPoint.e();
-        double deltaN = toPoint.n() - fromPoint.n();
-        double e = Math2.clamp(SwissBounds.MIN_E, fromPoint.e() + proportions * deltaE, SwissBounds.MAX_E);
-        double n = Math2.clamp(SwissBounds.MIN_N, fromPoint.n() + proportions * deltaN,SwissBounds.MAX_N);
-        return new PointCh(e, n);
+        return new PointCh(Math2.interpolate(fromPoint.e(), toPoint.e(), position/length), Math2.interpolate(fromPoint.n(), toPoint.n(), position/length));
     }
 
     /**

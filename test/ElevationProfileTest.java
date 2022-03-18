@@ -42,7 +42,7 @@ class ElevationProfileTest {
     public void minAndMaxElevationTests(){
         float[] s = {380, 381.5F, 379, 378.01F, 382, 382.1F, 383.7F, 381};
         ElevationProfile e = new ElevationProfile(9, s);
-        assertEquals(383.7F, e.maxElevation());
+        assertEquals(383.7, e.maxElevation());
         assertEquals(378.01F, e.minElevation());
 
     }
