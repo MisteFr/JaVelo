@@ -15,16 +15,17 @@ import java.util.List;
  */
 
 
-public final class SingleRoute implements Route{
+public final class SingleRoute implements Route {
 
     private final List<Edge> edgesList;
     private final double[] nodesPositionList;
 
     /**
      * SingleRoute Constructor from a list of edges
+     *
      * @param edges List of edges that are part of the simple itinerary
      */
-    public SingleRoute(List<Edge> edges){
+    public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(!edges.isEmpty());
 
         edgesList = List.copyOf(edges);
@@ -33,9 +34,9 @@ public final class SingleRoute implements Route{
         double[] tempNodesPositionList = new double[edgesList.size() + 1];
 
         double lengthRoute = 0.0;
-        for(int i = 0; i < edgesList.size(); i++){
+        for (int i = 0; i < edgesList.size(); ++i) {
             lengthRoute += edgesList.get(i).length();
-            tempNodesPositionList[(i+1)] = lengthRoute;
+            tempNodesPositionList[(i + 1)] = lengthRoute;
         }
 
         nodesPositionList = tempNodesPositionList;
@@ -55,7 +56,7 @@ public final class SingleRoute implements Route{
     @Override
     public double length() {
         double length = 0.0;
-        for(Edge e: edgesList){
+        for (Edge e : edgesList) {
             length += e.length();
         }
         return length;
@@ -77,11 +78,11 @@ public final class SingleRoute implements Route{
         List<PointCh> pointsList = new ArrayList<PointCh>();
 
         //we first add every starting point of each edge
-        for(Edge e: edgesList){
+        for (Edge e : edgesList) {
             pointsList.add(e.fromPoint());
         }
         //we add the end point of the last edge
-        pointsList.add(edgesList.get(edgesList.size()-1).toPoint());
+        pointsList.add(edgesList.get(edgesList.size() - 1).toPoint());
         return pointsList;
     }
 
@@ -94,17 +95,17 @@ public final class SingleRoute implements Route{
 
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
-        if(binarySearchResult >= 0){
-            if(binarySearchResult < edgesList.size()){
+        if (binarySearchResult >= 0) {
+            if (binarySearchResult < edgesList.size()) {
                 return edgesList.get(binarySearchResult).fromPoint();
-            }else{
-                return edgesList.get(binarySearchResult-1).toPoint();
+            } else {
+                return edgesList.get(binarySearchResult - 1).toPoint();
             }
-        }else{
+        } else {
             int indexEdge = -(binarySearchResult + 2);
-            if(indexEdge < edgesList.size()){
+            if (indexEdge < edgesList.size()) {
                 return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
-            }else{
+            } else {
                 return edgesList.get(edgesList.size() - 1).pointAt(position - nodesPositionList[edgesList.size() - 1]);
             }
         }
@@ -120,17 +121,17 @@ public final class SingleRoute implements Route{
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
         System.out.println("binary" + binarySearchResult);
 
-        if(binarySearchResult >= 0){
-            if(binarySearchResult < edgesList.size()){
+        if (binarySearchResult >= 0) {
+            if (binarySearchResult < edgesList.size()) {
                 return edgesList.get(binarySearchResult).elevationAt(0);
-            }else{
-                return edgesList.get(binarySearchResult-1).elevationAt(edgesList.get(binarySearchResult-1).length());
+            } else {
+                return edgesList.get(binarySearchResult - 1).elevationAt(edgesList.get(binarySearchResult - 1).length());
             }
-        }else{
+        } else {
             int indexEdge = -(binarySearchResult + 2);
-            if(indexEdge < edgesList.size()){
+            if (indexEdge < edgesList.size()) {
                 return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
-            }else{
+            } else {
                 //indexEdge - 1 so to do not remove the length of the latest edge
                 return edgesList.get(edgesList.size() - 1).elevationAt(position - nodesPositionList[indexEdge - 1]);
             }
@@ -146,22 +147,22 @@ public final class SingleRoute implements Route{
 
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
-        if(binarySearchResult >= 0){
-            if(binarySearchResult < edgesList.size()){
+        if (binarySearchResult >= 0) {
+            if (binarySearchResult < edgesList.size()) {
                 return edgesList.get(binarySearchResult).fromNodeId();
-            }else{
+            } else {
                 return edgesList.get(edgesList.size() - 1).toNodeId();
             }
-        }else{
+        } else {
             int indexEdge = -(binarySearchResult + 2);
 
-            if(indexEdge < edgesList.size()){
-                if(position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2){
+            if (indexEdge < edgesList.size()) {
+                if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
                     return edgesList.get(indexEdge).toNodeId();
-                }else{
+                } else {
                     return edgesList.get(indexEdge).fromNodeId();
                 }
-            }else{
+            } else {
                 //it means that the nearest node is the last one
                 return edgesList.get(edgesList.size() - 1).toNodeId();
             }
@@ -176,7 +177,7 @@ public final class SingleRoute implements Route{
         RoutePoint nearestPoint = RoutePoint.NONE;
         double cumulatedLength = 0.0;
 
-        for(Edge e: edgesList){
+        for (Edge e : edgesList) {
             double lengthOfProjection = e.positionClosestTo(point);
             PointCh nearestPointOnEdge = e.pointAt(e.positionClosestTo(point));
             double distance = nearestPointOnEdge.distanceTo(point);
