@@ -79,6 +79,8 @@ public class GraphTest {
         Graph g = Graph.loadFrom(Path.of("lausanne"));
         //https://www.openstreetmap.org/node/310876657
 
+        System.out.println(g.nodeOutDegree(2022));
+
         assertEquals(4095, g.nodeOutEdgeId(2022, 0));
         assertEquals(4096, g.nodeOutEdgeId(2022, 1));
 

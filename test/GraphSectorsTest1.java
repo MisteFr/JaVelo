@@ -140,13 +140,13 @@ public class GraphSectorsTest1 {
 
         GraphSectors ns = new GraphSectors(a);
         assertEquals(1, ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 1).size());
-        assertEquals(4, ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 2830).size()); //TODO Crash
+        assertEquals(4, ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 2830).size());
 
         ArrayList<GraphSectors.Sector> test = new ArrayList<>();
         test.add(new GraphSectors.Sector(0, 1));
         test.add(new GraphSectors.Sector(1, 2));
         test.add(new GraphSectors.Sector(2, 3));
-        test.add(new GraphSectors.Sector(3, 4));  //TODO End Node of the last rectangle should be ?
+        test.add(new GraphSectors.Sector(3, 4));
 
         assertEquals(test.get(0), ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 1).get(0));
         assertEquals(test, ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 2730));
