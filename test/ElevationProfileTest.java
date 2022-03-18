@@ -30,7 +30,7 @@ class ElevationProfileTest {
     @Test
     public void totalAscentAndDescentTests(){
         float[] s = {380, 381.5F, 379, 378, 382, 382.1F, 383.7F, 381}; // pretty realistic sample
-        assertEquals(7.2F, (new ElevationProfile(9, s)).totalAscent());
+        assertEquals(7.2, (new ElevationProfile(9, s)).totalAscent());
         assertEquals(6.2F,(new ElevationProfile(9, s)).totalDescent());
     }
 

@@ -8,6 +8,13 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println(Math2.ceilDiv(3,2));
+
+        int i = 0;
+
+        System.out.println(i++);
+
+        int j = 0;
+
+        System.out.println(++j);
     }
 }
