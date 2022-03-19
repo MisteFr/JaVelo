@@ -16,6 +16,7 @@ public final class ElevationProfileComputer {
 
         Preconditions.checkArgument(maxStepLength > 0);
 
+        //Math2.ceilDiv?
         final int SAMPLE_NUMBER = (int) Math.ceil((route.length()/maxStepLength)) + 1;
         final double STEP_LENGTH = (route.length()/(SAMPLE_NUMBER - 1)); //La distance qui correspond à un step basée sur la longueur totale de l'itinéraire (il y a un step de moins qu'il n'y a de points) TODO vérifier.
         float[] samples = new float[SAMPLE_NUMBER];

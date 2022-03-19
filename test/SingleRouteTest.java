@@ -1,5 +1,4 @@
 import ch.epfl.javelo.Functions;
-import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 import ch.epfl.javelo.routing.Edge;
@@ -7,8 +6,6 @@ import ch.epfl.javelo.routing.RoutePoint;
 import ch.epfl.javelo.routing.SingleRoute;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
 
@@ -98,13 +95,17 @@ public class SingleRouteTest {
 
         //Test pointAt()
 
-        for(int i = 0; i < 50; i++){
+        for(int i = 0; i < 15; i++){
             assertEquals(new PointCh(SwissBounds.MIN_E + i, SwissBounds.MIN_N), s2.pointAt(i));
         }
 
         assertEquals(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), s2.pointAt(-2));
         assertEquals(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), s2.pointAt(-1));
         assertEquals(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), s2.pointAt(0));
+        assertEquals(new PointCh(SwissBounds.MIN_E + 15, SwissBounds.MIN_N), s2.pointAt(15));
+        assertEquals(new PointCh(SwissBounds.MIN_E + 15, SwissBounds.MIN_N), s2.pointAt(16));
+        assertEquals(new PointCh(SwissBounds.MIN_E + 15, SwissBounds.MIN_N), s2.pointAt(20));
+        assertEquals(new PointCh(SwissBounds.MIN_E + 15, SwissBounds.MIN_N), s2.pointAt(30));
     }
 
 
@@ -130,8 +131,6 @@ public class SingleRouteTest {
 
         SingleRoute s = new SingleRoute(l);
 
-        //TODO: quand plus grand que la length
-
         for(int i = 0; i < 10; i++){
             assertEquals(500 + 5*i, s.elevationAt(i));
         }
@@ -144,6 +143,8 @@ public class SingleRouteTest {
 
 
         assertEquals(550, s.elevationAt(14));
+
+        assertEquals(550, s.elevationAt(100000));
     }
 
     @Test
@@ -192,6 +193,7 @@ public class SingleRouteTest {
         assertEquals(0, s.nodeClosestTo(-1));
         assertEquals(0, s.nodeClosestTo(0));
         assertEquals(0, s.nodeClosestTo(-6));
+        assertEquals(0, s.nodeClosestTo(-1000));
     }
 
     @Test

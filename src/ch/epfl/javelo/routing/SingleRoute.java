@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
@@ -91,7 +92,7 @@ public final class SingleRoute implements Route {
      */
     @Override
     public PointCh pointAt(double position) {
-        position = Math.max(position, 0.0);
+        position = Math2.clamp(0.0, position, length());
 
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
@@ -103,11 +104,7 @@ public final class SingleRoute implements Route {
             }
         } else {
             int indexEdge = -(binarySearchResult + 2);
-            if (indexEdge < edgesList.size()) {
-                return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
-            } else {
-                return edgesList.get(edgesList.size() - 1).pointAt(position - nodesPositionList[edgesList.size() - 1]);
-            }
+            return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
         }
     }
 
@@ -116,10 +113,9 @@ public final class SingleRoute implements Route {
      */
     @Override
     public double elevationAt(double position) {
-        position = Math.max(position, 0.0);
+        position = Math2.clamp(0.0, position, length());
 
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
-        System.out.println("binary" + binarySearchResult);
 
         if (binarySearchResult >= 0) {
             if (binarySearchResult < edgesList.size()) {
@@ -129,12 +125,7 @@ public final class SingleRoute implements Route {
             }
         } else {
             int indexEdge = -(binarySearchResult + 2);
-            if (indexEdge < edgesList.size()) {
-                return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
-            } else {
-                //indexEdge - 1 so to do not remove the length of the latest edge
-                return edgesList.get(edgesList.size() - 1).elevationAt(position - nodesPositionList[indexEdge - 1]);
-            }
+            return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
         }
     }
 
@@ -143,7 +134,7 @@ public final class SingleRoute implements Route {
      */
     @Override
     public int nodeClosestTo(double position) {
-        position = Math.max(position, 0.0);
+        position = Math2.clamp(0.0, position, length());
 
         int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
@@ -156,15 +147,10 @@ public final class SingleRoute implements Route {
         } else {
             int indexEdge = -(binarySearchResult + 2);
 
-            if (indexEdge < edgesList.size()) {
-                if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
-                    return edgesList.get(indexEdge).toNodeId();
-                } else {
-                    return edgesList.get(indexEdge).fromNodeId();
-                }
+            if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
+                return edgesList.get(indexEdge).toNodeId();
             } else {
-                //it means that the nearest node is the last one
-                return edgesList.get(edgesList.size() - 1).toNodeId();
+                return edgesList.get(indexEdge).fromNodeId();
             }
         }
     }
@@ -181,6 +167,17 @@ public final class SingleRoute implements Route {
             double lengthOfProjection = e.positionClosestTo(point);
             PointCh nearestPointOnEdge = e.pointAt(e.positionClosestTo(point));
             double distance = nearestPointOnEdge.distanceTo(point);
+
+            System.out.println("-----------------------");
+
+            System.out.println("Point we are comparing " + point);
+            System.out.println("Starting Point edge " + e.fromPoint());
+            System.out.println("End Point edge " + e.toPoint());
+            System.out.println("Length of proj " + lengthOfProjection);
+            System.out.println("Nearest Point on edge " + nearestPointOnEdge);
+            System.out.println("Distance " + distance);
+
+            lengthOfProjection = Math2.clamp(0.0, lengthOfProjection, e.length());
 
             nearestPoint = nearestPoint.min(nearestPointOnEdge, cumulatedLength + lengthOfProjection, distance);
 
