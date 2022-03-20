@@ -164,25 +164,12 @@ public final class SingleRoute implements Route {
         double cumulatedLength = 0.0;
 
         for (Edge e : edgesList) {
-            double lengthOfProjection = e.positionClosestTo(point);
-            PointCh nearestPointOnEdge = e.pointAt(e.positionClosestTo(point));
+            double lengthOfProjection = Math2.clamp(0.0, e.positionClosestTo(point), e.length());
+            PointCh nearestPointOnEdge = e.pointAt(lengthOfProjection);
             double distance = nearestPointOnEdge.distanceTo(point);
 
-            System.out.println("-----------------------");
+            nearestPoint = nearestPoint.min(nearestPointOnEdge, cumulatedLength + Math2.clamp(0.0, lengthOfProjection, e.length()), distance);
 
-            System.out.println("Point we are comparing " + point);
-            System.out.println("Starting Point edge " + e.fromPoint());
-            System.out.println("End Point edge " + e.toPoint());
-            System.out.println("Length of proj " + lengthOfProjection);
-            System.out.println("Nearest Point on edge " + nearestPointOnEdge);
-            System.out.println("Distance " + distance);
-
-            lengthOfProjection = Math2.clamp(0.0, lengthOfProjection, e.length());
-
-            nearestPoint = nearestPoint.min(nearestPointOnEdge, cumulatedLength + lengthOfProjection, distance);
-
-
-            System.out.println(nearestPoint);
             cumulatedLength += e.length();
         }
 

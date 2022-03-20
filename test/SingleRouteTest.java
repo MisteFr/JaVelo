@@ -145,6 +145,18 @@ public class SingleRouteTest {
         assertEquals(550, s.elevationAt(14));
 
         assertEquals(550, s.elevationAt(100000));
+
+        PointCh fromPoint3 = new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N);
+        PointCh toPoint3 = new PointCh(SwissBounds.MIN_E + 15, SwissBounds.MIN_N);
+        float[] profileTab3 = {500f, 505f, 510f, 505f, 510f};
+        DoubleUnaryOperator profile3 = Functions.sampled(profileTab, 5);
+        Edge edge3 = new Edge(2, 1, fromPoint3, toPoint3, 5, profile3);
+
+        l.add(edge3);
+
+        SingleRoute s2 = new SingleRoute(l);
+
+        //TODO: test with edge without profile
     }
 
     @Test
@@ -219,9 +231,18 @@ public class SingleRouteTest {
         SingleRoute s = new SingleRoute(l);
 
         assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 1, SwissBounds.MIN_N), 1, 1), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 1, SwissBounds.MIN_N + 1)));
-
         assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 2, SwissBounds.MIN_N), 2, 10), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 2, SwissBounds.MIN_N + 10)));
 
-        assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N), 10, 1), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 12, SwissBounds.MIN_N + 10)));
+        //Math.sqrt(104) car distanceToReferee au carré = 2*2 + 10*10
+        assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N), 10, Math.sqrt(104)), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 12, SwissBounds.MIN_N + 10)));
+
+        //testing with point already on the edge
+        for(int i = 0; i < 10; i++){
+            assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + i, SwissBounds.MIN_N), i, 0), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + i, SwissBounds.MIN_N)));
+        }
+
+        assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 5, SwissBounds.MIN_N), 5, 5), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 5, SwissBounds.MIN_N + 5)));
+        assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E + 10, SwissBounds.MIN_N), 10, 10), s.pointClosestTo(new PointCh(SwissBounds.MIN_E + 20, SwissBounds.MIN_N)));
+        assertEquals(new RoutePoint(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 0, 3), s.pointClosestTo(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N + 3)));
     }
 }
