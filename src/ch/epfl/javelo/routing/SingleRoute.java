@@ -76,7 +76,7 @@ public final class SingleRoute implements Route {
      */
     @Override
     public List<PointCh> points() {
-        List<PointCh> pointsList = new ArrayList<PointCh>();
+        List<PointCh> pointsList = new ArrayList<>();
 
         //we first add every starting point of each edge
         for (Edge e : edgesList) {
