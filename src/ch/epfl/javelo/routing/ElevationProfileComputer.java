@@ -16,21 +16,29 @@ public final class ElevationProfileComputer {
 
         Preconditions.checkArgument(maxStepLength > 0);
 
-        //Math2.ceilDiv?
+        //TODO Math2.ceilDiv?
         final int SAMPLE_NUMBER = (int) Math.ceil((route.length()/maxStepLength)) + 1;
-        final double STEP_LENGTH = (route.length()/(SAMPLE_NUMBER - 1)); //La distance qui correspond à un step basée sur la longueur totale de l'itinéraire (il y a un step de moins qu'il n'y a de points) TODO vérifier.
+        final double STEP_LENGTH = (route.length()/(SAMPLE_NUMBER - 1)); //La distance qui correspond à un step basée sur la longueur totale de l'itinéraire (il y a un step de moins qu'il n'y a de points)
         float[] samples = new float[SAMPLE_NUMBER];
 
-        for (int i = 0; i < SAMPLE_NUMBER; ++i){ //Est-ce que ça peut juster renvoyer NaN ?
-            samples[i] = (float) route.elevationAt(i*STEP_LENGTH);
+        for (int i = 0; i < SAMPLE_NUMBER; ++i){ //TODO pas utile pour l'instant comme on travaille avec des itinéraires simples (une arête)
+            /*if(route.points().contains(route.pointAt(i*STEP_LENGTH)) && Float.isNaN((float) route.elevationAt(i*STEP_LENGTH))){ //If we are on the extremity of an
+                //locate previous edge
+                Edge previousEdge = route.edges().get(route.indexOfSegmentAt(i*STEP_LENGTH) - 1);
+                //Take its last sample
+                samples[i] = (float) previousEdge.elevationAt(previousEdge.length());
+            }else{*/
+                samples[i] = (float) route.elevationAt(i*STEP_LENGTH);
+            //}
         }
 
         // We correct the beginning of the sample array and treat the case where it is all NaN.
+        //TODO only use one loop ?
         int i = 0;
-        while(Float.isNaN(samples[i]) && (i != samples.length)){
+        while((i != samples.length) && Float.isNaN(samples[i])){
             i += 1;
         }
-        if(i != samples.length){ //TODO utiliser arrays.fill
+        if(i != samples.length){
             Arrays.fill(samples, 0, i, samples[i]);
         }else{
             Arrays.fill(samples, 0, samples.length, 0F);
@@ -42,24 +50,22 @@ public final class ElevationProfileComputer {
             i += 1;
         }
         Arrays.fill(samples, samples.length - i, samples.length, samples[(samples.length - 1) - i]);
-        for(int j = 0; j < i; ++j){
 
-            samples[(samples.length - 1) - j] = samples[(samples.length - 1) - i];
-        }
 
         int beginIndex = -1;
         int xMax = 0;
         //We fill the NaN gaps. First sample cannot be NaN.
-        for(int j = 0; i < samples.length; ++i){
+        for(int j = 0; j < samples.length; ++j){
             if(Float.isNaN(samples[j])){
-                beginIndex = j - 1; //TODO rajouter while ?
+                if(beginIndex == -1){
+                    beginIndex = j - 1;
+                }
             }else if(beginIndex != -1){
                 xMax = j - beginIndex;
-                DoubleUnaryOperator f = Functions.sampled(new float[]{samples[beginIndex], samples[j]}, xMax);
                 // We initialize an array based on the two borders of the non-NaN values of the sample array.
                 // We choose an xMax so that we can define each samples elements with an int value as x argument in f.
                 for (int k = 1; k < xMax ; ++k) {
-                    samples[beginIndex + k] = (float) f.applyAsDouble(k);
+                    samples[beginIndex + k] = (float) Math2.interpolate(samples[beginIndex], samples[j], (((double) k)/xMax));
                 }
                 beginIndex = -1;
             }
