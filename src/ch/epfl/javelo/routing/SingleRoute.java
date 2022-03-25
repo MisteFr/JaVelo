@@ -31,7 +31,7 @@ public final class SingleRoute implements Route {
 
         edgesList = List.copyOf(edges);
 
-        //we initialize an array containing the position of each node on the SingeRoute for methods pointAt(), elevationAt() and nodeClosestTo()
+        //Initialize an array containing the position of each node on the SingeRoute for methods pointAt(), elevationAt() and nodeClosestTo()
         double[] tempNodesPositionList = new double[edgesList.size() + 1];
 
         double lengthRoute = 0.0;
@@ -46,6 +46,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public int indexOfSegmentAt(double position) {
         return 0;
@@ -54,6 +55,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public double length() {
         double length = 0.0;
@@ -66,6 +68,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public List<Edge> edges() {
         return edgesList;
@@ -74,6 +77,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public List<PointCh> points() {
         List<PointCh> pointsList = new ArrayList<>();
@@ -90,6 +94,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public PointCh pointAt(double position) {
         position = Math2.clamp(0.0, position, length());
@@ -111,6 +116,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public double elevationAt(double position) {
         position = Math2.clamp(0.0, position, length());
@@ -132,6 +138,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0.0, position, length());
@@ -158,6 +165,7 @@ public final class SingleRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint nearestPoint = RoutePoint.NONE;

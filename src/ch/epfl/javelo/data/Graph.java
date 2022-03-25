@@ -36,6 +36,7 @@ public final class Graph {
      * @param edges         GraphEdges
      * @param attributeSets List<AttributeSet>
      */
+
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
         NODES = nodes;
         SECTORS = sectors;
@@ -48,6 +49,7 @@ public final class Graph {
      * @return Graph instance
      * @throws IOException if something went wrong while loading data from resources
      */
+
     public static Graph loadFrom(Path basePath) throws IOException {
         //initialize nodes
         Path filePathNodes = basePath.resolve("nodes.bin");
@@ -101,11 +103,8 @@ public final class Graph {
                     .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
                     .asLongBuffer();
 
-            int i = 0;
             while (sectorsAttributesBuffer.hasRemaining()) {
                 attributeSets.add(new AttributeSet(sectorsAttributesBuffer.get()));
-                //System.out.println(attributeSets.get(i));
-                i++;
             }
         }
 
@@ -117,6 +116,7 @@ public final class Graph {
      *
      * @return int the total number of nodes in the graph
      */
+
     public int nodeCount() {
         return NODES.count();
     }
@@ -127,6 +127,7 @@ public final class Graph {
      * @param nodeId id of the node
      * @return PointCh the coordinate of given node
      */
+
     public PointCh nodePoint(int nodeId) {
         return new PointCh(NODES.nodeE(nodeId), NODES.nodeN(nodeId));
     }
@@ -137,6 +138,7 @@ public final class Graph {
      * @param nodeId id of the node
      * @return int the number of edges coming out of the node
      */
+
     public int nodeOutDegree(int nodeId) {
         return NODES.outDegree(nodeId);
     }
@@ -148,6 +150,7 @@ public final class Graph {
      * @param edgeIndex index of the edge
      * @return int the identity of the edgeIndex-th edge exiting the node
      */
+
     public int nodeOutEdgeId(int nodeId, int edgeIndex) {
         return NODES.edgeId(nodeId, edgeIndex);
     }
@@ -160,6 +163,7 @@ public final class Graph {
      * @param searchDistance maximum distance to search around the point
      * @return int identity of the closest point to the given point in the search distance radius
      */
+
     public int nodeClosestTo(PointCh point, double searchDistance) {
         //we get all the sectors in the area
         List<GraphSectors.Sector> sectorsInArea = SECTORS.sectorsInArea(point, searchDistance);
@@ -187,6 +191,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return int identity of the destination node of the given edge
      */
+
     public int edgeTargetNodeId(int edgeId) {
         return EDGES.targetNodeId(edgeId);
     }
@@ -197,6 +202,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return boolean true if inverted, false otherwise
      */
+
     public boolean edgeIsInverted(int edgeId) {
         return EDGES.isInverted(edgeId);
     }
@@ -207,6 +213,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return AttributeSet
      */
+
     public AttributeSet edgeAttributes(int edgeId) {
         return ATTRIBUTE_SETS.get(EDGES.attributesIndex(edgeId));
     }
@@ -217,6 +224,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return double length of the edge
      */
+
     public double edgeLength(int edgeId) {
         return EDGES.length(edgeId);
     }
@@ -227,6 +235,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return double elevation gain of the edge
      */
+
     public double edgeElevationGain(int edgeId) {
         return EDGES.elevationGain(edgeId);
     }
@@ -238,6 +247,7 @@ public final class Graph {
      * @param edgeId id of the edge
      * @return DoubleUnaryOperator Function: profile of the given identity edge
      */
+
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         if (EDGES.hasProfile(edgeId)) {
             return Functions.sampled(EDGES.profileSamples(edgeId), EDGES.length(edgeId));

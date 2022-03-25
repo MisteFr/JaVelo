@@ -1,7 +1,7 @@
 package ch.epfl.javelo;
 
 /**
- * Math 2 Class
+ * Math2 Class
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

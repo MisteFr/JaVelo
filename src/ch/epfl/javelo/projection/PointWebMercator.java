@@ -3,7 +3,7 @@ package ch.epfl.javelo.projection;
 import ch.epfl.javelo.Preconditions;
 
 /**
- * PointWebMercator Class
+ * PointWebMercator Record
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -13,11 +13,10 @@ import ch.epfl.javelo.Preconditions;
 public record PointWebMercator(double x, double y) {
 
     /**
-     * Compact constructor that checks for the validity of x and y
+     * Compact constructor that checks for the validity of x and y.
      *
      * @param x x coordinate
      * @param y y coordinate
-     *
      * @throws IllegalArgumentException if coordinates are not between 0 and 1.
      */
 
@@ -36,11 +35,11 @@ public record PointWebMercator(double x, double y) {
      */
 
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, - zoomLevel - 8), Math.scalb(y, - zoomLevel - 8));
+        return new PointWebMercator(Math.scalb(x, -zoomLevel - 8), Math.scalb(y, -zoomLevel - 8));
     }
 
     /**
-     * Construct a PointWebMercator based on a PointCh
+     * Construct a PointWebMercator based on a PointCh.
      *
      * @param pointCh pointCh object
      * @return PointWebMercator object based on pointCh param lon and lat coordinates
@@ -51,10 +50,10 @@ public record PointWebMercator(double x, double y) {
     }
 
     /**
-     * returns the x coordinate of this point at the desired zoom level.
+     * Returns the x coordinate of this point at the desired zoom level.
      *
      * @param zoomLevel desired zoom level
-     * @return double x coordinates corresponding to the given zoom level.
+     * @return double x coordinates corresponding to the given zoom level
      */
 
     public double xAtZoomLevel(int zoomLevel) {
@@ -62,10 +61,10 @@ public record PointWebMercator(double x, double y) {
     }
 
     /**
-     * returns the y coordinate of this point at the desired zoom level.
+     * Returns the y coordinate of this point at the desired zoom level.
      *
      * @param zoomLevel desired zoom level
-     * @return double y coordinates corresponding to the given zoom level.
+     * @return double y coordinates corresponding to the given zoom level
      */
 
     public double yAtZoomLevel(int zoomLevel) {
@@ -93,7 +92,7 @@ public record PointWebMercator(double x, double y) {
     }
 
     /**
-     * Establishes a correspondance between the current Mercator point and the corresponding PointCh at the same
+     * Establishes a correspondence between the current Mercator point and the corresponding PointCh at the same
      * position.
      *
      * @return If the current x and y coordinates refer to a point in the scope chosen in the project defined

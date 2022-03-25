@@ -51,12 +51,11 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      */
 
     public PointCh pointAt(double position) {
-        return new PointCh(Math2.interpolate(fromPoint.e(), toPoint.e(), position/length), Math2.interpolate(fromPoint.n(), toPoint.n(), position/length));
+        return new PointCh(Math2.interpolate(fromPoint.e(), toPoint.e(), position / length), Math2.interpolate(fromPoint.n(), toPoint.n(), position / length));
     }
 
     /**
      * Returns the height on the edge at a given position.
-     * If position is negative, returns the first elevation. If position is
      *
      * @param position the position on the edge where we search for the elevation.
      * @return double elevation at position param.

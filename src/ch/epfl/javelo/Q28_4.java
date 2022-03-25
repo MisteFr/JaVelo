@@ -14,6 +14,8 @@ public final class Q28_4 {
 
 
     /**
+     * Returns the Q28.4 value corresponding to the given integer.
+     *
      * @param i the int to format into Q28_4
      * @return The Q28_4 byte string that has the same value as i.
      */

@@ -16,6 +16,7 @@ public final class Functions {
 
     /**
      * Method used to instantiate a constant function.
+     *
      * @param y value of the constant
      * @return Proper Constant object
      */
@@ -25,11 +26,11 @@ public final class Functions {
     }
 
     /**
-     * Method used to instantiate a sampled function (see Sampled inner-class)
-     * @param samples samples that will serve as a basis for our function, must contain at least two elements.
-     * @param xMax must be > 0
-     * @return Proper Sampled function.
+     * Method used to instantiate a sampled function (see Sampled inner-class).
      *
+     * @param samples samples that will serve as a basis for our function, must contain at least two elements.
+     * @param xMax    must be > 0
+     * @return Proper Sampled function.
      * @throws IllegalArgumentException if there is less than two elements in samples argument or if xMax is negative.
      */
 
@@ -46,11 +47,11 @@ public final class Functions {
      * @author Léo Paoletti (342165)
      */
 
-
     private static final record Constant(double y) implements DoubleUnaryOperator {
 
         /**
-         * the constant function returns the value it was given at construction.
+         * The constant function returns the value it was given at construction.
+         *
          * @param z is not used
          * @return y value given at construction
          */
@@ -71,13 +72,12 @@ public final class Functions {
 
     private static final class Sampled implements DoubleUnaryOperator {
 
-        // Fields
         private float[] samples;
         private double xSteps;
         private double xMax;
 
         /**
-         * Constructor for Sampled DoubleUnaryOperator. Initiates samples, xMax and xSteps variables that are used in
+         * Constructor for Sampled DoubleUnaryOperator. Initiate samples, xMax and xSteps variables that are used in
          * applyAsDouble method.
          *
          * @param s samples
@@ -101,6 +101,7 @@ public final class Functions {
          * Approximates a continuous function on [0;xMax] based on the samples array using interpolation.
          * If x < 0, the first sample is returned.
          * If x > xMax, the last sample is returned.
+         *
          * @param x the antecedent of the returned result
          * @return image of the function
          */
@@ -108,9 +109,9 @@ public final class Functions {
         @Override
         public double applyAsDouble(double x) {
 
-            if(x < 0){
+            if (x < 0) {
                 return samples[0];
-            }else if(x > xMax){
+            } else if (x > xMax) {
                 return samples[samples.length - 1];
             }
 

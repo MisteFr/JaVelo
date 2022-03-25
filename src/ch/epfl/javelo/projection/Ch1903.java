@@ -16,10 +16,10 @@ public final class Ch1903 {
 
 
     /**
-     * Gives E coordinate of CH1903+ based coordinates in WGS84 coordinates
+     * Gives E coordinate of CH1903+ based coordinates in WGS84 coordinates.
      *
-     * @param lon lon coordinate of WGS84
-     * @param lat lat coordinate of WGS84
+     * @param lon lon coordinate of WGS84 in radians
+     * @param lat lat coordinate of WGS84 in radians
      * @return E coordinate of CH1903+
      */
     public static double e(double lon, double lat) {
@@ -34,10 +34,10 @@ public final class Ch1903 {
     }
 
     /**
-     * Gives N coordinate of CH1903+ based coordinates in WGS84 coordinates
+     * Gives N coordinate of CH1903+ based coordinates in WGS84 coordinates.
      *
-     * @param lon lon coordinate of WGS84
-     * @param lat lat coordinate of WGS84
+     * @param lon lon coordinate of WGS84 in radians
+     * @param lat lat coordinate of WGS84 in radians
      * @return N coordinate of CH1903+
      */
     public static double n(double lon, double lat) {
@@ -52,11 +52,11 @@ public final class Ch1903 {
     }
 
     /**
-     * Gives lon coordinate of WGS84 based coordinates in CH1903+ coordinates
+     * Gives lon coordinate of WGS84 based coordinates in CH1903+ coordinates.
      *
      * @param e e coordinate of CH1903+
      * @param n n coordinate of CH1903+
-     * @return lon coordinate of WGS84
+     * @return lon coordinate of WGS84 in radians
      */
     public static double lon(double e, double n) {
         double x = Math.pow(10, -6) * (e - 2600000);
@@ -69,11 +69,11 @@ public final class Ch1903 {
     }
 
     /**
-     * Gives lat coordinate of WGS84 based coordinates in CH1903+ coordinates
+     * Gives lat coordinate of WGS84 based coordinates in CH1903+ coordinates.
      *
      * @param e e coordinate of CH1903+
      * @param n n coordinate of CH1903+
-     * @return lat coordinate of WGS84
+     * @return lat coordinate of WGS84 in radians
      */
     public static double lat(double e, double n) {
         double x = Math.pow(10, -6) * (e - 2600000);

@@ -1,17 +1,28 @@
 package ch.epfl.javelo.routing;
 
-import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 
 import java.util.Arrays;
-import java.util.function.DoubleUnaryOperator;
+
+/**
+ * ElevationProfileComputer class
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
 
 public final class ElevationProfileComputer {
 
     //Non-instantiable class
     private ElevationProfileComputer(){}
 
+    /**
+     * TODO: DOC
+     * @param route
+     * @param maxStepLength
+     * @return
+     */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
 
         Preconditions.checkArgument(maxStepLength > 0);

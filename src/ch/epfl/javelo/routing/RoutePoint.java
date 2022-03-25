@@ -2,14 +2,12 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.projection.PointCh;
 
-
 /**
  * RoutePoint record
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
-
 
 
 public record RoutePoint(PointCh point, double position, double distanceToReference) {

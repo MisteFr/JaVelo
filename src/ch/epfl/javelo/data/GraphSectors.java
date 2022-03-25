@@ -33,6 +33,7 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * Models a two-dimensional grid of sectors and iterates through the sectors in the scope of the square to add them
      * to the returned List<Sector>. See comments in the method for more insights.
+     *
      * @param center PointCh parameter that corresponds to the center of the drawn square
      * @param distance The distance of the middle of each side of the square from the center PointCh parameter.
      * @return A list of the Sectors that are, even partly, in the scope of the square.

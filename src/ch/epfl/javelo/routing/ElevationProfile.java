@@ -5,8 +5,6 @@ import ch.epfl.javelo.Preconditions;
 
 import java.util.DoubleSummaryStatistics;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
-
 
 /**
  * ElevationProfile class
@@ -15,10 +13,7 @@ import java.util.function.Function;
  * @author Léo Paoletti (342165)
  */
 
-
 public class ElevationProfile {
-
-    //Fields
 
     private final double LENGTH;
     private final double MIN_ELEVATION;
@@ -45,11 +40,11 @@ public class ElevationProfile {
         double diff;
 
         for (int i = 0; i < elevationSamples.length; ++i) {
-            s.accept(elevationSamples[i]); // I initialize the DoubleSummaryStatistics with all the values of the array.
+            s.accept(elevationSamples[i]); // Initialize the DoubleSummaryStatistics with all the values of the array.
 
-            if (i < elevationSamples.length - 1) { // For as long as I can take the elements i and i + 1 from elevationSamples...
+            if (i < elevationSamples.length - 1) {
                 diff = elevationSamples[i+1] - elevationSamples[i];
-                //... I verify if there is a descent or an ascent between those two elements of the array and increment the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
+                //Verify if there is a descent or an ascent between those two elements of the array and increment the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
                 if (diff > 0) {
                     tempTotalAscent += diff;
                 } else {
@@ -59,14 +54,14 @@ public class ElevationProfile {
 
         }
 
-        //Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples and the tempTotalAscent and tempTotalDescent are computed, we can initialize our final variables.
+        //Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples and the tempTotalAscent and tempTotalDescent are computed, we initialize our final variables.
 
         MIN_ELEVATION = s.getMin();
         MAX_ELEVATION = s.getMax();
         TOTAL_ASCENT = tempTotalAscent;
         TOTAL_DESCENT = tempTotalDescent;
 
-        //We now initialize the FUNC sampled function that maps the x coordinate ranging from 0 to length to its approximated continuous function based on the samples (see sampled in functions)
+        //We initialize the FUNC sampled function that maps the x coordinate ranging from 0 to length to its approximated continuous function based on the samples (see sampled in functions)
         FUNC = Functions.sampled(elevationSamples, length);
     }
 
@@ -81,7 +76,7 @@ public class ElevationProfile {
     }
 
     /**
-     * returns the minimum elevation of the elevation samples in the float array given at construction
+     * Returns the minimum elevation of the elevation samples in the float array given at construction
      *
      * @return double MIN_ELEVATION
      */
@@ -91,7 +86,7 @@ public class ElevationProfile {
     }
 
     /**
-     * returns the maximum elevation of the elevation samples in the float array given at construction
+     * Returns the maximum elevation of the elevation samples in the float array given at construction
      *
      * @return double MAX_ELEVATION
      */
@@ -101,7 +96,7 @@ public class ElevationProfile {
     }
 
     /**
-     * returns the sum of the positive differences between each pair of consecutive samples in the float array given at construction.
+     * Returns the sum of the positive differences between each pair of consecutive samples in the float array given at construction.
      *
      * @return double TOTAL_ASCENT
      */
@@ -111,7 +106,7 @@ public class ElevationProfile {
     }
 
     /**
-     * returns the absolute value of the sum of the negative differences between each pair of consecutive samples in the float array given at construction.
+     * Returns the absolute value of the sum of the negative differences between each pair of consecutive samples in the float array given at construction.
      *
      * @return double TOTAL_ASCENT
      */

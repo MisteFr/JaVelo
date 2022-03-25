@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 public record AttributeSet(long bits) {
 
     /**
-     * Compact constructor that checks for invalid bits
+     * Compact constructor that checks for invalid bits.
      *
      * @throws IllegalArgumentException if bits value contains a bit value of 1 corresponding to an attribute
      *                                  that doesn't exist
@@ -44,7 +44,7 @@ public record AttributeSet(long bits) {
     }
 
     /**
-     * Test if the AttributeSet contains a given attribute
+     * Test if the AttributeSet contains a given attribute.
      *
      * @param attribute attribute to test
      * @return Boolean if the attribute is in AttributeSet or not
@@ -56,7 +56,7 @@ public record AttributeSet(long bits) {
     }
 
     /**
-     * Test if the intersection of this AttributeSet (this) and the argument (that) is empty or not
+     * Test if the intersection of this AttributeSet (this) and the argument (that) is empty or not.
      *
      * @param that AttributeSet to intersect with this instance
      * @return Boolean if the intersection is empty or not
@@ -67,7 +67,7 @@ public record AttributeSet(long bits) {
     }
 
     /**
-     * Redefinition of toString() method
+     * Redefinition of toString() method.
      *
      * @return String Textual representation of the AttributeSet
      */
