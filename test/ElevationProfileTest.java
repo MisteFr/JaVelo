@@ -30,8 +30,8 @@ class ElevationProfileTest {
     @Test
     public void totalAscentAndDescentTests(){
         float[] s = {380, 381.5F, 379, 378, 382, 382.1F, 383.7F, 381}; // pretty realistic sample
-        assertEquals(7.2, (new ElevationProfile(9, s)).totalAscent());
-        assertEquals(6.2F,(new ElevationProfile(9, s)).totalDescent());
+        assertEquals(7.2, (new ElevationProfile(9, s)).totalAscent(), 1e-3);
+        assertEquals(6.2F,(new ElevationProfile(9, s)).totalDescent(), 1e-3);
     }
 
 
@@ -39,8 +39,8 @@ class ElevationProfileTest {
     public void minAndMaxElevationTests(){
         float[] s = {380, 381.5F, 379, 378.01F, 382, 382.1F, 383.7F, 381};
         ElevationProfile e = new ElevationProfile(9, s);
-        assertEquals(383.7, e.maxElevation());
-        assertEquals(378.01F, e.minElevation());
+        assertEquals(383.7, e.maxElevation(), 1e-3);
+        assertEquals(378.01F, e.minElevation(), 1e-3);
 
     }
 

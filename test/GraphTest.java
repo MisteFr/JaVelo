@@ -137,7 +137,7 @@ public class GraphTest {
         Graph g = Graph.loadFrom(Path.of("lausanne"));
 
         //https://www.openstreetmap.org/way/28431021
-        assertEquals(false,  g.edgeIsInverted(36234));
+        assertEquals(true,  g.edgeIsInverted(36234));
     }
 
     @Test
