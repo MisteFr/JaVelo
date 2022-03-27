@@ -4,6 +4,7 @@ import ch.epfl.javelo.projection.PointCh;
 
 /**
  * RoutePoint record
+ * Represents the point on a route closest to a given reference point, which is near the route.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

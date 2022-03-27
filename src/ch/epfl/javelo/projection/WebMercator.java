@@ -4,6 +4,7 @@ import ch.epfl.javelo.Math2;
 
 /**
  * WebMercator class
+ * Provides methods to convert between WGS 84 and Web Mercator coordinates.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

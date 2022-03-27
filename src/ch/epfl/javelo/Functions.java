@@ -4,6 +4,7 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * Functions Class
+ * Contains methods to create objects representing mathematical functions from real numbers to real numbers.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -42,6 +43,7 @@ public final class Functions {
 
     /**
      * Constant function record
+     * Constant function.
      *
      * @author Arthur Bigot (324366)
      * @author Léo Paoletti (342165)
@@ -65,6 +67,7 @@ public final class Functions {
 
     /**
      * Sampled function class
+     * Sampled function.
      *
      * @author Arthur Bigot (324366)
      * @author Léo Paoletti (342165)

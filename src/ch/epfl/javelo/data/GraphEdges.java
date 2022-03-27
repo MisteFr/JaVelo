@@ -8,6 +8,7 @@ import java.nio.*;
 
 /**
  * GraphEdges class
+ * Represents the array of all edges of the JaVelo graph.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

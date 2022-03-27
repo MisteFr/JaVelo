@@ -6,6 +6,7 @@ import java.util.List;
 
 /**
  * Route interface
+ * Represents a route.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

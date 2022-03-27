@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * MultiRoute class
- * Represents a multiple route
+ * Represents a multiple route, composed of a sequence of contiguous routes.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -83,11 +83,9 @@ public final class MultiRoute implements Route {
         }
 
         //remove duplicates
-        for (int i = 0; i < pointsList.size(); i++) {
-            if ((i + 1) != pointsList.size()) {
-                if (pointsList.get(i + 1).e() == pointsList.get(i).e() && pointsList.get(i + 1).n() == pointsList.get(i).n()) {
-                    pointsList.remove(pointsList.get(i));
-                }
+        for (int i = 0; i < pointsList.size() - 1; i++) {
+            if (pointsList.get(i + 1).e() == pointsList.get(i).e() && pointsList.get(i + 1).n() == pointsList.get(i).n()) {
+                pointsList.remove(pointsList.get(i));
             }
         }
 

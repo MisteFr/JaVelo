@@ -2,6 +2,7 @@ package ch.epfl.javelo;
 
 /**
  * Q28_4 Class
+ * Contains methods to convert numbers between the Q28.4 representation and other representations.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

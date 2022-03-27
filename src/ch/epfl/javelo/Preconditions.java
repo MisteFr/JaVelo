@@ -2,6 +2,7 @@ package ch.epfl.javelo;
 
 /**
  * Preconditions Class
+ * Used to confirm that conditions are met for executing code.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

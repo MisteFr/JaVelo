@@ -5,6 +5,7 @@ import ch.epfl.javelo.Preconditions;
 
 /**
  * PointCh Record
+ * Represents a point in the Swiss coordinate system (CH1903+).
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

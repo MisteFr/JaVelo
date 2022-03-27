@@ -8,7 +8,8 @@ import java.util.function.DoubleUnaryOperator;
 
 
 /**
- * Edge class, it represents an edge of an itinerary.
+ * Edge class
+ * Represents an edge of a Route.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 /**
  * ElevationProfileComputer class
+ * Represents a longitudinal profile calculator.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

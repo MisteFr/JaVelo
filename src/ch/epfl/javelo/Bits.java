@@ -2,6 +2,7 @@ package ch.epfl.javelo;
 
 /**
  * Bits class
+ * Contains methods to extract a sequence of bits from a 32 bits vector.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

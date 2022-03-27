@@ -2,6 +2,7 @@ package ch.epfl.javelo;
 
 /**
  * Math2 Class
+ * Offer methods to perform some mathematical calculations.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

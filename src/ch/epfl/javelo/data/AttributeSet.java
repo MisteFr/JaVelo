@@ -6,6 +6,7 @@ import java.util.StringJoiner;
 
 /**
  * AttributeSet Record
+ * Represents a set of OpenStreetMap attributes.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

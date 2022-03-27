@@ -16,6 +16,7 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * Graph class
+ * Represents the JaVelo graph.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

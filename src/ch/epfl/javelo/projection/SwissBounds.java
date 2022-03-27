@@ -2,6 +2,7 @@ package ch.epfl.javelo.projection;
 
 /**
  * SwissBounds Class
+ * Contains constants and methods related to the limits of Switzerland.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

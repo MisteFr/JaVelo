@@ -7,6 +7,7 @@ import java.nio.IntBuffer;
 
 /**
  * GraphNodes class
+ * Represents the array of all nodes of the JaVelo graph.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

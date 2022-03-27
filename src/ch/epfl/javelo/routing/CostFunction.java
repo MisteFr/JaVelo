@@ -1,5 +1,13 @@
 package ch.epfl.javelo.routing;
 
+/**
+ * CostFunction interface
+ * Represents a cost function.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
+
 public interface CostFunction {
 
     /**

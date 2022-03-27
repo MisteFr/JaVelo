@@ -8,6 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 
 /**
  * ElevationProfile class
+ * Represents the longitudinal profile of a Single or MultiRoute.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

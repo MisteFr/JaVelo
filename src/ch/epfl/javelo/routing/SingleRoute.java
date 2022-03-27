@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * SingleRoute class
+ * Represents a simple route, connecting a starting point to an ending point, without intermediate points.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

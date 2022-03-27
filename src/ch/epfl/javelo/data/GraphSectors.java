@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * GraphSectors record
+ * Represents the array containing the 16384 sectors of JaVelo.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

@@ -3,7 +3,8 @@ package ch.epfl.javelo.projection;
 import java.lang.Math;
 
 /**
- * Math 2 Class
+ * Ch1903 Class
+ * Provides static methods to convert between WGS84 format and Swiss coordinates.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)

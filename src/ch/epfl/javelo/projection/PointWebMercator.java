@@ -4,6 +4,7 @@ import ch.epfl.javelo.Preconditions;
 
 /**
  * PointWebMercator Record
+ * Represents a point in the WebMercator system.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
