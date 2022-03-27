@@ -78,15 +78,12 @@ public final class MultiRoute implements Route {
     @Override
     public List<PointCh> points() {
         List<PointCh> pointsList = new ArrayList<>();
-        for (Route r : segmentsList) {
-            pointsList.addAll(r.points());
-        }
 
-        //remove duplicates
-        for (int i = 0; i < pointsList.size() - 1; i++) {
-            if (pointsList.get(i + 1).e() == pointsList.get(i).e() && pointsList.get(i + 1).n() == pointsList.get(i).n()) {
-                pointsList.remove(pointsList.get(i));
+        for (Route r : segmentsList) {
+            if(!pointsList.isEmpty()){
+                pointsList.remove(pointsList.size() - 1);
             }
+            pointsList.addAll(r.points());
         }
 
         return pointsList;
