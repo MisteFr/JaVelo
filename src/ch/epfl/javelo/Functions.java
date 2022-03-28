@@ -43,13 +43,13 @@ public final class Functions {
 
     /**
      * Constant function record
-     * Constant function.
+     * Represents a constant function.
      *
      * @author Arthur Bigot (324366)
      * @author Léo Paoletti (342165)
      */
 
-    private static final record Constant(double y) implements DoubleUnaryOperator {
+    private record Constant(double y) implements DoubleUnaryOperator {
 
         /**
          * The constant function returns the value it was given at construction.
@@ -67,7 +67,7 @@ public final class Functions {
 
     /**
      * Sampled function class
-     * Sampled function.
+     * Represents a sampled function.
      *
      * @author Arthur Bigot (324366)
      * @author Léo Paoletti (342165)
@@ -75,9 +75,9 @@ public final class Functions {
 
     private static final class Sampled implements DoubleUnaryOperator {
 
-        private float[] samples;
-        private double xSteps;
-        private double xMax;
+        private final float[] samples;
+        private final double xSteps;
+        private final double xMax;
 
         /**
          * Constructor for Sampled DoubleUnaryOperator. Initiate samples, xMax and xSteps variables that are used in
