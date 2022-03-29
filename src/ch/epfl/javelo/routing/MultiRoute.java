@@ -30,7 +30,6 @@ public final class MultiRoute implements Route {
      */
     @Override
     public int indexOfSegmentAt(double position) {
-        position = Math2.clamp(0.0, position, length());
         int indexOfSegmentAt = 0;
 
         for (Route r : segmentsList) {
@@ -43,6 +42,11 @@ public final class MultiRoute implements Route {
                 indexOfSegmentAt += r.indexOfSegmentAt(position);
             }
             position -= r.length();
+        }
+
+        //the position was out of the full Route
+        if(position > 0){
+            return (indexOfSegmentAt - 1);
         }
 
         return indexOfSegmentAt;

@@ -98,19 +98,23 @@ public final class SingleRoute implements Route {
 
     @Override
     public PointCh pointAt(double position) {
-        position = Math2.clamp(0.0, position, length());
+        if(position < 0){
+            return edgesList.get(0).fromPoint();
+        }else if(position > length()){
+            return edgesList.get(edgesList.size() - 1).toPoint();
+        }else{
+            int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
-
-        if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).fromPoint();
+            if (binarySearchResult >= 0) {
+                if (binarySearchResult < edgesList.size()) {
+                    return edgesList.get(binarySearchResult).fromPoint();
+                } else {
+                    return edgesList.get(binarySearchResult - 1).toPoint();
+                }
             } else {
-                return edgesList.get(binarySearchResult - 1).toPoint();
+                int indexEdge = -(binarySearchResult + 2);
+                return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
             }
-        } else {
-            int indexEdge = -(binarySearchResult + 2);
-            return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
         }
     }
 
@@ -120,19 +124,23 @@ public final class SingleRoute implements Route {
 
     @Override
     public double elevationAt(double position) {
-        position = Math2.clamp(0.0, position, length());
+        if(position < 0){
+            return edgesList.get(0).elevationAt(0);
+        }else if(position > length()) {
+            return edgesList.get(edgesList.size() - 1).elevationAt(edgesList.get(edgesList.size() - 1).length());
+        }else{
+            int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
-
-        if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).elevationAt(0);
+            if (binarySearchResult >= 0) {
+                if (binarySearchResult < edgesList.size()) {
+                    return edgesList.get(binarySearchResult).elevationAt(0);
+                } else {
+                    return edgesList.get(binarySearchResult - 1).elevationAt(edgesList.get(binarySearchResult - 1).length());
+                }
             } else {
-                return edgesList.get(binarySearchResult - 1).elevationAt(edgesList.get(binarySearchResult - 1).length());
+                int indexEdge = -(binarySearchResult + 2);
+                return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
             }
-        } else {
-            int indexEdge = -(binarySearchResult + 2);
-            return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
         }
     }
 
@@ -142,23 +150,27 @@ public final class SingleRoute implements Route {
 
     @Override
     public int nodeClosestTo(double position) {
-        position = Math2.clamp(0.0, position, length());
+        if(position < 0){
+            return edgesList.get(0).fromNodeId();
+        }else if(position > length()) {
+            return edgesList.get(edgesList.size() - 1).toNodeId();
+        }else{
+            int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
-
-        if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).fromNodeId();
+            if (binarySearchResult >= 0) {
+                if (binarySearchResult < edgesList.size()) {
+                    return edgesList.get(binarySearchResult).fromNodeId();
+                } else {
+                    return edgesList.get(edgesList.size() - 1).toNodeId();
+                }
             } else {
-                return edgesList.get(edgesList.size() - 1).toNodeId();
-            }
-        } else {
-            int indexEdge = -(binarySearchResult + 2);
+                int indexEdge = -(binarySearchResult + 2);
 
-            if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
-                return edgesList.get(indexEdge).toNodeId();
-            } else {
-                return edgesList.get(indexEdge).fromNodeId();
+                if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
+                    return edgesList.get(indexEdge).toNodeId();
+                } else {
+                    return edgesList.get(indexEdge).fromNodeId();
+                }
             }
         }
     }
