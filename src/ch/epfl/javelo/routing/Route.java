@@ -22,7 +22,7 @@ public interface Route {
      * @return int index of the segment at the given position parameter
      */
 
-    abstract int indexOfSegmentAt(double position);
+    int indexOfSegmentAt(double position);
 
     /**
      * Returns the length of the Route in meters
@@ -30,7 +30,7 @@ public interface Route {
      * @return the length of the Route in meters
      */
 
-    abstract double length();
+    double length();
 
     /**
      * Returns all the Edges of the Route.
@@ -38,7 +38,7 @@ public interface Route {
      * @return List<Edge> a list of the edges that make up the path
      */
 
-    abstract List<Edge> edges();
+    List<Edge> edges();
 
     /**
      * Returns all the points that are on an extremity of an edge that belongs to the Route.
@@ -46,7 +46,7 @@ public interface Route {
      * @return A List<PointCh> of those points
      */
 
-    abstract List<PointCh> points();
+    List<PointCh> points();
 
     /**
      * Returns the point that is located at the (position param) position on the Route.
@@ -55,7 +55,7 @@ public interface Route {
      * @return PointCh object that is located at the (position param) position on the Route.
      */
 
-    abstract PointCh pointAt(double position);
+    PointCh pointAt(double position);
 
     /**
      * Returns the elevation at the given position on the Route.
@@ -64,7 +64,7 @@ public interface Route {
      * @return double the elevation at the given position.
      */
 
-    abstract double elevationAt(double position);
+    double elevationAt(double position);
 
     /**
      * Returns the identity of the node belonging to the Route that is the closest to the position param in the track.
@@ -73,7 +73,7 @@ public interface Route {
      * @return int id of the node belonging to the Route that is the closest to the position param in the track.
      */
 
-    abstract int nodeClosestTo(double position);
+    int nodeClosestTo(double position);
 
     /**
      * Returns the RoutePoint closest to the point PointCh argument
@@ -82,5 +82,5 @@ public interface Route {
      * @return RoutePoint object that is the closest to the point PointCh argument
      */
 
-    abstract RoutePoint pointClosestTo(PointCh point);
+    RoutePoint pointClosestTo(PointCh point);
 }
