@@ -66,8 +66,8 @@ public final class Functions {
 
 
     /**
-     * Sampled function class
-     * Represents a sampled function.
+     * Sampled function class.
+     * Approximates a continuous function by interpolating samples using Math2.interpolate().
      *
      * @author Arthur Bigot (324366)
      * @author Léo Paoletti (342165)
@@ -75,9 +75,9 @@ public final class Functions {
 
     private static final class Sampled implements DoubleUnaryOperator {
 
-        private final float[] samples;
-        private final double xSteps;
-        private final double xMax;
+        private final float[] SAMPLES;
+        private final double X_STEPS;
+        private final double X_MAX;
 
         /**
          * Constructor for Sampled DoubleUnaryOperator. Initiate samples, xMax and xSteps variables that are used in
@@ -89,14 +89,14 @@ public final class Functions {
 
         private Sampled(float[] s, double x) {
 
-            samples = new float[s.length];
+            SAMPLES = new float[s.length];
             for (int i = 0; i < s.length; ++i) {
-                samples[i] = s[i];
+                SAMPLES[i] = s[i];
             }
 
-            xMax = x;
+            X_MAX = x;
 
-            xSteps = xMax / (s.length - 1);
+            X_STEPS = X_MAX / (s.length - 1);
         }
 
 
@@ -113,19 +113,19 @@ public final class Functions {
         public double applyAsDouble(double x) {
 
             if (x < 0) {
-                return samples[0];
-            } else if (x > xMax) {
-                return samples[samples.length - 1];
+                return SAMPLES[0];
+            } else if (x > X_MAX) {
+                return SAMPLES[SAMPLES.length - 1];
             }
 
-            double xOnUnitSteps = x / xSteps;
+            double xOnUnitSteps = x / X_STEPS;
             int lowerBound = (int) Math.floor(xOnUnitSteps);
             int upperBound = (int) Math.ceil(xOnUnitSteps);
 
             if (lowerBound != upperBound) {
-                return Math2.interpolate(samples[lowerBound], samples[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
+                return Math2.interpolate(SAMPLES[lowerBound], SAMPLES[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
             } else {
-                return samples[(int) xOnUnitSteps];
+                return SAMPLES[(int) xOnUnitSteps];
             }
         }
     }
