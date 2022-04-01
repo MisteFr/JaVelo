@@ -61,6 +61,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
     private final static int LENGTH_IDENTITY_FIRST_SAMPLE = 30;
 
+    private final static int PROFILE_INEXISTENT = 0;
+    private final static int PROFILE_NOT_COMPRESSED = 1;
+    private final static int PROFILE_COMPRESSED_Q4_4 = 2;
+    private final static int PROFILE_COMPRESSED_Q0_4 = 3;
+
 
     /**
      * Check if the edge of identity 'edgeId' goes in the opposite direction of the OSM path from which it comes
@@ -140,21 +145,21 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         int samplesNumber = 1 + Math2.ceilDiv(Short.toUnsignedInt(edgesBuffer.getShort((edgeId * BBUFFER_EDGE_ENTRY_SIZE) + OFFSET_LENGTH)), Q28_4.ofInt(2));
 
 
-        if (profileType == 0) {
+        if (profileType == PROFILE_INEXISTENT) {
             return new float[]{};
         }
 
         float[] data = new float[samplesNumber];
 
         switch (profileType) {
-            case 1:
+            case PROFILE_NOT_COMPRESSED:
                 //data isn't compressed
                 for (int i = 0; i < samplesNumber; i++) {
                     data[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample + i)));
                 }
                 break;
 
-            case 2:
+            case PROFILE_COMPRESSED_Q4_4:
                 //data is compressed (8 bits Q4.4)
                 data[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample)));
 
@@ -164,7 +169,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
                 int counter8Bits = 1;
                 for (int i = 1; i < samplesNumber; i++) {
-                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter8Bits), (16 - (i % 2) * 8) % 16, 8));
+                    int startIndex = (16 - (i % 2) * 8) % 16;
+                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter8Bits), startIndex, 8));
                     data[i] = data[(i - 1)] + differenceWithLastSample;
 
                     if (i % 2 == 0) {
@@ -173,7 +179,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 }
                 break;
 
-            case 3:
+            case PROFILE_COMPRESSED_Q0_4:
                 //data is compressed (4 bits Q4.4)
                 data[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations().get(indexFirstSample)));
 
@@ -183,7 +189,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
                 int counter4Bits = 1;
                 for (int i = 1; i < samplesNumber; i++) {
-                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter4Bits), (16 - (i % 4) * 4) % 16, 4));
+                    int startIndex = (16 - (i % 4) * 4) % 16;
+                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter4Bits), startIndex, 4));
                     data[i] = data[(i - 1)] + differenceWithLastSample;
 
                     if (i % 4 == 0) {

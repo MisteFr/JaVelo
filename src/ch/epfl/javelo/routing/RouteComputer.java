@@ -20,7 +20,7 @@ public final class RouteComputer {
     private final CostFunction COST_FUNCTION;
 
 
-    public RouteComputer(Graph graph, CostFunction costFunction){
+    public RouteComputer(Graph graph, CostFunction costFunction) {
         GRAPH = graph;
         COST_FUNCTION = costFunction;
         distance = new float[graph.nodeCount()];
@@ -28,8 +28,7 @@ public final class RouteComputer {
     }
 
 
-
-    public Route bestRouteBetween(int startNodeId, int endNodeId){
+    public Route bestRouteBetween(int startNodeId, int endNodeId) {
 
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
@@ -53,14 +52,14 @@ public final class RouteComputer {
         float d;
         int identityOfFirstEdge;
         int identityOfLastEdge;
-        while(!(enExploration.isEmpty())){
+        while (!(enExploration.isEmpty())) {
             n = enExploration.remove().nodeId;
-            System.out.println(n);
+            //System.out.println(n);
 
-            if(n == endNodeId){
+            if (n == endNodeId) {
                 ArrayList<Integer> nodesOfRoute = new ArrayList<>();
                 int tracker = endNodeId; // variable which will have the values of the various nodes that compose the route
-                while(tracker != startNodeId){
+                while (tracker != startNodeId) {
                     nodesOfRoute.add(tracker);
                     tracker = predecesseur[tracker];
                 }
@@ -70,12 +69,12 @@ public final class RouteComputer {
 
             //The node
             identityOfFirstEdge = GRAPH.nodeOutEdgeId(n, 0);
-            identityOfLastEdge = GRAPH.nodeOutEdgeId(n, GRAPH.nodeOutDegree(n) -1);
-            for(int edgeId = identityOfFirstEdge; edgeId <= identityOfLastEdge; ++edgeId){
+            identityOfLastEdge = GRAPH.nodeOutEdgeId(n, GRAPH.nodeOutDegree(n) - 1);
+            for (int edgeId = identityOfFirstEdge; edgeId <= identityOfLastEdge; ++edgeId) {
                 nPrime = GRAPH.edgeTargetNodeId(edgeId);
                 //todo rajouter dernière optimisation 2.Nœuds visités
-                d = (float) (distance[n] + COST_FUNCTION.costFactor(n, edgeId)*GRAPH.edgeLength(edgeId));
-                if(d < distance[nPrime]){
+                d = (float) (distance[n] + COST_FUNCTION.costFactor(n, edgeId) * GRAPH.edgeLength(edgeId));
+                if (d < distance[nPrime]) {
                     distance[nPrime] = d;
                     predecesseur[nPrime] = n;
                     enExploration.add(new WeightedNode(nPrime, distance[nPrime]));
@@ -87,13 +86,13 @@ public final class RouteComputer {
     }
 
     //takes a list of point in a reverse order to output a list of edges in the right order (starting from the beginning).
-    private List<Edge> fromNodesReturnEdges(List<Integer> nodeIds){
+    private List<Edge> fromNodesReturnEdges(List<Integer> nodeIds) {
         ArrayList<Edge> edgeIds = new ArrayList<>();
         int identityOfStartingNode;
         int identityOfEndNode;
         int tempEdgeId;
 
-        for (int i = 1; i < nodeIds.size(); ++i){
+        for (int i = 1; i < nodeIds.size(); ++i) {
 
             identityOfStartingNode = nodeIds.get(nodeIds.size() - i);
             identityOfEndNode = nodeIds.get(nodeIds.size() - i - 1);
@@ -101,8 +100,9 @@ public final class RouteComputer {
             for (int j = 0; j < GRAPH.nodeOutDegree(identityOfStartingNode); ++j) {
 
                 tempEdgeId = GRAPH.nodeOutEdgeId(identityOfStartingNode, j);
-                if (GRAPH.edgeTargetNodeId(tempEdgeId) == identityOfEndNode){
+                if (GRAPH.edgeTargetNodeId(tempEdgeId) == identityOfEndNode) {
                     edgeIds.add(Edge.of(GRAPH, tempEdgeId, identityOfStartingNode, identityOfEndNode));
+                    break;
                 }
 
             }
