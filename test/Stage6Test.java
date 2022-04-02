@@ -21,9 +21,9 @@ public final class Stage6Test { //todo works ?
         RouteComputer rc2 = new RouteComputer(g2, cf2);
         long t1 = System.nanoTime();
         Route r2 = rc2.bestRouteBetween(2046055, 2694240);
+        KmlPrinter.write("javelo2.kml", r2);
         System.out.printf("Itinéraire calculé en %d ms\n",
                 (System.nanoTime() - t1) / 1_000_000);
         System.out.println(r2.length() + " " + r2.edges().size());
-        KmlPrinter.write("javelo2.kml", r2);
     }
 }

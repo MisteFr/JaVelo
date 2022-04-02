@@ -4,10 +4,7 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -46,67 +43,42 @@ public final class Graph {
     }
 
     /**
-     * @param basePath path where are stored data files
+     * Returns the data in the file 'filename' as a MappedByteBuffer
+     *
+     * @param basePath path where data files are stored
+     * @param filename name of the file to load
+     * @return a buffer with data from the file
+     * @throws IOException if something went wrong while trying to load data from the file 'filename'
+     */
+
+    private static MappedByteBuffer loadData(Path basePath, String filename) throws IOException {
+        Path filePath = basePath.resolve(filename);
+        try (FileChannel channel = FileChannel.open(filePath)) {
+            return channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        }
+    }
+
+    /**
+     * Returns the JaVelo Graph obtained from the files in the basePath folder
+     *
+     * @param basePath path where data files are stored
      * @return Graph instance
      * @throws IOException if something went wrong while loading data from resources
      */
 
     public static Graph loadFrom(Path basePath) throws IOException {
-        //initialize nodes
-        Path filePathNodes = basePath.resolve("nodes.bin");
-        IntBuffer nodesBuffer;
-        try (FileChannel channel = FileChannel.open(filePathNodes)) {
-            nodesBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                    .asIntBuffer();
-        }
-
-        //initialize GraphEdge - edges
-        Path filePathEdges = basePath.resolve("edges.bin");
-        ByteBuffer edgesBuffer;
-        try (FileChannel channel = FileChannel.open(filePathEdges)) {
-            edgesBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
-
-        //initialize GraphEdge - profiles
-        Path filePathProfiles = basePath.resolve("profile_ids.bin");
-        IntBuffer profilesBuffer;
-        try (FileChannel channel = FileChannel.open(filePathProfiles)) {
-            profilesBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                    .asIntBuffer();
-        }
-
-        //initialize GraphEdge - elevations
-        Path filePathElevations = basePath.resolve("elevations.bin");
-        ShortBuffer elevationsBuffer;
-        try (FileChannel channel = FileChannel.open(filePathElevations)) {
-            elevationsBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                    .asShortBuffer();
-        }
-
-        //initialize sectors
-        Path filePathSectors = basePath.resolve("sectors.bin");
-        ByteBuffer sectorsBuffer;
-        try (FileChannel channel = FileChannel.open(filePathSectors)) {
-            sectorsBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
-        }
+        //initialize buffers
+        IntBuffer nodesBuffer = loadData(basePath, "nodes.bin").asIntBuffer();
+        ByteBuffer edgesBuffer = loadData(basePath, "edges.bin");
+        IntBuffer profilesBuffer = loadData(basePath, "profile_ids.bin").asIntBuffer();
+        ShortBuffer elevationsBuffer = loadData(basePath, "elevations.bin").asShortBuffer();
+        ByteBuffer sectorsBuffer = loadData(basePath, "sectors.bin");
 
         //initialize attributes
-        Path filePathAttributes = basePath.resolve("attributes.bin");
-        LongBuffer sectorsAttributesBuffer;
+        LongBuffer sectorsAttributesBuffer = loadData(basePath, "attributes.bin").asLongBuffer();
         ArrayList<AttributeSet> attributeSets = new ArrayList<>();
-        try (FileChannel channel = FileChannel.open(filePathAttributes)) {
-            sectorsAttributesBuffer = channel
-                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
-                    .asLongBuffer();
-
-            while (sectorsAttributesBuffer.hasRemaining()) {
-                attributeSets.add(new AttributeSet(sectorsAttributesBuffer.get()));
-            }
+        while (sectorsAttributesBuffer.hasRemaining()) {
+            attributeSets.add(new AttributeSet(sectorsAttributesBuffer.get()));
         }
 
         return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer, profilesBuffer, elevationsBuffer), attributeSets);
@@ -158,7 +130,7 @@ public final class Graph {
 
     /**
      * Get the identity of the closest node to a given point, at the given maximum distance (in meters)
-     * or -1 if no node matches these criteria,
+     * or -1 if no node matches these criteria
      *
      * @param point          given point
      * @param searchDistance maximum distance to search around the point

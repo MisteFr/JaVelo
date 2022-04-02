@@ -201,7 +201,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         }
 
         //The profile samples are always ordered in the direction of the OSM track.
-        //Therefore, if the edge goes in the opposite direction of the OSM track we reverse the data.
+        //Therefore, if the edge goes in the opposite direction of the OSM track we reverse the data array.
 
         if (isInverted(edgeId)) {
             int i = 0;
