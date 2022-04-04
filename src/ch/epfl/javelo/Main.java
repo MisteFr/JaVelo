@@ -8,7 +8,13 @@ import java.nio.file.Path;
 public class Main {
 
     public static void main(String[] args) {
-        float f = Float.NEGATIVE_INFINITY;
-        System.out.println(f == Float.NEGATIVE_INFINITY);
+
+        int i = 0;
+
+        System.out.println(i++);
+
+        int j = 0;
+
+        System.out.println(++j);
     }
 }
