@@ -33,7 +33,7 @@ public final class Bits {
 
     /**
      * Extract from the 32 bits vector the range of 'length' bits starting at the bit of index 'start' that
-     * it interprets as a unsigned value.
+     * it interprets as an unsigned value.
      *
      * @param value  the 32 bits vector
      * @param start  start bit
