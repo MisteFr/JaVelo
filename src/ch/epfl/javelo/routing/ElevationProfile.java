@@ -16,6 +16,7 @@ import java.util.function.DoubleUnaryOperator;
 
 public class ElevationProfile {
 
+    //all fields are initialized during construction
     private final double LENGTH;
     private final double MIN_ELEVATION;
     private final double MAX_ELEVATION;
@@ -45,7 +46,8 @@ public class ElevationProfile {
 
             if (i < elevationSamples.length - 1) {
                 diff = elevationSamples[i+1] - elevationSamples[i];
-                //Verify if there is a descent or an ascent between those two elements of the array and increment the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
+                // Verify if there is a descent or an ascent between those two elements of the array and increment
+                // the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
                 if (diff > 0) {
                     tempTotalAscent += diff;
                 } else {
@@ -55,14 +57,16 @@ public class ElevationProfile {
 
         }
 
-        //Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples and the tempTotalAscent and tempTotalDescent are computed, we initialize our final variables.
+        // Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples
+        // and the tempTotalAscent and tempTotalDescent are computed, we initialize our final variables.
 
         MIN_ELEVATION = s.getMin();
         MAX_ELEVATION = s.getMax();
         TOTAL_ASCENT = tempTotalAscent;
         TOTAL_DESCENT = tempTotalDescent;
 
-        //We initialize the FUNC sampled function that maps the x coordinate ranging from 0 to length to its approximated continuous function based on the samples (see sampled in functions)
+        // We initialize the FUNC sampled function that maps the x coordinate ranging
+        // from 0 to length to its approximated continuous function based on the samples (see sampled in functions)
         FUNC = Functions.sampled(elevationSamples, length);
     }
 

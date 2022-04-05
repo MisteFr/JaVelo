@@ -19,33 +19,57 @@ public final class ElevationProfileComputer {
     private ElevationProfileComputer(){}
 
     /**
-     * TODO: DOC
-     * @param route
-     * @param maxStepLength
-     * @return
+     * computes the elevation profile of the given Route route param given the double maxStepLength maximum spacing
+     * Throws IllegalArgumentException if maxStepLength <= 0.
+     * @param route the route of which we will compute the elevation profile
+     * @param maxStepLength the maximum spacing between profile samples
+     * @return ElevationProfile the elevation profile object of the given route
+     * @throws IllegalArgumentException
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
 
         Preconditions.checkArgument(maxStepLength > 0);
 
-        //TODO Math2.ceilDiv?
         final int SAMPLE_NUMBER = (int) Math.ceil((route.length()/maxStepLength)) + 1;
-        final double STEP_LENGTH = (route.length()/(SAMPLE_NUMBER - 1)); //La distance qui correspond à un step basée sur la longueur totale de l'itinéraire (il y a un step de moins qu'il n'y a de points)
+
+        final double STEP_LENGTH = (route.length()/(SAMPLE_NUMBER - 1));
+        // the distance of a step based on the total length of the route (there are SAMPLE_NUMBER - 1 steps)
+
+        float[] samples = initializeSamplesArray(SAMPLE_NUMBER, route, STEP_LENGTH);
+
+
+        samples = fillInBeginningOfSamplesArray(samples);
+
+        samples = fillInEndOfSamplesArray(samples);
+
+        samples = getsRidOfAllNanInSamplesArray(samples);
+
+        return new ElevationProfile(route.length(), samples);
+    }
+
+
+    // Initialize samples array with NaN values
+    private static float[] initializeSamplesArray(int SAMPLE_NUMBER, Route route, double STEP_LENGTH){
         float[] samples = new float[SAMPLE_NUMBER];
 
-        for (int i = 0; i < SAMPLE_NUMBER; ++i){ //TODO pas utile pour l'instant comme on travaille avec des itinéraires simples (une arête)
-            /*if(route.points().contains(route.pointAt(i*STEP_LENGTH)) && Float.isNaN((float) route.elevationAt(i*STEP_LENGTH))){ //If we are on the extremity of an
+        for (int i = 0; i < SAMPLE_NUMBER; ++i){
+            if(route.points().contains(route.pointAt(i*STEP_LENGTH))
+                    && Float.isNaN((float) route.elevationAt(i*STEP_LENGTH))){
+                //If we are on the extremity of an edge
                 //locate previous edge
                 Edge previousEdge = route.edges().get(route.indexOfSegmentAt(i*STEP_LENGTH) - 1);
                 //Take its last sample
                 samples[i] = (float) previousEdge.elevationAt(previousEdge.length());
-            }else{*/
+            }else{
                 samples[i] = (float) route.elevationAt(i*STEP_LENGTH);
-            //}
+            }
         }
 
-        // We correct the beginning of the sample array and treat the case where it is all NaN.
-        //TODO only use one loop ?
+        return samples;
+    }
+
+    // Method gets rid of Nan values at the beginning and treats the case of an all NaN samples array.
+    private static float[] fillInBeginningOfSamplesArray(float[] samples){
         int i = 0;
         while((i != samples.length) && Float.isNaN(samples[i])){
             i += 1;
@@ -55,15 +79,21 @@ public final class ElevationProfileComputer {
         }else{
             Arrays.fill(samples, 0, samples.length, 0F);
         }
+        return samples;
+    }
 
-        //We correct the end of the sample array.
-        i = 0;
+    // Method gets rid of Nan values at the end of the samples array.
+    private static float[] fillInEndOfSamplesArray(float[] samples){
+        int i = 0;
         while(Float.isNaN(samples[(samples.length - 1) - i])){
             i += 1;
         }
         Arrays.fill(samples, samples.length - i, samples.length, samples[(samples.length - 1) - i]);
+        return samples;
+    }
 
-
+    // Browses the samples array a last time in order to replace intermediate NaN values by interpolated values.
+    private static float[] getsRidOfAllNanInSamplesArray(float[] samples){
         int beginIndex = -1;
         int xMax = 0;
         //We fill the NaN gaps. First sample cannot be NaN.
@@ -82,7 +112,6 @@ public final class ElevationProfileComputer {
                 beginIndex = -1;
             }
         }
-
-        return new ElevationProfile(route.length(), samples);
+        return samples;
     }
 }

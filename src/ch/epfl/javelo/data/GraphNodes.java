@@ -61,7 +61,8 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     /**
-     * Gets number of out edges of nodeId node in buffer IntBuffer, stored in the 4 MSB of the third int of the nodeId node.
+     * Gets number of out edges of nodeId node in buffer IntBuffer,
+     * stored in the 4 MSB of the third int of the nodeId node.
      *
      * @param nodeId starts at 0
      * @return int number of out edges of nodeId node.

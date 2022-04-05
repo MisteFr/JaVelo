@@ -48,7 +48,8 @@ public record GraphSectors(ByteBuffer buffer) {
 
         int bottomNIndex = Math2.clamp(0,
                 (int) (((center.n() - distance) - SwissBounds.MIN_N) / (SwissBounds.HEIGHT / SECTORS_ON_AXIS)), 127);
-        // We have the (bottomEIndex, bottomNIndex) sector, that corresponds to the sector included in the bottom left of the square.
+        // We have the (bottomEIndex, bottomNIndex) sector,
+        // that corresponds to the sector included in the bottom left of the square.
 
         int topEIndex = Math2.clamp(0,
                 (int) (((center.e() + distance) - SwissBounds.MIN_E) / (SwissBounds.WIDTH / SECTORS_ON_AXIS)), 127);
@@ -63,12 +64,15 @@ public record GraphSectors(ByteBuffer buffer) {
         int identityOfFirstNode;
         int identityOfLastNode;
 
-        //We loop through the appropriate sectors (the borders of our scope were defined earlier in the method) to add them to the result ArrayList.
+        //We loop through the appropriate sectors (the borders of our scope were defined earlier in the method)
+        // to add them to the result ArrayList.
         for (int i = bottomNIndex; i <= topNIndex; i++) {
             for (int j = bottomEIndex; j <= topEIndex; j++) {
 
                 index = 128 * i + j;
-                indexBytes = index * SECTOR_BYTES; // We can translate the two-dimensional array of the coordinates of a sector in our grid to an index in the one-dimensional buffer attribute.
+                indexBytes = index * SECTOR_BYTES;
+                // We can translate the two-dimensional array of the coordinates
+                // of a sector in our grid to an index in the one-dimensional buffer attribute.
                 identityOfFirstNode = buffer.getInt(indexBytes);
                 identityOfLastNode = identityOfFirstNode + Short.toUnsignedInt(buffer.getShort(indexBytes + OFFSET_NB));
 
