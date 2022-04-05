@@ -24,7 +24,7 @@ public final class ElevationProfileComputer {
      * @param route the route of which we will compute the elevation profile
      * @param maxStepLength the maximum spacing between profile samples
      * @return ElevationProfile the elevation profile object of the given route
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if maxStepLength is negative
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
 
@@ -55,7 +55,7 @@ public final class ElevationProfileComputer {
         for (int i = 0; i < SAMPLE_NUMBER; ++i){
             if(route.points().contains(route.pointAt(i*STEP_LENGTH))
                     && Float.isNaN((float) route.elevationAt(i*STEP_LENGTH))){
-                //If we are on the extremity of an edge
+                //If on the extremity of an edge
                 //locate previous edge
                 Edge previousEdge = route.edges().get(route.indexOfSegmentAt(i*STEP_LENGTH) - 1);
                 //Take its last sample
@@ -96,7 +96,7 @@ public final class ElevationProfileComputer {
     private static float[] getsRidOfAllNanInSamplesArray(float[] samples){
         int beginIndex = -1;
         int xMax = 0;
-        //We fill the NaN gaps. First sample cannot be NaN.
+        //Fill the NaN gaps. First sample cannot be NaN.
         for(int j = 0; j < samples.length; ++j){
             if(Float.isNaN(samples[j])){
                 if(beginIndex == -1){
@@ -104,8 +104,8 @@ public final class ElevationProfileComputer {
                 }
             }else if(beginIndex != -1){
                 xMax = j - beginIndex;
-                // We initialize an array based on the two borders of the non-NaN values of the sample array.
-                // We choose an xMax so that we can define each samples elements with an int value as x argument in f.
+                // Initialize an array based on the two borders of the non-NaN values of the sample array.
+                // Choose an xMax to define each samples elements with an int value as x argument in f.
                 for (int k = 1; k < xMax ; ++k) {
                     samples[beginIndex + k] = (float) Math2.interpolate(samples[beginIndex], samples[j], (((double) k)/xMax));
                 }

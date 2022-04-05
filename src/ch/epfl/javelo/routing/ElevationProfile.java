@@ -58,14 +58,14 @@ public class ElevationProfile {
         }
 
         // Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples
-        // and the tempTotalAscent and tempTotalDescent are computed, we initialize our final variables.
+        // and the tempTotalAscent and tempTotalDescent are computed, initialize the final variables.
 
         MIN_ELEVATION = s.getMin();
         MAX_ELEVATION = s.getMax();
         TOTAL_ASCENT = tempTotalAscent;
         TOTAL_DESCENT = tempTotalDescent;
 
-        // We initialize the FUNC sampled function that maps the x coordinate ranging
+        // Initialize the FUNC sampled function that maps the x coordinate ranging
         // from 0 to length to its approximated continuous function based on the samples (see sampled in functions)
         FUNC = Functions.sampled(elevationSamples, length);
     }

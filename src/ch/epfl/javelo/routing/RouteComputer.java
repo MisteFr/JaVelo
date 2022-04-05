@@ -95,13 +95,13 @@ public final class RouteComputer {
 
             identityOfFirstEdge = GRAPH.nodeOutEdgeId(n, 0);
             identityOfLastEdge = GRAPH.nodeOutEdgeId(n, GRAPH.nodeOutDegree(n) - 1);
-            //We browse the nodes at the end of the edges coming from the n node.
+            //Browse the nodes at the end of the edges coming from the n node.
             for (int edgeId = identityOfFirstEdge; edgeId <= identityOfLastEdge; ++edgeId) {
                 nPrime = GRAPH.edgeTargetNodeId(edgeId);
                 crowDistanceOfNPrimeToEndNode = (float) GRAPH.nodePoint(endNodeId).distanceTo(GRAPH.nodePoint(nPrime));
                 d = (float) (distance[n] + COST_FUNCTION.costFactor(n, edgeId) * GRAPH.edgeLength(edgeId));
-                // If the distance found for the nPrime node is lower than the distance that we already store,
-                // we update our distance array. In all cases, all nPrime nodes are added as WeightedNode to 
+                // If the distance found for the nPrime node is lower than the distance already stored,
+                // Update the distance array. In all cases, all nPrime nodes are added as WeightedNode to
                 // the enExploration priority queue.
                 if (d < distance[nPrime]) {
                     distance[nPrime] = d;
