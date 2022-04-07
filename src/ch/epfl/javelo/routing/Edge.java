@@ -6,10 +6,16 @@ import ch.epfl.javelo.projection.PointCh;
 
 import java.util.function.DoubleUnaryOperator;
 
-
 /**
  * Edge record
  * Represents an edge of a Route.
+ *
+ * @param fromNodeId identity of the starting node of the edge
+ * @param toNodeId identity of the end node of the edge
+ * @param fromPoint starting point of the edge
+ * @param toPoint end point of the edge
+ * @param length length of the edge in meters
+ * @param profile longitudinal profile of the edge
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -40,6 +46,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param point The pointCh to project on this edge.
      * @return the position on the edge, ranging from 0 to the length of the edge,on which the point parameter is projected.
      */
+
     public double positionClosestTo(PointCh point) {
         return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(), toPoint.n(), point.e(), point.n());
     }

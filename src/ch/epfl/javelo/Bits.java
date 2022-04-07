@@ -23,6 +23,7 @@ public final class Bits {
      * @return the signed value extracted
      * @throws IllegalArgumentException if the range is invalid
      */
+
     public static int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0));
         //left arithmetic shift
@@ -39,7 +40,9 @@ public final class Bits {
      * @param start  start bit
      * @param length length of the range
      * @return the unsigned value extracted
+     * @throws IllegalArgumentException if the range is invalid
      */
+
     public static int extractUnsigned(int value, int start, int length) {
         Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0 || length > 31));
         //left arithmetic shift

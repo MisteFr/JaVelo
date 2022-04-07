@@ -16,7 +16,6 @@ import java.util.List;
  * @author Léo Paoletti (342165)
  */
 
-
 public final class SingleRoute implements Route {
 
     private final List<Edge> edgesList;
@@ -26,7 +25,9 @@ public final class SingleRoute implements Route {
      * SingleRoute Constructor from a list of edges
      *
      * @param edges List of edges that are part of the simple itinerary
+     * @throws IllegalArgumentException if the list of edges is empty
      */
+
     public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(!edges.isEmpty());
 

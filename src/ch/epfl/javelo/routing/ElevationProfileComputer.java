@@ -26,6 +26,7 @@ public final class ElevationProfileComputer {
      * @return ElevationProfile the elevation profile object of the given route
      * @throws IllegalArgumentException if maxStepLength is negative
      */
+
     public static ElevationProfile elevationProfile(Route route, double maxStepLength){
 
         Preconditions.checkArgument(maxStepLength > 0);

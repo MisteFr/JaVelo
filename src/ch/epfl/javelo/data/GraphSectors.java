@@ -12,6 +12,8 @@ import java.util.List;
  * GraphSectors record
  * Represents the array containing the 16384 sectors of JaVelo.
  *
+ * @param buffer buffer containing the value of the attributes of all the sectors.
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
@@ -28,6 +30,7 @@ public record GraphSectors(ByteBuffer buffer) {
      * Represents a Sector in the 128*128 grid of Sectors.
      * endNodeId is the id of the last node of the sector + 1.
      */
+
     public record Sector(int startNodeId, int endNodeId) {}
 
 
@@ -39,6 +42,7 @@ public record GraphSectors(ByteBuffer buffer) {
      * @param distance The distance of the middle of each side of the square from the center PointCh parameter.
      * @return A list of the Sectors that are, even partly, in the scope of the square.
      */
+
     public List<Sector> sectorsInArea(PointCh center, double distance) {
 
         ArrayList<Sector> result = new ArrayList<>();

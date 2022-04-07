@@ -30,6 +30,8 @@ public class ElevationProfile {
      *
      * @param length           The length of the edge.
      * @param elevationSamples The array containing the samples of raw elevation (not compressed)
+     * @throws IllegalArgumentException if the length is negative or if the
+     *                                      number of elevation samples is insufficient
      */
 
     public ElevationProfile(double length, float[] elevationSamples) {

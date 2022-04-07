@@ -21,18 +21,25 @@ import java.util.function.DoubleUnaryOperator;
 
 public final class Graph {
 
+    //nodes of the graph
     private final GraphNodes NODES;
+
+    //sectors of the graph
     private final GraphSectors SECTORS;
+
+    //edges of the graph
     private final GraphEdges EDGES;
+
+    //attribute sets of the graph
     private final List<AttributeSet> ATTRIBUTE_SETS;
 
     /**
      * Graph constructor, we use List.copyOf() to make sure it stays immuable.
      *
-     * @param nodes         GraphNodes
-     * @param sectors       GraphSectors
-     * @param edges         GraphEdges
-     * @param attributeSets List<AttributeSet>
+     * @param nodes         GraphNodes, nodes of the graph
+     * @param sectors       GraphSectors, sectors of the graph
+     * @param edges         GraphEdges, edges of the graph
+     * @param attributeSets List<AttributeSet>, attribute sets of the graph
      */
 
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {

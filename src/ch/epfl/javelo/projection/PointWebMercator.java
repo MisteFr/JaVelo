@@ -6,10 +6,12 @@ import ch.epfl.javelo.Preconditions;
  * PointWebMercator Record
  * Represents a point in the WebMercator system.
  *
+ * @param x x coordinate of the point
+ * @param y y coordinate of the point
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
-
 
 public record PointWebMercator(double x, double y) {
 
@@ -22,8 +24,7 @@ public record PointWebMercator(double x, double y) {
      */
 
     public PointWebMercator {
-        Preconditions.checkArgument((x <= 1) && (x >= 0));
-        Preconditions.checkArgument((y <= 1) && (y >= 0));
+        Preconditions.checkArgument((x <= 1) && (x >= 0) && (y <= 1) && (y >= 0));
     }
 
     /**

@@ -137,6 +137,7 @@ public final class TileManager {
 
         /**
          * Check if tile is valid at construction
+         * @throws IllegalArgumentException if the tile parameters aren't valid
          */
         public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));

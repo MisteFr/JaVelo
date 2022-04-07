@@ -31,6 +31,7 @@ public final class RouteComputer {
      * @param graph the Graph in which the Route needs to be found
      * @param costFunction the CostFunction associated to the edges of the graph
      */
+
     public RouteComputer(Graph graph, CostFunction costFunction) {
         GRAPH = graph;
         COST_FUNCTION = costFunction;
@@ -45,7 +46,9 @@ public final class RouteComputer {
      * @param startNodeId start of the route
      * @param endNodeId end of the route
      * @return Route object that represents the route which has the minimal total length between startNodeId and endNodeId
+     * @throws IllegalArgumentException TODO
      */
+
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
 
         // A type of node that is used to select the next node to explore by searching the minimal distance value of the

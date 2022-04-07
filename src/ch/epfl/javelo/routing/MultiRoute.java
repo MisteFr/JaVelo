@@ -18,6 +18,13 @@ public final class MultiRoute implements Route {
 
     private final List<Route> segmentsList;
 
+    /**
+     * Constructs a MultiRoute composed of the given segments.
+     *
+     * @param segments segments for the MultiRoute
+     * @throws IllegalArgumentException if the list of segments is empty.
+     */
+
     public MultiRoute(List<Route> segments) {
         Preconditions.checkArgument(!segments.isEmpty());
 
@@ -27,6 +34,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public int indexOfSegmentAt(double position) {
         int indexOfSegmentAt = 0;
@@ -54,6 +62,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public double length() {
         double cumulatedLength = 0.0;
@@ -66,6 +75,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public List<Edge> edges() {
         List<Edge> edgesList = new ArrayList<>();
@@ -78,6 +88,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public List<PointCh> points() {
         List<PointCh> pointsList = new ArrayList<>();
@@ -95,6 +106,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public PointCh pointAt(double position) {
         //we first handle cases where the position is negative
@@ -120,6 +132,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public double elevationAt(double position) {
         //we first handle cases where the position is negative
@@ -145,6 +158,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public int nodeClosestTo(double position) {
         //we first handle cases where the position is negative
@@ -170,6 +184,7 @@ public final class MultiRoute implements Route {
     /**
      * {@inheritDoc}
      */
+
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint nearestPoint = RoutePoint.NONE;

@@ -10,6 +10,10 @@ import java.nio.*;
  * GraphEdges class
  * Represents the array of all edges of the JaVelo graph.
  *
+ * @param edgesBuffer buffer containing the value of the attributes for all the edges of the graph
+ * @param profileIds buffer containing the value of the attributes for all the edges of the graph
+ * @param elevations buffer containing all the profile samples, compressed or not.
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
@@ -69,7 +73,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
     /**
      * Check if the edge of identity 'edgeId' goes in the opposite direction of the OSM path from which it comes
-     * index parameter of getInt() is in bytes as we are working with a ByteBuffer.
+     * index parameter of getInt() is a byte (ByteBuffer).
      *
      * @param edgeId id of the edge
      * @return boolean true if inverted, false otherwise
@@ -80,8 +84,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     }
 
     /**
-     * Get the identity of the destination node of the edge of identity 'edgeId'
-     * index parameter of getInt() is in bytes as we are working with a ByteBuffer
+     * Returns the identity of the destination node of the edge of identity 'edgeId'
+     * index parameter of getInt() is a byte (ByteBuffer).
      *
      * @param edgeId id of the edge
      * @return int the target node id
@@ -97,8 +101,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     }
 
     /**
-     * Get the length in meters of the edge of identity 'edgeId'
-     * index parameter of getInt() is in bytes as we are working with a ByteBuffer
+     * Returns the length in meters of the edge of identity 'edgeId'
+     * index parameter of getInt() is a byte (ByteBuffer).
      *
      * @param edgeId identity of the edge
      * @return double length in meters of the edge
@@ -109,8 +113,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     }
 
     /**
-     * Get the positive elevation in meters of the edge of identity 'edgeId'
-     * index parameter of getInt() is in bytes as we are working with a ByteBuffer
+     * Returns the positive elevation in meters of the edge of identity 'edgeId'
+     * index parameter of getInt() is a byte (ByteBuffer).
      *
      * @param edgeId identity of the edge
      * @return double elevation in meters of the edge
@@ -122,7 +126,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
     /**
      * Check if the edge of identity 'edgeId' has a profile
-     * index parameter of get() is an integer as we are working with an IntBuffer
+     * index parameter of get() is an integer (IntBuffer)
      *
      * @param edgeId identity of the edge
      * @return boolean true if edge has a profile, false otherwise
@@ -133,7 +137,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     }
 
     /**
-     * Return the profile sample of the edge of identity 'edgeId'
+     * Returns the profile sample of the edge of identity 'edgeId'
      *
      * @param edgeId identity of the edge
      * @return float[] the profileSample of the edge of identity 'edgeId', empty float[] if profileType == 0.
@@ -220,7 +224,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     }
 
     /**
-     * Get the identity of the AttributeSet assigned to the edge of identity 'edgeId'
+     * Returns the identity of the AttributeSet assigned to the edge of identity 'edgeId'
      *
      * @param edgeId identity of the edge
      * @return int identity of the AttributeSet assigned to the edge

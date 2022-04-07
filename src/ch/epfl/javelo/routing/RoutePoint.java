@@ -6,10 +6,13 @@ import ch.epfl.javelo.projection.PointCh;
  * RoutePoint record
  * Represents the point on a route closest to a given reference point, which is near the route.
  *
+ * @param point point in the swiss system coordinate
+ * @param position position of the point along the route, in meters
+ * @param distanceToReference the distance, in meters, between the point and the reference point
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
-
 
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
 

@@ -9,6 +9,8 @@ import java.nio.IntBuffer;
  * GraphNodes class
  * Represents the array of all nodes of the JaVelo graph.
  *
+ * @param buffer buffer containing the value of the attributes of all the nodes of the graph.
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
@@ -39,7 +41,7 @@ public record GraphNodes(IntBuffer buffer) {
 
 
     /**
-     * Gets E coordinate of nodeId node in buffer IntBuffer.
+     * Returns E coordinate of nodeId node in buffer IntBuffer.
      *
      * @param nodeId starts at 0
      * @return double E coordinate of nodeId node interpreted as Q28.4.
@@ -50,7 +52,7 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     /**
-     * Gets N coordinate of nodeId node in buffer IntBuffer.
+     * Returns N coordinate of nodeId node in buffer IntBuffer.
      *
      * @param nodeId starts at 0
      * @return double N coordinate of nodeId node interpreted as Q28.4.
@@ -61,7 +63,7 @@ public record GraphNodes(IntBuffer buffer) {
     }
 
     /**
-     * Gets number of out edges of nodeId node in buffer IntBuffer,
+     * Returns the number of out edges of nodeId node in buffer IntBuffer,
      * stored in the 4 MSB of the third int of the nodeId node.
      *
      * @param nodeId starts at 0
@@ -74,7 +76,7 @@ public record GraphNodes(IntBuffer buffer) {
 
     /**
      * Returns the int identity of the edgeIndex edge. The identity of the edge is its index in the buffer that lists
-     * all the edges. We can compute this index by adding (the index of the first out edge of the nodeId node stored in
+     * all the edges. Computed by adding (the index of the first out edge of the nodeId node stored in
      * the 28 LSB of the third value associated with the nodeId node) and (the edgeIndex index).
      *
      * @param nodeId    starts at 0

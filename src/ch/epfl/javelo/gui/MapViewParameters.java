@@ -46,6 +46,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      * @param xCoordinate x-coordinate of the point in the map portion
      * @param yCoordinate y-coordinate of the point in the map portion
      * @return PointWebMercator point
+     * @throws IllegalArgumentException if the coordinate aren't in the map
      */
 
     public PointWebMercator pointAt(double xCoordinate, double yCoordinate){

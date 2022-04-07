@@ -8,6 +8,9 @@ import java.util.StringJoiner;
  * AttributeSet Record
  * Represents a set of OpenStreetMap attributes.
  *
+ * @param bits Represents the content of the AttributeSet. One bit per possible value;
+ *                 i.e. the index bit b of this value is 1 if and only if the attribute b is in the AttributeSet.
+ *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */

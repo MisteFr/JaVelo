@@ -21,6 +21,6 @@ public interface CostFunction {
      * @param edgeId identity of the edge (WARNING: not the index in the list of edges leaving the node).
      * @return factor by which the length of the edge must be multiplied
      */
-    double costFactor(int nodeId, int edgeId);
 
+    double costFactor(int nodeId, int edgeId);
 }
