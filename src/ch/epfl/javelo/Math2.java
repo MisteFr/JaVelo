@@ -51,7 +51,7 @@ public final class Math2 {
      * @throws IllegalArgumentException if max is inferior to min value
      */
     public static int clamp(int min, int v, int max) {
-        Preconditions.checkArgument(min < max);
+        Preconditions.checkArgument(min <= max);
         if (v < min) {
             return min;
         } else return Math.min(v, max);
@@ -67,10 +67,8 @@ public final class Math2 {
      * @throws IllegalArgumentException if max is inferior to min value
      */
     public static double clamp(double min, double v, double max) {
-        Preconditions.checkArgument(min < max);
-        if (v < min) {
-            return min;
-        } else return Math.min(v, max);
+        Preconditions.checkArgument(min <= max);
+        return v < min ? min : Math.min(v, max);
     }
 
     /**

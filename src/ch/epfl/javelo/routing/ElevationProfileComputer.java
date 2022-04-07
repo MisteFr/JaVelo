@@ -19,7 +19,7 @@ public final class ElevationProfileComputer {
     private ElevationProfileComputer(){}
 
     /**
-     * computes the elevation profile of the given Route route param given the double maxStepLength maximum spacing
+     * Computes the elevation profile of the given Route route param given the double maxStepLength maximum spacing
      * Throws IllegalArgumentException if maxStepLength <= 0.
      * @param route the route of which we will compute the elevation profile
      * @param maxStepLength the maximum spacing between profile samples

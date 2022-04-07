@@ -8,7 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 
 
 /**
- * Edge class
+ * Edge record
  * Represents an edge of a Route.
  *
  * @author Arthur Bigot (324366)
