@@ -1,23 +1,22 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Preconditions;
+import ch.epfl.javelo.projection.PointWebMercator;
+import javafx.geometry.Point2D;
+
+
 /**
  * MapViewParameters Record
  * Represents the parameters of the background map presented in the gui.
+ *
+ * @param zoomLevel zoom level
+ * @param indexTopLeftX x-coordinate of the top-left corner of the displayed map portion
+ * @param indexTopLeftY y-coordinate of the top-left corner of the displayed map portion
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
 
-import ch.epfl.javelo.Preconditions;
-import ch.epfl.javelo.projection.PointWebMercator;
-import javafx.geometry.Point2D;
-
-/**
- * X and Y coordinates are expressed in the WebMercator coordinate system of the image at the given zoom level
- * @param zoomLevel zoom level
- * @param indexTopLeftX x-coordinate of the top-left corner of the displayed map portion
- * @param indexTopLeftY y-coordinate of the top-left corner of the displayed map portion
- */
 public record MapViewParameters(int zoomLevel, double indexTopLeftX, double indexTopLeftY) {
 
     /**
@@ -33,7 +32,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      * Returns an instance of MapViewParameters with the new coordinates of the top left corner
      * @param newIndexTopLeftX new x-coordinate for the top-left corner
      * @param newIndexTopLeftY new y-coordinate for the top-left corner
-     * @return
+     * @return new MapViewParameters instance with the next coordinates for the top left corner
      */
 
     public MapViewParameters withMinXY(double newIndexTopLeftX, double newIndexTopLeftY){
