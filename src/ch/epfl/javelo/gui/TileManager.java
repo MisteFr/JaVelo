@@ -21,28 +21,24 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
 
-    /**
-     * Memory cache capacity
-     */
+    //Memory cache capacity
     private final static int CACHE_CAPACITY = 100;
 
-    /**
-     * Memory cache array with access-order
-     * Load factor is one as capacity won't be increased
-     */
+    //Memory cache array with access-order
+    //Load factor is one as capacity won't be increased
     private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY, 1f, true);
 
-    /**
-     * Path to the memory disk folder
-     */
+    //Path to the memory disk folder
     private final Path pathToMemoryDisk;
 
-    /**
-     * Name of the tile server where are stored tile images
-     */
+    //Name of the tile server where are stored tile images
     private final String tileServerName;
 
-
+    /**
+     * Constructor of TileManager
+     * @param pathFolder path of the disk cache
+     * @param tileServerN name of the tile server
+     */
     public TileManager(Path pathFolder, String tileServerN) {
         pathToMemoryDisk = pathFolder;
         tileServerName = tileServerN;
@@ -89,8 +85,9 @@ public final class TileManager {
             return memoryCache.get(tileIdentity);
         } else {
             //look in memory disk
-            Path pathToFile = Paths.get(pathToMemoryDisk + "/" + tileIdentity.zoomLevel
-                    + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
+            Path pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileIdentity.zoomLevel))
+                                    .resolve(String.valueOf(tileIdentity.indexX))
+                                    .resolve(tileIdentity.indexY + ".png");
 
             if (Files.exists(pathToFile)) {
                 //we load the image and place it in the memory cache
@@ -99,10 +96,12 @@ public final class TileManager {
                 return imageTile;
             } else {
                 //we are going to load the image from the tile server
-                URL u = new URL("https://" + tileServerName + "/" + tileIdentity.zoomLevel
+                URL u = new URL("https", tileServerName, 443, "/" + tileIdentity.zoomLevel
                         + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "JaVelo");
+                //5 seconds timeout in case something went wrong with url / the server isn't reachable
+                c.setConnectTimeout(5 * 1000);
 
                 try (InputStream i = c.getInputStream()) {
                     //create the directory in cache folder /zoomLevel/xIndex/
@@ -137,7 +136,7 @@ public final class TileManager {
 
         /**
          * Check if tile is valid at construction
-         * @throws IllegalArgumentException if the tile parameters aren't valid
+         * @throws IllegalArgumentException if the tile parameters aren 't valid
          */
         public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, indexX, indexY));

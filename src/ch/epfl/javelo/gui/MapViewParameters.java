@@ -1,6 +1,5 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.geometry.Point2D;
 
@@ -36,7 +35,6 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      */
 
     public MapViewParameters withMinXY(double newIndexTopLeftX, double newIndexTopLeftY){
-        //TODO: meme instance? impossible
         return new MapViewParameters(zoomLevel, newIndexTopLeftX, newIndexTopLeftY);
     }
 
@@ -45,12 +43,11 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      * @param xCoordinate x-coordinate of the point in the map portion
      * @param yCoordinate y-coordinate of the point in the map portion
      * @return PointWebMercator point
-     * @throws IllegalArgumentException if the coordinate aren't in the map
+     * @throws IllegalArgumentException if the coordinate aren't in the map (PointWebMercator handle the case
+     *                                      when the coordinates are incorrect)
      */
 
     public PointWebMercator pointAt(double xCoordinate, double yCoordinate){
-        //TODO: coordonées hors du cadre comment on gére ça?
-        Preconditions.checkArgument(xCoordinate >= 0 && yCoordinate >= 0);
         return PointWebMercator.of(zoomLevel, xCoordinate + indexTopLeftX, yCoordinate + indexTopLeftY);
     }
 
@@ -61,8 +58,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      */
 
     public double viewX(PointWebMercator point){
-        //TODO: coordonées hors du cadre comment on gére ça? / Forumule correcte / Erreurus arrondis
-        return indexTopLeftX - point.x();
+        return (point.xAtZoomLevel(zoomLevel) - indexTopLeftX);
     }
 
     /**
@@ -72,7 +68,6 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      */
 
     public double viewY(PointWebMercator point){
-        //TODO: coordonées hors du cadre comment on gére ça? / Forumule correcte / Erreurus arrondis
-        return indexTopLeftY - point.y();
+        return (point.yAtZoomLevel(zoomLevel) - indexTopLeftY);
     }
 }

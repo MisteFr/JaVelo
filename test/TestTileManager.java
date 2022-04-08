@@ -22,8 +22,7 @@ public final class TestTileManager extends Application {
 
         for(int y = 271725; y < (271725+101); y++){
             //I checked that the memoryCache was working as intended
-           tm.imageForTileAt(
-                    new TileManager.TileId(19, 271725, y));
+           tm.imageForTileAt(new TileManager.TileId(19, 271725, y));
         }
         Platform.exit();
     }

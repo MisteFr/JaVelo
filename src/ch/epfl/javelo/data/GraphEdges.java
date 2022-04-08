@@ -20,49 +20,32 @@ import java.nio.*;
 
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
 
-    /**
-     * Size of an edge in byte (8 bits) in the edgesBuffer
-     */
+
+    //Size of an edge in byte (8 bits) in the edgesBuffer
     private final static int BBUFFER_EDGE_ENTRY_SIZE = 10;
 
-    /**
-     * Offset of the identity of the destination node and direction of the edge
-     */
+    //Offset of the identity of the destination node and direction of the edge
     private final static int OFFSET_IDENTITY_AND_DIRECTION = 0;
 
-    /**
-     * Offset of the length of the edge in byte in the edgesBuffer
-     */
+    //Offset of the length of the edge in byte in the edgesBuffer
     private final static int OFFSET_LENGTH = 4;
 
-    /**
-     * Offset of the altitude difference in byte in the edgesBuffer
-     */
+    //Offset of the altitude difference in byte in the edgesBuffer
     private final static int OFFSET_ALTITUDE_DIFFERENCE = 6;
 
-    /**
-     * Offset of the identity of the AttributeSet in byte in the edgesBuffer
-     */
+    //Offset of the identity of the AttributeSet in byte in the edgesBuffer
     private final static int OFFSET_IDENTITY_ATTRIBUTE_SET = 8;
 
-    /**
-     * Offset of the profile type in the 32 bits of a profile
-     */
+    //Offset of the profile type in the 32 bits of a profile
     private final static int OFFSET_TYPE_PROFILE = 30;
 
-    /**
-     * Offset of the identity of the first sample of data in the 32 bits of a profile
-     */
+    //Offset of the identity of the first sample of data in the 32 bits of a profile
     private final static int OFFSET_IDENTITY_FIRST_SAMPLE = 0;
 
-    /**
-     * Length of the profile type in the 32 bits of a profile
-     */
+    //Length of the profile type in the 32 bits of a profile
     private final static int LENGTH_TYPE_PROFILE = 2;
 
-    /**
-     * Length of the identity of the first sample of data in the 32 bits of a profile
-     */
+    //Length of the identity of the first sample of data in the 32 bits of a profile
     private final static int LENGTH_IDENTITY_FIRST_SAMPLE = 30;
 
     private final static int PROFILE_INEXISTENT = 0;
