@@ -46,7 +46,6 @@ public final class RouteComputer {
      * @param startNodeId start of the route
      * @param endNodeId end of the route
      * @return Route object that represents the route which has the minimal total length between startNodeId and endNodeId
-     * @throws IllegalArgumentException TODO
      */
 
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
@@ -69,7 +68,6 @@ public final class RouteComputer {
 
         //sets the values of the startNodeId
         distance[startNodeId] = 0;
-        float crowDistanceFromStartNodeToEndNode = (float) GRAPH.nodePoint(endNodeId).distanceTo(GRAPH.nodePoint(startNodeId));
         enExploration.add(new WeightedNode(startNodeId, 0F));
 
         int n;
@@ -127,6 +125,7 @@ public final class RouteComputer {
         int identityOfEndNode;
         int tempEdgeId;
 
+
         for (int i = 1; i < nodeIds.size(); ++i) {
 
             identityOfStartingNode = nodeIds.get(nodeIds.size() - i);
@@ -141,8 +140,8 @@ public final class RouteComputer {
                 }
 
             }
-
         }
+
 
         return edgeIds;
     }
