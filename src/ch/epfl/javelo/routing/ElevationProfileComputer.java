@@ -39,11 +39,9 @@ public final class ElevationProfileComputer {
         float[] samples = initializeSamplesArray(SAMPLE_NUMBER, route, STEP_LENGTH);
 
 
-        samples = fillInBeginningOfSamplesArray(samples);
-
-        samples = fillInEndOfSamplesArray(samples);
-
-        samples = getsRidOfAllNanInSamplesArray(samples);
+        fillInBeginningOfSamplesArray(samples);
+        fillInEndOfSamplesArray(samples);
+        getsRidOfAllNanInSamplesArray(samples);
 
         return new ElevationProfile(route.length(), samples);
     }
@@ -53,13 +51,34 @@ public final class ElevationProfileComputer {
     private static float[] initializeSamplesArray(int SAMPLE_NUMBER, Route route, double STEP_LENGTH){
         float[] samples = new float[SAMPLE_NUMBER];
 
+        Edge previousEdge;
+        boolean notFirstNorLastValueOfI;
+        boolean consideredPointIsOnTheExtremityOfAnEdge;
+        boolean consideredPointHasNaNValue;
+        double searchForRightEdge;
+        int indexOfPreviousEdge;
+
         for (int i = 0; i < SAMPLE_NUMBER; ++i){
-            if(route.points().contains(route.pointAt(i*STEP_LENGTH))
-                    && Float.isNaN((float) route.elevationAt(i*STEP_LENGTH))){
-                //If on the extremity of an edge
+
+            notFirstNorLastValueOfI = i != 0 && i != SAMPLE_NUMBER - 1;
+            consideredPointIsOnTheExtremityOfAnEdge = route.points().contains(route.pointAt(i*STEP_LENGTH));
+            consideredPointHasNaNValue = Float.isNaN((float) route.elevationAt(i*STEP_LENGTH));
+            // Here, we treat the case where a NaN overlaps a valid elevation value (last node of an edge
+            // and first node of the next edge) to prioritize the valid elevation value.
+            if(notFirstNorLastValueOfI && consideredPointHasNaNValue && consideredPointIsOnTheExtremityOfAnEdge){
+
+                searchForRightEdge = route.edges().get(0).length();
+                indexOfPreviousEdge = 0;
+
                 //locate previous edge
-                Edge previousEdge = route.edges().get(route.indexOfSegmentAt(i*STEP_LENGTH) - 1);
-                //Take its last sample
+                while(searchForRightEdge < i*STEP_LENGTH){
+                    indexOfPreviousEdge += 1;
+                    searchForRightEdge += route.edges().get(indexOfPreviousEdge).length();
+                }
+
+                previousEdge = route.edges().get(indexOfPreviousEdge);
+
+                //Take previous edge last sample
                 samples[i] = (float) previousEdge.elevationAt(previousEdge.length());
             }else{
                 samples[i] = (float) route.elevationAt(i*STEP_LENGTH);
@@ -70,7 +89,7 @@ public final class ElevationProfileComputer {
     }
 
     // Method gets rid of Nan values at the beginning and treats the case of an all NaN samples array.
-    private static float[] fillInBeginningOfSamplesArray(float[] samples){
+    private static void fillInBeginningOfSamplesArray(float[] samples){
         int i = 0;
         while((i != samples.length) && Float.isNaN(samples[i])){
             i += 1;
@@ -80,21 +99,19 @@ public final class ElevationProfileComputer {
         }else{
             Arrays.fill(samples, 0, samples.length, 0F);
         }
-        return samples;
     }
 
     // Method gets rid of Nan values at the end of the samples array.
-    private static float[] fillInEndOfSamplesArray(float[] samples){
+    private static void fillInEndOfSamplesArray(float[] samples){
         int i = 0;
         while(Float.isNaN(samples[(samples.length - 1) - i])){
             i += 1;
         }
         Arrays.fill(samples, samples.length - i, samples.length, samples[(samples.length - 1) - i]);
-        return samples;
     }
 
     // Browses the samples array a last time in order to replace intermediate NaN values by interpolated values.
-    private static float[] getsRidOfAllNanInSamplesArray(float[] samples){
+    private static void getsRidOfAllNanInSamplesArray(float[] samples){
         int beginIndex = -1;
         int xMax = 0;
         //Fill the NaN gaps. First sample cannot be NaN.
@@ -113,6 +130,5 @@ public final class ElevationProfileComputer {
                 beginIndex = -1;
             }
         }
-        return samples;
     }
 }
