@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/cache" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/ch_west" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/lausanne" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
