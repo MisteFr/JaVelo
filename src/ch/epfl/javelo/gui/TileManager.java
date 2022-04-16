@@ -24,8 +24,7 @@ public final class TileManager {
     private final static int CACHE_CAPACITY = 100;
 
     //Memory cache array with access-order
-    //Load factor is one as capacity won't be increased
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY, 1f, true);
+    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
     //Path to the memory disk folder
     private final Path pathToMemoryDisk;
@@ -97,6 +96,7 @@ public final class TileManager {
                 //we are going to load the image from the tile server
                 URL u = new URL("https", tileServerName, 443, "/" + tileIdentity.zoomLevel
                         + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
+                System.out.println(u);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "JaVelo");
                 //5 seconds timeout in case something went wrong with url / the server isn't reachable

@@ -9,30 +9,55 @@ import javafx.scene.canvas.Canvas;
 
 import java.io.IOException;
 
+/**
+ * BaseMapManager class
+ * Manages the display and interaction with the background map.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
+
 public final class BaseMapManager {
 
     private final TileManager tileManager;
     private final WaypointsManager waypointsManager;
     private final ObjectProperty<MapViewParameters> mapViewParametersWrapped;
+
+    //will be true if redraw is needed
     private boolean redrawNeeded;
-    private final Canvas canvas;
+
+    //pane of the map
     private final Pane pane;
+
+    //canvas of the pane
+    private final Canvas canvas;
+
+    //last width saved
     private double lastWidth;
+
+    //last height saved
     private double lastHeight;
 
+    /**
+     * BaseMapManager constructor
+     * @param tileM TileManager to get the tiles from the map
+     * @param waypointsM WaypointManager
+     * @param mapParamsWrapped MapViewParameters wrapped into a JavaFx property
+     */
 
-    public BaseMapManager(TileManager tileM, WaypointsManager waypointsM, ObjectProperty<MapViewParameters> mapParamsWrapped){
+    public BaseMapManager(TileManager tileM, WaypointsManager waypointsM, ObjectProperty<MapViewParameters> mapParamsWrapped) {
         tileManager = tileM;
         waypointsManager = waypointsM;
         mapViewParametersWrapped = mapParamsWrapped;
         lastHeight = 0.0;
         lastWidth = 0.0;
 
-        canvas = new Canvas(1200, 1200);
+        canvas = new Canvas();
         pane = new Pane();
 
         pane.getChildren().add(canvas);
 
+        //when the pane width or height will change -> canvas width and height will update accordingly
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
 
@@ -41,63 +66,69 @@ public final class BaseMapManager {
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
 
+        //initial draw
         redrawOnNextPulse();
     }
 
-    public Pane pane(){
+    /**
+     * Returns the JavaFX pane displaying the background map
+     * @return Pane
+     */
+
+    public Pane pane() {
         return pane;
     }
 
-    public void draw(){
+    //Method that draws the map background
+    private void draw() {
         GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
         //TODO: est ce que c'est vraiment nécessaire de clear le canvas?
         graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         MapViewParameters mapViewParameters = mapViewParametersWrapped.get();
 
-        //we want to extract all the tiles to draw from the mapViewParameters wrapped now
+        //index of the top left tile
+        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / 256);
+        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / 256);
 
-        try {
-            //int topLeftXIndex = (int) (mapViewParameters.topLeft().getX() / 256);
-            //int topLeftYIndex = (int) (mapViewParameters.topLeft().getY() / 256);
+        //index of the bottom right tile
+        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + canvas.getWidth()) / 256);
+        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + canvas.getHeight()) / 256);
 
-
-            //int topLeftXIndex = (int) (mapViewParameters.indexTopLeftX() / 256) + 1;
-            int topLeftXIndex = (int) (mapViewParameters.indexTopLeftX() / 256);
-            int topLeftYIndex = (int) (mapViewParameters.indexTopLeftY() / 256) + 3;
-
-            int bottomRightXIndex = (int) (topLeftXIndex + (canvas.getWidth() / 256));
-            int bottomRightYIndex = (int) (topLeftYIndex - (canvas.getHeight() / 256));
-
-            for (int i = topLeftXIndex; i <= bottomRightXIndex; i++) {
-                for (int j = bottomRightYIndex; j <= topLeftYIndex; j++) {
-                    System.out.println(i + " - " + j);
+        for (int i = topLeftXIndexTile; i <= bottomRightXIndexTile; i++) {
+            for (int j = topLeftYIndexTile; j <= bottomRightYIndexTile; j++) {
+                try {
+                    //get the image corresponding to each tile displayed (at least partially) on the map portion
                     Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), i, j));
-                    graphicsContext.drawImage(image, (i - topLeftXIndex) * 256, (j - bottomRightYIndex) * 256);
+
+                    //draw the image to the corresponding position using the topLeft point
+                    graphicsContext.drawImage(image, i * 256 - mapViewParameters.indexTopLeftX(), j * 256 - mapViewParameters.indexTopLeftY());
+                } catch (IOException exception) {
+                    exception.printStackTrace();
                 }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
+        //draw the waypoints
         waypointsManager.draw();
     }
 
-    private void redrawIfNeeded(){
+    //if the windows properties changed, redraw on next pulse
+    private void redrawIfNeeded() {
         //dimensions changed
-        if(!(canvas.getHeight() == lastHeight && canvas.getWidth() == lastWidth)){
+        if (!(canvas.getHeight() == lastHeight && canvas.getWidth() == lastWidth)) {
             lastWidth = canvas.getWidth();
             lastHeight = canvas.getHeight();
             redrawOnNextPulse();
         }
 
-        if(!redrawNeeded) return;
+        if (!redrawNeeded) return;
         redrawNeeded = false;
 
         draw();
     }
 
+    //redraw on next pulse
     private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
