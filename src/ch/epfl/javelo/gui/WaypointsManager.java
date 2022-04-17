@@ -51,6 +51,7 @@ public final class WaypointsManager {
      * @param tPList ObservableList of Waypoint(s)
      * @param errorR Object for reporting errors
      */
+
     public WaypointsManager(Graph g, ObjectProperty<MapViewParameters> jProperty, ObservableList<Waypoint> tPList, Consumer<String> errorR){
         GRAPH = g;
         MAP_VIEW_PARAMETERS_WRAPPED = jProperty;
@@ -63,6 +64,7 @@ public final class WaypointsManager {
      * Returns the pane containing the waypoints
      * @return Pane the pane containing the waypoints
      */
+
     public Pane pane() {
         draw();
         return PANE;
@@ -123,10 +125,13 @@ public final class WaypointsManager {
 
     public void addWaypointMap(int x, int y){
         PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+
+        //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
         PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
 
         Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE));
 
+        //add the new waypoint to the list and draw it on the pane
         TRANSIT_POINTS_LIST.add(newWaypoint);
         addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
     }

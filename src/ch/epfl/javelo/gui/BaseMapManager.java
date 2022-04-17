@@ -98,14 +98,14 @@ public final class BaseMapManager {
         int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + CANVAS.getWidth()) / OSM_TILE_SIZE);
         int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + CANVAS.getHeight()) / OSM_TILE_SIZE);
 
-        for (int i = topLeftXIndexTile; i <= bottomRightXIndexTile; i++) {
-            for (int j = topLeftYIndexTile; j <= bottomRightYIndexTile; j++) {
+        for (int xTileMap = topLeftXIndexTile; xTileMap <= bottomRightXIndexTile; xTileMap++) {
+            for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
                 try {
                     //get the image corresponding to each tile displayed (at least partially) on the map portion
-                    Image image = TILE_MANAGER.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), i, j));
+                    Image image = TILE_MANAGER.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), xTileMap, yTileMap));
 
                     //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image, i * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), j * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
+                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
