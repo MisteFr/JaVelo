@@ -18,8 +18,8 @@ import java.util.List;
 
 public final class SingleRoute implements Route {
 
-    private final List<Edge> edgesList;
-    private final double[] nodesPositionList;
+    private final List<Edge> EDGES_LIST;
+    private final double[] NODES_POSITION_LIST;
 
     /**
      * SingleRoute Constructor from a list of edges
@@ -31,18 +31,18 @@ public final class SingleRoute implements Route {
     public SingleRoute(List<Edge> edges) {
         Preconditions.checkArgument(!edges.isEmpty());
 
-        edgesList = List.copyOf(edges);
+        EDGES_LIST = List.copyOf(edges);
 
         //Initialize an array containing the position of each node on the SingeRoute for methods pointAt(), elevationAt() and nodeClosestTo()
-        double[] tempNodesPositionList = new double[edgesList.size() + 1];
+        double[] tempNodesPositionList = new double[EDGES_LIST.size() + 1];
 
         double lengthRoute = 0.0;
-        for (int i = 0; i < edgesList.size(); ++i) {
-            lengthRoute += edgesList.get(i).length();
+        for (int i = 0; i < EDGES_LIST.size(); ++i) {
+            lengthRoute += EDGES_LIST.get(i).length();
             tempNodesPositionList[(i + 1)] = lengthRoute;
         }
 
-        nodesPositionList = tempNodesPositionList;
+        NODES_POSITION_LIST = tempNodesPositionList;
     }
 
     /**
@@ -61,7 +61,7 @@ public final class SingleRoute implements Route {
     @Override
     public double length() {
         double length = 0.0;
-        for (Edge e : edgesList) {
+        for (Edge e : EDGES_LIST) {
             length += e.length();
         }
         return length;
@@ -73,7 +73,7 @@ public final class SingleRoute implements Route {
 
     @Override
     public List<Edge> edges() {
-        return edgesList;
+        return EDGES_LIST;
     }
 
     /**
@@ -85,11 +85,11 @@ public final class SingleRoute implements Route {
         List<PointCh> pointsList = new ArrayList<>();
 
         //we first add every starting point of each edge
-        for (Edge e : edgesList) {
+        for (Edge e : EDGES_LIST) {
             pointsList.add(e.fromPoint());
         }
         //we add the end point of the last edge
-        pointsList.add(edgesList.get(edgesList.size() - 1).toPoint());
+        pointsList.add(EDGES_LIST.get(EDGES_LIST.size() - 1).toPoint());
         return pointsList;
     }
 
@@ -101,17 +101,17 @@ public final class SingleRoute implements Route {
     public PointCh pointAt(double position) {
         position = Math2.clamp(0.0, position, length());
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
+        int binarySearchResult = Arrays.binarySearch(NODES_POSITION_LIST, position);
 
         if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).fromPoint();
+            if (binarySearchResult < EDGES_LIST.size()) {
+                return EDGES_LIST.get(binarySearchResult).fromPoint();
             } else {
-                return edgesList.get(binarySearchResult - 1).toPoint();
+                return EDGES_LIST.get(binarySearchResult - 1).toPoint();
             }
         } else {
             int indexEdge = -(binarySearchResult + 2);
-            return edgesList.get(indexEdge).pointAt(position - nodesPositionList[indexEdge]);
+            return EDGES_LIST.get(indexEdge).pointAt(position - NODES_POSITION_LIST[indexEdge]);
         }
     }
 
@@ -123,17 +123,17 @@ public final class SingleRoute implements Route {
     public double elevationAt(double position) {
         position = Math2.clamp(0.0, position, length());
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
+        int binarySearchResult = Arrays.binarySearch(NODES_POSITION_LIST, position);
 
         if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).elevationAt(0);
+            if (binarySearchResult < EDGES_LIST.size()) {
+                return EDGES_LIST.get(binarySearchResult).elevationAt(0);
             } else {
-                return edgesList.get(binarySearchResult - 1).elevationAt(edgesList.get(binarySearchResult - 1).length());
+                return EDGES_LIST.get(binarySearchResult - 1).elevationAt(EDGES_LIST.get(binarySearchResult - 1).length());
             }
         } else {
             int indexEdge = -(binarySearchResult + 2);
-            return edgesList.get(indexEdge).elevationAt(position - nodesPositionList[indexEdge]);
+            return EDGES_LIST.get(indexEdge).elevationAt(position - NODES_POSITION_LIST[indexEdge]);
         }
     }
 
@@ -145,21 +145,21 @@ public final class SingleRoute implements Route {
     public int nodeClosestTo(double position) {
         position = Math2.clamp(0.0, position, length());
 
-        int binarySearchResult = Arrays.binarySearch(nodesPositionList, position);
+        int binarySearchResult = Arrays.binarySearch(NODES_POSITION_LIST, position);
 
         if (binarySearchResult >= 0) {
-            if (binarySearchResult < edgesList.size()) {
-                return edgesList.get(binarySearchResult).fromNodeId();
+            if (binarySearchResult < EDGES_LIST.size()) {
+                return EDGES_LIST.get(binarySearchResult).fromNodeId();
             } else {
-                return edgesList.get(edgesList.size() - 1).toNodeId();
+                return EDGES_LIST.get(EDGES_LIST.size() - 1).toNodeId();
             }
         } else {
             int indexEdge = -(binarySearchResult + 2);
 
-            if (position - nodesPositionList[indexEdge] > edgesList.get(indexEdge).length() / 2) {
-                return edgesList.get(indexEdge).toNodeId();
+            if (position - NODES_POSITION_LIST[indexEdge] > EDGES_LIST.get(indexEdge).length() / 2) {
+                return EDGES_LIST.get(indexEdge).toNodeId();
             } else {
-                return edgesList.get(indexEdge).fromNodeId();
+                return EDGES_LIST.get(indexEdge).fromNodeId();
             }
         }
     }
@@ -173,7 +173,7 @@ public final class SingleRoute implements Route {
         RoutePoint nearestPoint = RoutePoint.NONE;
         double cumulatedLength = 0.0;
 
-        for (Edge e : edgesList) {
+        for (Edge e : EDGES_LIST) {
             double lengthOfProjection = Math2.clamp(0.0, e.positionClosestTo(point), e.length());
             PointCh nearestPointOnEdge = e.pointAt(lengthOfProjection);
             double distance = nearestPointOnEdge.distanceTo(point);

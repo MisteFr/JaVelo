@@ -17,7 +17,7 @@ import java.util.List;
 public final class MultiRoute implements Route {
 
     //List of segments composing the MultiRoute
-    private final List<Route> segmentsList;
+    private final List<Route> SEGMENTS_LIST;
 
     /**
      * Constructs a MultiRoute composed of the given segments.
@@ -29,7 +29,7 @@ public final class MultiRoute implements Route {
     public MultiRoute(List<Route> segments) {
         Preconditions.checkArgument(!segments.isEmpty());
 
-        segmentsList = List.copyOf(segments);
+        SEGMENTS_LIST = List.copyOf(segments);
     }
 
     /**
@@ -40,7 +40,7 @@ public final class MultiRoute implements Route {
     public int indexOfSegmentAt(double position) {
         int indexOfSegmentAt = 0;
 
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             //the position isn't on the Route
             if (position > r.length()) {
                 //we get the index of the last segment of this Route and add + 1 to get the number of segments
@@ -67,7 +67,7 @@ public final class MultiRoute implements Route {
     @Override
     public double length() {
         double cumulatedLength = 0.0;
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             cumulatedLength += r.length();
         }
         return cumulatedLength;
@@ -80,7 +80,7 @@ public final class MultiRoute implements Route {
     @Override
     public List<Edge> edges() {
         List<Edge> edgesList = new ArrayList<>();
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             edgesList.addAll(r.edges());
         }
         return edgesList;
@@ -94,7 +94,7 @@ public final class MultiRoute implements Route {
     public List<PointCh> points() {
         List<PointCh> pointsList = new ArrayList<>();
 
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             if(!pointsList.isEmpty()){
                 pointsList.remove(pointsList.size() - 1);
             }
@@ -112,12 +112,12 @@ public final class MultiRoute implements Route {
     public PointCh pointAt(double position) {
         //we first handle cases where the position is negative
         if (position <= 0) {
-            Route firstSegment = segmentsList.get(0);
+            Route firstSegment = SEGMENTS_LIST.get(0);
             return firstSegment.pointAt(0);
         }
 
         double cumulatedLength = 0.0;
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             if (cumulatedLength <= position && (cumulatedLength + r.length()) >= position) {
                 return r.pointAt(position - cumulatedLength);
             }
@@ -126,7 +126,7 @@ public final class MultiRoute implements Route {
 
         //if we still didn't find the sub route on which the position is, it means it is out of the global route
         //we return the pointAt the last position of the global route.
-        Route lastSegment = segmentsList.get(segmentsList.size() - 1);
+        Route lastSegment = SEGMENTS_LIST.get(SEGMENTS_LIST.size() - 1);
         return lastSegment.pointAt(lastSegment.length());
     }
 
@@ -138,12 +138,12 @@ public final class MultiRoute implements Route {
     public double elevationAt(double position) {
         //we first handle cases where the position is negative
         if (position <= 0) {
-            Route firstSegment = segmentsList.get(0);
+            Route firstSegment = SEGMENTS_LIST.get(0);
             return firstSegment.elevationAt(0);
         }
 
         double cumulatedLength = 0.0;
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             if (cumulatedLength <= position && (cumulatedLength + r.length()) >= position) {
                 return r.elevationAt(position - cumulatedLength);
             }
@@ -152,7 +152,7 @@ public final class MultiRoute implements Route {
 
         //if we still didn't find the sub route on which the position is, it means it is out of the global route
         //we return the elevationAt the last position of the global route.
-        Route lastSegment = segmentsList.get(segmentsList.size() - 1);
+        Route lastSegment = SEGMENTS_LIST.get(SEGMENTS_LIST.size() - 1);
         return lastSegment.elevationAt(lastSegment.length());
     }
 
@@ -164,12 +164,12 @@ public final class MultiRoute implements Route {
     public int nodeClosestTo(double position) {
         //we first handle cases where the position is negative
         if (position <= 0) {
-            Route firstSegment = segmentsList.get(0);
+            Route firstSegment = SEGMENTS_LIST.get(0);
             return firstSegment.nodeClosestTo(0);
         }
 
         double cumulatedLength = 0.0;
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             if (cumulatedLength <= position && (cumulatedLength + r.length()) >= position) {
                 return r.nodeClosestTo(position - cumulatedLength);
             }
@@ -178,7 +178,7 @@ public final class MultiRoute implements Route {
 
         //if we still didn't find the sub route on which the position is, it means it is out of the global route
         //we return the nodeClosestTo the last position of the global route.
-        Route lastSegment = segmentsList.get(segmentsList.size() - 1);
+        Route lastSegment = SEGMENTS_LIST.get(SEGMENTS_LIST.size() - 1);
         return lastSegment.nodeClosestTo(lastSegment.length());
     }
 
@@ -192,7 +192,7 @@ public final class MultiRoute implements Route {
         double cumulatedLength = 0.0;
 
         //we find the nearestPoint to each segment
-        for (Route r : segmentsList) {
+        for (Route r : SEGMENTS_LIST) {
             //if we found a new nearestPoint we adjust the Position with cumulatedLength to have position according the global Route
             //and not only the segment
             if (nearestPoint.min(r.pointClosestTo(point)) != nearestPoint) {

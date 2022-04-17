@@ -24,13 +24,13 @@ public final class TileManager {
     private final static int CACHE_CAPACITY = 100;
 
     //Memory cache array with access-order
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
+    private final LinkedHashMap<TileId, Image> MEMORY_CACHE = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
     //Path to the memory disk folder
-    private final Path pathToMemoryDisk;
+    private final Path PATH_TO_MEMORY_DISK;
 
     //Name of the tile server where are stored tile images
-    private final String tileServerName;
+    private final String TILE_SERVER_NAME;
 
     /**
      * Constructor of TileManager
@@ -38,8 +38,8 @@ public final class TileManager {
      * @param tileServerN name of the tile server
      */
     public TileManager(Path pathFolder, String tileServerN) {
-        pathToMemoryDisk = pathFolder;
-        tileServerName = tileServerN;
+        PATH_TO_MEMORY_DISK = pathFolder;
+        TILE_SERVER_NAME = tileServerN;
     }
 
     /**
@@ -51,11 +51,11 @@ public final class TileManager {
      */
 
     private void addToCache(TileId tileIdentity, Image image) {
-        if (memoryCache.size() >= CACHE_CAPACITY) {
+        if (MEMORY_CACHE.size() >= CACHE_CAPACITY) {
             //complexity is 0(1)
-            memoryCache.remove(memoryCache.entrySet().iterator().next().getKey());
+            MEMORY_CACHE.remove(MEMORY_CACHE.entrySet().iterator().next().getKey());
         }
-        memoryCache.put(tileIdentity, image);
+        MEMORY_CACHE.put(tileIdentity, image);
     }
 
     /**
@@ -66,7 +66,7 @@ public final class TileManager {
      */
 
     private boolean cacheContains(TileId tileIdentity) {
-        return memoryCache.containsKey(tileIdentity);
+        return MEMORY_CACHE.containsKey(tileIdentity);
     }
 
     /**
@@ -80,10 +80,10 @@ public final class TileManager {
     public Image imageForTileAt(TileId tileIdentity) throws IOException {
         //look in memory cache first
         if (cacheContains(tileIdentity)) {
-            return memoryCache.get(tileIdentity);
+            return MEMORY_CACHE.get(tileIdentity);
         } else {
             //look in memory disk
-            Path pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileIdentity.zoomLevel))
+            Path pathToFile = PATH_TO_MEMORY_DISK.resolve(String.valueOf(tileIdentity.zoomLevel))
                                     .resolve(String.valueOf(tileIdentity.indexX))
                                     .resolve(tileIdentity.indexY + ".png");
 
@@ -94,7 +94,7 @@ public final class TileManager {
                 return imageTile;
             } else {
                 //we are going to load the image from the tile server
-                URL u = new URL("https", tileServerName, 443, "/" + tileIdentity.zoomLevel
+                URL u = new URL("https", TILE_SERVER_NAME, 443, "/" + tileIdentity.zoomLevel
                         + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
                 System.out.println(u);
                 URLConnection c = u.openConnection();

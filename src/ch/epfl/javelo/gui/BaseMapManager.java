@@ -19,18 +19,21 @@ import java.io.IOException;
 
 public final class BaseMapManager {
 
-    private final TileManager tileManager;
-    private final WaypointsManager waypointsManager;
-    private final ObjectProperty<MapViewParameters> mapViewParametersWrapped;
+    private final TileManager TILE_MANAGER;
+    private final WaypointsManager WAYPOINTS_MANAGER;
+    private final ObjectProperty<MapViewParameters> MAP_VIEW_PARAMETERS_WRAPPED;
+
+    //size of an OSM Tile in pixels
+    private final static int OSM_TILE_SIZE = 256;
+
+    //pane of the map
+    private final Pane PANE;
+
+    //canvas of the pane
+    private final Canvas CANVAS;
 
     //will be true if redraw is needed
     private boolean redrawNeeded;
-
-    //pane of the map
-    private final Pane pane;
-
-    //canvas of the pane
-    private final Canvas canvas;
 
     //last width saved
     private double lastWidth;
@@ -46,22 +49,22 @@ public final class BaseMapManager {
      */
 
     public BaseMapManager(TileManager tileM, WaypointsManager waypointsM, ObjectProperty<MapViewParameters> mapParamsWrapped) {
-        tileManager = tileM;
-        waypointsManager = waypointsM;
-        mapViewParametersWrapped = mapParamsWrapped;
+        TILE_MANAGER = tileM;
+        WAYPOINTS_MANAGER = waypointsM;
+        MAP_VIEW_PARAMETERS_WRAPPED = mapParamsWrapped;
         lastHeight = 0.0;
         lastWidth = 0.0;
 
-        canvas = new Canvas();
-        pane = new Pane();
+        CANVAS = new Canvas();
+        PANE = new Pane();
 
-        pane.getChildren().add(canvas);
+        PANE.getChildren().add(CANVAS);
 
         //when the pane width or height will change -> canvas width and height will update accordingly
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
+        CANVAS.widthProperty().bind(PANE.widthProperty());
+        CANVAS.heightProperty().bind(PANE.heightProperty());
 
-        canvas.sceneProperty().addListener((p, oldS, newS) -> {
+        CANVAS.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
@@ -76,33 +79,33 @@ public final class BaseMapManager {
      */
 
     public Pane pane() {
-        return pane;
+        return PANE;
     }
 
     //Method that draws the map background
     private void draw() {
-        GraphicsContext graphicsContext = canvas.getGraphicsContext2D();
+        GraphicsContext graphicsContext = CANVAS.getGraphicsContext2D();
         //TODO: est ce que c'est vraiment nécessaire de clear le canvas?
-        graphicsContext.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        graphicsContext.clearRect(0, 0, CANVAS.getWidth(), CANVAS.getHeight());
 
-        MapViewParameters mapViewParameters = mapViewParametersWrapped.get();
+        MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
 
         //index of the top left tile
-        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / 256);
-        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / 256);
+        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / OSM_TILE_SIZE);
+        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / OSM_TILE_SIZE);
 
         //index of the bottom right tile
-        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + canvas.getWidth()) / 256);
-        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + canvas.getHeight()) / 256);
+        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + CANVAS.getWidth()) / OSM_TILE_SIZE);
+        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + CANVAS.getHeight()) / OSM_TILE_SIZE);
 
         for (int i = topLeftXIndexTile; i <= bottomRightXIndexTile; i++) {
             for (int j = topLeftYIndexTile; j <= bottomRightYIndexTile; j++) {
                 try {
                     //get the image corresponding to each tile displayed (at least partially) on the map portion
-                    Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), i, j));
+                    Image image = TILE_MANAGER.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), i, j));
 
                     //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image, i * 256 - mapViewParameters.indexTopLeftX(), j * 256 - mapViewParameters.indexTopLeftY());
+                    graphicsContext.drawImage(image, i * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), j * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
@@ -110,15 +113,15 @@ public final class BaseMapManager {
         }
 
         //draw the waypoints
-        waypointsManager.draw();
+        WAYPOINTS_MANAGER.draw();
     }
 
     //if the windows properties changed, redraw on next pulse
     private void redrawIfNeeded() {
         //dimensions changed
-        if (!(canvas.getHeight() == lastHeight && canvas.getWidth() == lastWidth)) {
-            lastWidth = canvas.getWidth();
-            lastHeight = canvas.getHeight();
+        if (!(CANVAS.getHeight() == lastHeight && CANVAS.getWidth() == lastWidth)) {
+            lastWidth = CANVAS.getWidth();
+            lastHeight = CANVAS.getHeight();
             redrawOnNextPulse();
         }
 

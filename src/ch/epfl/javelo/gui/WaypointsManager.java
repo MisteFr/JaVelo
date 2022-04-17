@@ -22,13 +22,13 @@ import java.util.function.Consumer;
 
 public final class WaypointsManager {
 
-    private final Graph graph;
-    private final ObjectProperty<MapViewParameters> mapViewParametersWrapped;
-    private final ObservableList<Waypoint> transitPointsList;
-    private final Consumer<String> errorReporter;
+    private final Graph GRAPH;
+    private final ObjectProperty<MapViewParameters> MAP_VIEW_PARAMETERS_WRAPPED;
+    private final ObservableList<Waypoint> TRANSIT_POINTS_LIST;
+    private final Consumer<String> ERROR_REPORTER;
 
     //pane containing the waypoints
-    private final Pane pane;
+    private final Pane PANE;
 
     //search distance for the nearestNode function when adding a waypoint
     private final int SEARCH_DISTANCE = 500;
@@ -52,11 +52,11 @@ public final class WaypointsManager {
      * @param errorR Object for reporting errors
      */
     public WaypointsManager(Graph g, ObjectProperty<MapViewParameters> jProperty, ObservableList<Waypoint> tPList, Consumer<String> errorR){
-        graph = g;
-        mapViewParametersWrapped = jProperty;
-        transitPointsList = tPList;
-        errorReporter = errorR;
-        pane = new Pane();
+        GRAPH = g;
+        MAP_VIEW_PARAMETERS_WRAPPED = jProperty;
+        TRANSIT_POINTS_LIST = tPList;
+        ERROR_REPORTER = errorR;
+        PANE = new Pane();
     }
 
     /**
@@ -65,7 +65,30 @@ public final class WaypointsManager {
      */
     public Pane pane() {
         draw();
-        return pane;
+        return PANE;
+    }
+
+    //add a waypoint to the pane
+    private void addWaypointPane(Waypoint w, String pinStyleClassPosition){
+        MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
+
+        SVGPath svgpath_outside = new SVGPath();
+        SVGPath svgpath_inside = new SVGPath();
+
+
+        svgpath_outside.getStyleClass().add(OUTSIDE_PIN_STYLE_CLASS);
+        svgpath_outside.setContent(OUTSIDE_PIN_PATH);
+        svgpath_inside.getStyleClass().add(INSIDE_PIN_STYLE_CLASS);
+        svgpath_inside.setContent(INSIDE_PIN_PATH);
+
+        Group group = new Group(svgpath_outside, svgpath_inside);
+        group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
+        group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
+
+        group.getStyleClass().add(PIN_STYLE_CLASS);
+        group.getStyleClass().add(pinStyleClassPosition);
+
+        PANE.getChildren().add(group);
     }
 
     /**
@@ -73,40 +96,22 @@ public final class WaypointsManager {
      */
 
     public void draw(){
-        pane.getChildren().clear();
-        MapViewParameters mapViewParameters = mapViewParametersWrapped.get();
+        PANE.getChildren().clear();
 
-        Iterator<Waypoint> itr = transitPointsList.iterator();
+        Iterator<Waypoint> itr = TRANSIT_POINTS_LIST.iterator();
         boolean firstElementSeen = false;
 
         while(itr.hasNext()) {
             Waypoint w = itr.next();
 
-            SVGPath svgpath_outside = new SVGPath();
-            SVGPath svgpath_inside = new SVGPath();
-
-
-            svgpath_outside.getStyleClass().add(OUTSIDE_PIN_STYLE_CLASS);
-            svgpath_outside.setContent(OUTSIDE_PIN_PATH);
-            svgpath_inside.getStyleClass().add(INSIDE_PIN_STYLE_CLASS);
-            svgpath_inside.setContent(INSIDE_PIN_PATH);
-
-            Group group = new Group(svgpath_outside, svgpath_inside);
-            group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
-            group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
-
-            group.getStyleClass().add(PIN_STYLE_CLASS);
-
             if(!firstElementSeen){
                 firstElementSeen = true;
-                group.getStyleClass().add(PIN_STYLE_CLASS_FIRST);
+                addWaypointPane(w, PIN_STYLE_CLASS_FIRST);
             }else if(!itr.hasNext()){
-                group.getStyleClass().add(PIN_STYLE_CLASS_LAST);
+                addWaypointPane(w, PIN_STYLE_CLASS_LAST);
             }else{
-                group.getStyleClass().add(PIN_STYLE_CLASS_MIDDLE);
+                addWaypointPane(w, PIN_STYLE_CLASS_MIDDLE);
             }
-
-            pane.getChildren().add(group);
         }
     }
 
@@ -116,9 +121,13 @@ public final class WaypointsManager {
      * @param y y position in the map coordinate system
      */
 
-    public void addWaypoint(int x, int y){
-        PointCh waypointLocalisation = mapViewParametersWrapped.get().pointAt(x, y).toPointCh();
-        transitPointsList.add(new Waypoint(waypointLocalisation, graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE)));
-        draw();
+    public void addWaypointMap(int x, int y){
+        PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+        PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
+
+        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE));
+
+        TRANSIT_POINTS_LIST.add(newWaypoint);
+        addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
     }
 }
