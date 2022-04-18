@@ -96,7 +96,6 @@ public final class TileManager {
                 //we are going to load the image from the tile server
                 URL u = new URL("https", TILE_SERVER_NAME, 443, "/" + tileIdentity.zoomLevel
                         + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
-                System.out.println(u);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", "JaVelo");
                 //5 seconds timeout in case something went wrong with url / the server isn't reachable

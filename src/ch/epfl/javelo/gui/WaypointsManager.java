@@ -123,7 +123,7 @@ public final class WaypointsManager {
      * @param y y position in the map coordinate system
      */
 
-    public void addWaypointMap(int x, int y){
+    public void addWaypointMap(double x, double y){
         PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
 
         //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
