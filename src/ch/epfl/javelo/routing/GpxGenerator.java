@@ -73,7 +73,7 @@ public class GpxGenerator {
 
         // The loop navigates through the list of edges of the route, adding to the Gpx Document the data of the ending
         // point of each edge.
-        int position = 0;
+        double position = 0;
         for(Edge edge : route.edges()){
 
             position += edge.length();
