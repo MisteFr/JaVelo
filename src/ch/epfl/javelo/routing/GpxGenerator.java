@@ -1,6 +1,5 @@
 package ch.epfl.javelo.routing;
 
-import ch.epfl.javelo.projection.PointCh;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -9,16 +8,30 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Locale;
 
+/**
+ * GpxGenerator class
+ * Non-instantiable class that is used to create Gpx files based on a route and an elevation profile
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
 public class GpxGenerator {
 
     //non-instantiable class
     private GpxGenerator(){}
 
+    /**
+     * Given a route and an elevationProfile, outputs a Gpx Document.
+     *
+     * @param route Route on which the Gpx Document will be based
+     * @param elevationProfile the ElevationProfile corresponding to the route
+     * @return the Gpx Document corresponding to the given arguments
+     */
     public static Document createGpx(Route route, ElevationProfile elevationProfile){
         Document doc = newDocument(); // see below
 
@@ -42,32 +55,56 @@ public class GpxGenerator {
         metadata.appendChild(name);
         name.setTextContent("Route JaVelo");
 
-        //todo plutôt faire plusieurs routes dans le cas d'un itinéraire multiroute ?
+
         Element rte = doc.createElement("rte");
         root.appendChild(rte);
 
-        Element rtept; //todo dans la boucle plutôt ?
-        Element ele; // J'ajoute à mon document tous les points de l'itinéraire.
-        for(PointCh point : route.points()){
+        // The first point of the route is added outside the loop, which only adds points at the end of edges.
+        Element rtept = doc.createElement("rtept");
+        rte.appendChild(rtept);
+        rtept.setAttribute("lat", String.format(Locale.US, "%.5f",
+                Math.toDegrees(route.points().get(0).lat())));
+        rtept.setAttribute("lon", String.format(Locale.US, "%.5f",
+                Math.toDegrees(route.points().get(0).lon())));
+
+        Element ele = doc.createElement("ele");
+        rtept.appendChild(ele);
+        ele.setTextContent(String.format(Locale.US, "%.2f",elevationProfile.elevationAt(0)));
+
+        // The loop navigates through the list of edges of the route, adding to the Gpx Document the data of the ending
+        // point of each edge.
+        int position = 0;
+        for(Edge edge : route.edges()){
+
+            position += edge.length();
             rtept = doc.createElement("rtept");
             rte.appendChild(rtept);
-            rtept.setAttribute("lat",  Double.toString(Math.toDegrees(point.lat())));
-            rtept.setAttribute("lon", Double.toString(Math.toDegrees(point.lon())));
+            rtept.setAttribute("lat",  String.format(Locale.US, "%.5f",
+                    Math.toDegrees(edge.toPoint().lat())));
+            rtept.setAttribute("lon", String.format(Locale.US, "%.5f",
+                    Math.toDegrees(edge.toPoint().lon())));
 
             ele = doc.createElement("ele");
             rtept.appendChild(ele);
-            double elevationOfPoint = elevationProfile.elevationAt(route.pointClosestTo(point).position()); //Je dois passer par RoutePoint pour avoir la position sur l'itinéraire. Pas fou.
-            ele.setTextContent(Double.toString(elevationOfPoint)); //todo on avait pas besoin de l'ElevationProfile ici ?
+            ele.setTextContent(String.format(Locale.US, "%.2f",elevationProfile.elevationAt(position)));
         }
 
         return doc; //todo immuability ?
     }
 
+    /**
+     * Writes the Gpx Document based on the route and elevationProfile parameters in the fileName file.
+     *
+     * @param fileName relative path starting from the base folder of the project
+     * @param route Route on which the Gpx Document will be based
+     * @param elevationProfile the ElevationProfile corresponding to the route
+     * @throws IOException  if the fileName exists but is a directory rather than a regular file,
+     *                      does not exist but cannot be created, or cannot be opened for any other reason.
+     */
     public static void writeGpx(String fileName, Route route, ElevationProfile elevationProfile) throws IOException { //todo quid de catch IOException plutôt ?
         Document doc = createGpx(route, elevationProfile);
 
-
-        try(Writer w = new FileWriter(fileName)){ //todo try with resources adapté ici ? Vérifier qu'il ne manque pas le chemin du dossier à fileName.
+        try(Writer w = new FileWriter(fileName)){ //todo try with resources adapté ici ?
             Transformer transformer = TransformerFactory
                     .newDefaultInstance()
                     .newTransformer();
@@ -78,6 +115,7 @@ public class GpxGenerator {
             throw new Error(e); // Should never happen
         }
     }
+
 
     //Creates new document, used in createGpx
     private static Document newDocument() {
