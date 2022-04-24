@@ -4,7 +4,10 @@ import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
@@ -43,6 +46,8 @@ public final class WaypointsManager {
     private final String PIN_STYLE_CLASS_MIDDLE = "middle";
     private final String PIN_STYLE_CLASS_LAST = "last";
 
+    //todo fields for events
+    private ObjectProperty<Point2D> wrappedCoordinatesForMouseGliding = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -58,6 +63,7 @@ public final class WaypointsManager {
         TRANSIT_POINTS_LIST = tPList;
         ERROR_REPORTER = errorR;
         PANE = new Pane();
+        PANE.setPickOnBounds(false);
     }
 
     /**
@@ -66,7 +72,7 @@ public final class WaypointsManager {
      */
 
     public Pane pane() {
-        draw();
+        draw(); //todo pourquoi draw ici ?
         return PANE;
     }
 
@@ -91,6 +97,56 @@ public final class WaypointsManager {
         group.getStyleClass().add(pinStyleClassPosition);
 
         PANE.getChildren().add(group);
+
+
+        //todo rajouter gestionnaire sur les groupes ici ? Faire des méthodes privées !
+        //delete on mouse click
+        group.setOnMouseClicked(mouseEvent -> {
+            TRANSIT_POINTS_LIST.remove(w);
+        });
+
+        //Mouse gliding
+        group.setOnMousePressed(mouseEvent -> {
+            wrappedCoordinatesForMouseGliding.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+        });
+
+        group.setOnMouseDragged(mouseEvent -> {
+            /*Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
+                    .subtract(wrappedCoordinatesForMouseGliding.get());
+            group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())) + deltaVector.getX()); //todo faire plus propre
+            group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())) + deltaVector.getY());*/
+
+            Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
+                    .subtract(wrappedCoordinatesForMouseGliding.get());
+            group.setLayoutX(group.getLayoutX() + deltaVector.getX()); //todo faire plus propre
+            group.setLayoutY(group.getLayoutY() + deltaVector.getY());
+
+            wrappedCoordinatesForMouseGliding.set(new Point2D(group.getLayoutX(), group.getLayoutY()));
+            draw();
+        });
+
+        group.setOnMousePressed(mouseEvent -> {
+            if(!mouseEvent.isStillSincePress()){
+                Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
+                        .subtract(wrappedCoordinatesForMouseGliding.get());
+                group.setLayoutX(group.getLayoutX() + deltaVector.getX()); //todo faire plus propre
+                group.setLayoutY(group.getLayoutY() + deltaVector.getY());
+
+                wrappedCoordinatesForMouseGliding.set(new Point2D(group.getLayoutX(), group.getLayoutY()));
+            }else{
+                TRANSIT_POINTS_LIST.remove(w);
+            }
+        });
+
+        TRANSIT_POINTS_LIST.addListener((ListChangeListener<? super Waypoint>) change -> { //todo propre ? bizarre.
+            draw();
+        });
+
+        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) -> {
+
+        });
+
+
     }
 
     /**
@@ -129,7 +185,7 @@ public final class WaypointsManager {
         //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
         PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
 
-        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE));
+        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE)); //todo gestion des erreurs
 
         //add the new waypoint to the list and draw it on the pane
         TRANSIT_POINTS_LIST.add(newWaypoint);
