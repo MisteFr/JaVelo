@@ -34,20 +34,20 @@ public final class WaypointsManager {
     private final Pane PANE;
 
     //search distance for the nearestNode function when adding a waypoint
-    private final static int SEARCH_DISTANCE = 500;
+    private final int SEARCH_DISTANCE = 500;
 
     //constants for the waypoints style class + svg paths
-    private final static String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
-    private final static String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
-    private final static String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
-    private final static String INSIDE_PIN_STYLE_CLASS = "pin_inside";
-    private final static String PIN_STYLE_CLASS = "pin";
-    private final static String PIN_STYLE_CLASS_FIRST = "first";
-    private final static String PIN_STYLE_CLASS_MIDDLE = "middle";
-    private final static String PIN_STYLE_CLASS_LAST = "last";
+    private final String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+    private final String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
+    private final String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
+    private final String INSIDE_PIN_STYLE_CLASS = "pin_inside";
+    private final String PIN_STYLE_CLASS = "pin";
+    private final String PIN_STYLE_CLASS_FIRST = "first";
+    private final String PIN_STYLE_CLASS_MIDDLE = "middle";
+    private final String PIN_STYLE_CLASS_LAST = "last";
 
     //todo fields for events
-    private final ObjectProperty<Point2D> wrappedCoordinatesForMouseGliding = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
+    private ObjectProperty<Point2D> differenceWithMouse = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -99,6 +99,7 @@ public final class WaypointsManager {
         PANE.getChildren().add(group);
 
 
+
         //todo rajouter gestionnaire sur les groupes ici ? Faire des méthodes privées !
         //delete on mouse click
         group.setOnMouseClicked(mouseEvent -> {
@@ -107,32 +108,25 @@ public final class WaypointsManager {
 
         //Mouse gliding
         group.setOnMousePressed(mouseEvent -> {
-            wrappedCoordinatesForMouseGliding.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+            differenceWithMouse.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
 
         group.setOnMouseDragged(mouseEvent -> {
-            /*Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
-                    .subtract(wrappedCoordinatesForMouseGliding.get());
-            group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())) + deltaVector.getX()); //todo faire plus propre
-            group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())) + deltaVector.getY());*/
+            double xTranslation = mouseEvent.getX() - differenceWithMouse.get().getX();
+            double yTranslation = mouseEvent.getY() - differenceWithMouse.get().getY();
 
-            Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
-                    .subtract(wrappedCoordinatesForMouseGliding.get());
-            group.setLayoutX(group.getLayoutX() + deltaVector.getX()); //todo faire plus propre
-            group.setLayoutY(group.getLayoutY() + deltaVector.getY());
+            group.setLayoutX(group.getLayoutX() + xTranslation); //todo faire plus propre
+            group.setLayoutY(group.getLayoutY() + yTranslation);
 
-            wrappedCoordinatesForMouseGliding.set(new Point2D(group.getLayoutX(), group.getLayoutY()));
-            draw();
         });
 
-        group.setOnMousePressed(mouseEvent -> {
+        group.setOnMouseReleased(mouseEvent -> {
             if(!mouseEvent.isStillSincePress()){
-                Point2D deltaVector = (new Point2D(mouseEvent.getX(), mouseEvent.getY()))
-                        .subtract(wrappedCoordinatesForMouseGliding.get());
-                group.setLayoutX(group.getLayoutX() + deltaVector.getX()); //todo faire plus propre
-                group.setLayoutY(group.getLayoutY() + deltaVector.getY());
+                double xTranslation = mouseEvent.getX() - differenceWithMouse.get().getX();
+                double yTranslation = mouseEvent.getY() - differenceWithMouse.get().getY();
 
-                wrappedCoordinatesForMouseGliding.set(new Point2D(group.getLayoutX(), group.getLayoutY()));
+                group.setLayoutX(group.getLayoutX() + xTranslation); //todo faire plus propre (modularisation possible ?)
+                group.setLayoutY(group.getLayoutY() + yTranslation);
             }else{
                 TRANSIT_POINTS_LIST.remove(w);
             }
@@ -142,9 +136,10 @@ public final class WaypointsManager {
             draw();
         });
 
+        /*
         MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) -> {
 
-        });
+        });*/
 
 
     }
@@ -181,19 +176,14 @@ public final class WaypointsManager {
 
     public void addWaypointMap(double x, double y){
         PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
-        int nearestNodeInRadius = GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
 
-        if(nearestNodeInRadius != -1){
-            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
+        //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
+        PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
 
-            //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
-            PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
+        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE)); //todo gestion des erreurs
 
-            //add the new waypoint to the list and draw it on the pane
-            TRANSIT_POINTS_LIST.add(newWaypoint);
-            addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
-        }else{
-            System.out.println("Aucun noeud à proximité");
-        }
+        //add the new waypoint to the list and draw it on the pane
+        TRANSIT_POINTS_LIST.add(newWaypoint);
+        addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
     }
 }

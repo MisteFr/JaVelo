@@ -75,11 +75,8 @@ public final class BaseMapManager {
         });
 
         //event handler for movement of the map
-        PANE.setOnMouseClicked(mouseEvent -> {
+        PANE.setOnMousePressed(mouseEvent -> {
             mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-            MapViewParameters testing = MAP_VIEW_PARAMETERS_WRAPPED.get();
-            System.out.println("Top left X coordinates :" + testing.indexTopLeftX());
-            System.out.println("Top left Y coordinates :" + testing.indexTopLeftY());
         });
 
         PANE.setOnMouseDragged(mouseEvent -> {
@@ -91,6 +88,7 @@ public final class BaseMapManager {
                     oldMapViewParameters.indexTopLeftY() - delta.getY()
             );
             MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters); //todo vérifier fréquence de cette update là ça pourrait faire laguer
+            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
 
         PANE.setOnMouseReleased(mouseEvent -> {
@@ -110,7 +108,6 @@ public final class BaseMapManager {
 
         //even handler for zooming in and out by scrolling
         PANE.setOnScroll(scrollEvent -> { //todo créer méthode privée pour rendre ça plus propre ? bof
-            System.out.println("Test");
             MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
             MapViewParameters newMapViewParameters = new MapViewParameters(
                     Math2.clamp(8, (int) Math.round(oldMapViewParameters.zoomLevel() + scrollEvent.getDeltaY()), 19),
@@ -187,8 +184,9 @@ public final class BaseMapManager {
     //if the windows properties changed, redraw on next pulse
     private void redrawIfNeeded() {
         //dimensions changed
-            if (!(CANVAS.getHeight() == lastHeight && CANVAS.getWidth() == lastWidth)) {
-                lastWidth = CANVAS.getWidth();
+
+        if (!(CANVAS.getHeight() == lastHeight && CANVAS.getWidth() == lastWidth)) {
+            lastWidth = CANVAS.getWidth();
             lastHeight = CANVAS.getHeight();
             redrawOnNextPulse();
         }
