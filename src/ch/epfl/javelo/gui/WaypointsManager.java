@@ -48,6 +48,7 @@ public final class WaypointsManager {
 
     //todo fields for events
     private ObjectProperty<Point2D> differenceWithMouse = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
+    private boolean redrawNeeded = false;
 
     /**
      * WaypointsManager constructor.
@@ -102,9 +103,11 @@ public final class WaypointsManager {
 
         //todo rajouter gestionnaire sur les groupes ici ? Faire des méthodes privées !
         //delete on mouse click
+        /*
         group.setOnMouseClicked(mouseEvent -> {
             TRANSIT_POINTS_LIST.remove(w);
         });
+         */
 
         //Mouse gliding
         group.setOnMousePressed(mouseEvent -> {
@@ -127,13 +130,19 @@ public final class WaypointsManager {
 
                 group.setLayoutX(group.getLayoutX() + xTranslation); //todo faire plus propre (modularisation possible ?)
                 group.setLayoutY(group.getLayoutY() + yTranslation);
+                TRANSIT_POINTS_LIST.remove(w);
+                addWaypointMap(group.getLayoutX(), group.getLayoutY());
             }else{
                 TRANSIT_POINTS_LIST.remove(w);
             }
+            redrawNeeded = true; //todo fix temporaire (?) avec une variable redrawNeeded, parce que draw modifie également la liste des TRANSIT_POINT et donc active le listener.
         });
 
         TRANSIT_POINTS_LIST.addListener((ListChangeListener<? super Waypoint>) change -> { //todo propre ? bizarre.
-            draw();
+            if(redrawNeeded){
+                draw();
+            }
+            redrawNeeded = false;
         });
 
         /*

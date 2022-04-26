@@ -69,10 +69,13 @@ public final class BaseMapManager {
 
         //events
 
+        /*
         //todo works fine ?
         PANE.setOnMouseClicked(mouseEvent -> {
             WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
         });
+
+         */
 
         //event handler for movement of the map
         PANE.setOnMousePressed(mouseEvent -> {
