@@ -34,20 +34,20 @@ public final class WaypointsManager {
     private final Pane PANE;
 
     //search distance for the nearestNode function when adding a waypoint
-    private final int SEARCH_DISTANCE = 500;
+    private final static int SEARCH_DISTANCE = 500;
 
     //constants for the waypoints style class + svg paths
-    private final String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
-    private final String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
-    private final String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
-    private final String INSIDE_PIN_STYLE_CLASS = "pin_inside";
-    private final String PIN_STYLE_CLASS = "pin";
-    private final String PIN_STYLE_CLASS_FIRST = "first";
-    private final String PIN_STYLE_CLASS_MIDDLE = "middle";
-    private final String PIN_STYLE_CLASS_LAST = "last";
+    private final static String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+    private final static String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
+    private final static String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
+    private final static String INSIDE_PIN_STYLE_CLASS = "pin_inside";
+    private final static String PIN_STYLE_CLASS = "pin";
+    private final static String PIN_STYLE_CLASS_FIRST = "first";
+    private final static String PIN_STYLE_CLASS_MIDDLE = "middle";
+    private final static String PIN_STYLE_CLASS_LAST = "last";
 
     //todo fields for events
-    private ObjectProperty<Point2D> wrappedCoordinatesForMouseGliding = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
+    private final ObjectProperty<Point2D> wrappedCoordinatesForMouseGliding = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -181,14 +181,19 @@ public final class WaypointsManager {
 
     public void addWaypointMap(double x, double y){
         PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+        int nearestNodeInRadius = GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
 
-        //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
-        PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
+        if(nearestNodeInRadius != -1){
+            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
 
-        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE)); //todo gestion des erreurs
+            //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
+            PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
 
-        //add the new waypoint to the list and draw it on the pane
-        TRANSIT_POINTS_LIST.add(newWaypoint);
-        addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
+            //add the new waypoint to the list and draw it on the pane
+            TRANSIT_POINTS_LIST.add(newWaypoint);
+            addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
+        }else{
+            System.out.println("Aucun noeud à proximité");
+        }
     }
 }

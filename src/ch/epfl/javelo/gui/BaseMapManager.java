@@ -5,13 +5,11 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.canvas.Canvas;
 
-import java.beans.EventHandler;
 import java.io.IOException;
 
 /**
@@ -119,6 +117,7 @@ public final class BaseMapManager {
                     oldMapViewParameters.indexTopLeftX(), //todo adapter x et y
                     oldMapViewParameters.indexTopLeftY()
             );
+
             MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
         });
 
@@ -155,7 +154,6 @@ public final class BaseMapManager {
     //Method that draws the map background
     private void draw() {
         GraphicsContext graphicsContext = CANVAS.getGraphicsContext2D();
-        //TODO: est ce que c'est vraiment nécessaire de clear le canvas?
         graphicsContext.clearRect(0, 0, CANVAS.getWidth(), CANVAS.getHeight());
 
         MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
