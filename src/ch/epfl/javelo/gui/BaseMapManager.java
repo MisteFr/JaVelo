@@ -3,6 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -85,12 +86,11 @@ public final class BaseMapManager {
         PANE.setOnMouseDragged(mouseEvent -> {
             Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
             MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-            MapViewParameters newMapViewParameters = new MapViewParameters(
-                    oldMapViewParameters.zoomLevel(),
+            MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
                     oldMapViewParameters.indexTopLeftX() - delta.getX(),
                     oldMapViewParameters.indexTopLeftY() - delta.getY()
             );
-            MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters); //todo vérifier fréquence de cette update là ça pourrait faire laguer
+            MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters);
             mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
 
@@ -98,25 +98,49 @@ public final class BaseMapManager {
             if (!mouseEvent.isStillSincePress()) {
                 Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
                 MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-                MapViewParameters newMapViewParameters = new MapViewParameters(
-                        oldMapViewParameters.zoomLevel(),
+                MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
                         oldMapViewParameters.indexTopLeftX() - delta.getX(),
                         oldMapViewParameters.indexTopLeftY() - delta.getY()
                 );
+
                 MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters);
             }else{
-                WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY()); //todo good.
+                WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
             }
         });
 
         //even handler for zooming in and out by scrolling
         PANE.setOnScroll(scrollEvent -> { //todo créer méthode privée pour rendre ça plus propre ? bof
             MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
+
+            SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
+            long currentTime = System.currentTimeMillis();
+            if (currentTime < minScrollTime.get()) return;
+            minScrollTime.set(currentTime + 250);
+            int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
+
+            int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
+            //System.out.println("niveau de zoom actuel: " + newZoomLevel);
+            double newX;
+            double newY;
+            //System.out.println("old x: " + oldMapViewParameters.indexTopLeftX());
+            if(zoomDelta == 1){
+                newX = oldMapViewParameters.indexTopLeftX() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getX(); //todo constante à nommer ?
+                newY = oldMapViewParameters.indexTopLeftY() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getY();
+            //    System.out.println("scrollEvent.getX: " + scrollEvent.getX());
+            }else{
+                newX = oldMapViewParameters.indexTopLeftX() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getX();
+                newY = oldMapViewParameters.indexTopLeftY() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getY(); //todo possible de simplifier d'une manière ou d'une autre le calcul ?
+            }
+            //System.out.println("new x: " + newX);
+            //System.out.println("==================");
             MapViewParameters newMapViewParameters = new MapViewParameters(
-                    Math2.clamp(8, (int) Math.round(oldMapViewParameters.zoomLevel() + scrollEvent.getDeltaY()), 19),
-                    oldMapViewParameters.indexTopLeftX(), //todo adapter x et y
-                    oldMapViewParameters.indexTopLeftY()
+                    newZoomLevel,
+                    newX,
+                    newY
             );
+
+
 
             MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
         });
