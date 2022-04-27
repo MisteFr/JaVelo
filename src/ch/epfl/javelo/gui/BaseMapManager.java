@@ -188,7 +188,7 @@ public final class BaseMapManager {
 
                 MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParametersWhenMoving(delta, MAP_VIEW_PARAMETERS_WRAPPED.get()));
             }else{
-                WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
+                WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
             }
         });
 
@@ -208,6 +208,7 @@ public final class BaseMapManager {
 
             double newX;
             double newY;
+
             if(zoomDelta == 1){
                 newX = oldMapViewParameters.indexTopLeftX() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getX(); //todo constante à nommer ?
                 newY = oldMapViewParameters.indexTopLeftY() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getY();
