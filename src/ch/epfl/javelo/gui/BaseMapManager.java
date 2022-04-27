@@ -92,12 +92,12 @@ public final class BaseMapManager {
         MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
 
         //index of the top left tile
-        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / OSM_TILE_SIZE * Math.pow(2, mapViewParameters.zoomLevel() - 12));
-        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / OSM_TILE_SIZE * Math.pow(2, mapViewParameters.zoomLevel() - 12));
+        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / OSM_TILE_SIZE);
+        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / OSM_TILE_SIZE);
 
         //index of the bottom right tile
-        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() * Math.pow(2, mapViewParameters.zoomLevel() - 12) + CANVAS.getWidth()) / OSM_TILE_SIZE);
-        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() * Math.pow(2, mapViewParameters.zoomLevel() - 12)  + CANVAS.getHeight()) / OSM_TILE_SIZE);
+        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + CANVAS.getWidth()) / OSM_TILE_SIZE);
+        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY()  + CANVAS.getHeight()) / OSM_TILE_SIZE);
 
         for (int xTileMap = topLeftXIndexTile; xTileMap <= bottomRightXIndexTile; xTileMap++) {
             for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
@@ -107,7 +107,7 @@ public final class BaseMapManager {
 
 
                     //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX() * Math.pow(2, mapViewParameters.zoomLevel() - 12), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY() * Math.pow(2, mapViewParameters.zoomLevel() - 12));
+                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
@@ -209,13 +209,9 @@ public final class BaseMapManager {
             double newX;
             double newY;
 
-            if(zoomDelta == 1){
-                newX = oldMapViewParameters.indexTopLeftX() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getX(); //todo constante à nommer ?
-                newY = oldMapViewParameters.indexTopLeftY() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getY();
-            }else {
-                newX = oldMapViewParameters.indexTopLeftX() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getX();
-                newY = oldMapViewParameters.indexTopLeftY() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getY(); //todo possible de simplifier d'une manière ou d'une autre le calcul ?
-            }
+
+            newX = oldMapViewParameters.indexTopLeftX() * Math.pow(2, zoomDelta); //todo constante à nommer ?
+            newY = oldMapViewParameters.indexTopLeftY() * Math.pow(2, zoomDelta);
 
 
             MapViewParameters newMapViewParameters = new MapViewParameters(
