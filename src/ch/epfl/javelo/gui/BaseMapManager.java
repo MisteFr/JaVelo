@@ -183,12 +183,12 @@ public final class BaseMapManager {
         MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
 
         //index of the top left tile
-        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / OSM_TILE_SIZE);
-        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / OSM_TILE_SIZE);
+        int topLeftXIndexTile = (int) (mapViewParameters.indexTopLeftX() / OSM_TILE_SIZE * Math.pow(2, mapViewParameters.zoomLevel() - 12));
+        int topLeftYIndexTile = (int) (mapViewParameters.indexTopLeftY() / OSM_TILE_SIZE * Math.pow(2, mapViewParameters.zoomLevel() - 12));
 
         //index of the bottom right tile
-        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + CANVAS.getWidth()) / OSM_TILE_SIZE);
-        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + CANVAS.getHeight()) / OSM_TILE_SIZE);
+        int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() * Math.pow(2, mapViewParameters.zoomLevel() - 12) + CANVAS.getWidth()) / OSM_TILE_SIZE);
+        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() * Math.pow(2, mapViewParameters.zoomLevel() - 12)  + CANVAS.getHeight()) / OSM_TILE_SIZE);
 
         for (int xTileMap = topLeftXIndexTile; xTileMap <= bottomRightXIndexTile; xTileMap++) {
             for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
@@ -196,8 +196,9 @@ public final class BaseMapManager {
                     //get the image corresponding to each tile displayed (at least partially) on the map portion
                     Image image = TILE_MANAGER.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), xTileMap, yTileMap));
 
+
                     //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
+                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX() * Math.pow(2, mapViewParameters.zoomLevel() - 12), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY() * Math.pow(2, mapViewParameters.zoomLevel() - 12));
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }

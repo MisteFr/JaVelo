@@ -5,7 +5,6 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -34,21 +33,20 @@ public final class WaypointsManager {
     private final Pane PANE;
 
     //search distance for the nearestNode function when adding a waypoint
-    private final int SEARCH_DISTANCE = 500;
+    private final static int SEARCH_DISTANCE = 500;
 
     //constants for the waypoints style class + svg paths
-    private final String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
-    private final String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
-    private final String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
-    private final String INSIDE_PIN_STYLE_CLASS = "pin_inside";
-    private final String PIN_STYLE_CLASS = "pin";
-    private final String PIN_STYLE_CLASS_FIRST = "first";
-    private final String PIN_STYLE_CLASS_MIDDLE = "middle";
-    private final String PIN_STYLE_CLASS_LAST = "last";
+    private final static String OUTSIDE_PIN_PATH = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+    private final static String INSIDE_PIN_PATH = "M0-23A1 1 0 000-29 1 1 0 000-23";
+    private final static String OUTSIDE_PIN_STYLE_CLASS = "pin_outside";
+    private final static String INSIDE_PIN_STYLE_CLASS = "pin_inside";
+    private final static String PIN_STYLE_CLASS = "pin";
+    private final static String PIN_STYLE_CLASS_FIRST = "first";
+    private final static String PIN_STYLE_CLASS_MIDDLE = "middle";
+    private final static String PIN_STYLE_CLASS_LAST = "last";
 
     //todo fields for events
-    private ObjectProperty<Point2D> differenceWithMouse = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
-    private boolean redrawNeeded = false;
+    private ObjectProperty<Point2D> latestMousePosition = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -111,45 +109,31 @@ public final class WaypointsManager {
 
         //Mouse gliding
         group.setOnMousePressed(mouseEvent -> {
-            differenceWithMouse.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+            latestMousePosition.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
 
         group.setOnMouseDragged(mouseEvent -> {
-            double xTranslation = mouseEvent.getX() - differenceWithMouse.get().getX();
-            double yTranslation = mouseEvent.getY() - differenceWithMouse.get().getY();
+            //moving a waypoint
+            double xTranslation = mouseEvent.getX() - latestMousePosition.get().getX();
+            double yTranslation = mouseEvent.getY() - latestMousePosition.get().getY();
 
             group.setLayoutX(group.getLayoutX() + xTranslation); //todo faire plus propre
             group.setLayoutY(group.getLayoutY() + yTranslation);
-
         });
 
         group.setOnMouseReleased(mouseEvent -> {
             if(!mouseEvent.isStillSincePress()){
-                double xTranslation = mouseEvent.getX() - differenceWithMouse.get().getX();
-                double yTranslation = mouseEvent.getY() - differenceWithMouse.get().getY();
-
-                group.setLayoutX(group.getLayoutX() + xTranslation); //todo faire plus propre (modularisation possible ?)
-                group.setLayoutY(group.getLayoutY() + yTranslation);
-                TRANSIT_POINTS_LIST.remove(w);
-                addWaypointMap(group.getLayoutX(), group.getLayoutY());
+                System.out.println("Waypoint released");
+                //waypoint released and was moved since pressed
+                updateWaypointPosition(group.getLayoutX(), group.getLayoutY(), w, pinStyleClassPosition);
             }else{
-                TRANSIT_POINTS_LIST.remove(w);
+                //mouse didn't move from the position it was pressed at
+                System.out.println("Removing waypoints");
+                removeWaypointPane(w, group);
             }
-            redrawNeeded = true; //todo fix temporaire (?) avec une variable redrawNeeded, parce que draw modifie également la liste des TRANSIT_POINT et donc active le listener.
+
+            draw();
         });
-
-        TRANSIT_POINTS_LIST.addListener((ListChangeListener<? super Waypoint>) change -> { //todo propre ? bizarre.
-            if(redrawNeeded){
-                draw();
-            }
-            redrawNeeded = false;
-        });
-
-        /*
-        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) -> {
-
-        });*/
-
 
     }
 
@@ -177,6 +161,27 @@ public final class WaypointsManager {
         }
     }
 
+    //juste besoin changer sur la map pas besoin de changer sur la list car tjrs au meme points
+
+    private void updateWaypointPosition(double x, double y, Waypoint w, String styleClass){
+        PointCh newWaypointPosition = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+        int nearestNodeInRadius = GRAPH.nodeClosestTo(newWaypointPosition, SEARCH_DISTANCE);
+
+        if(nearestNodeInRadius != -1){
+            int indexOfOldWaypoint = TRANSIT_POINTS_LIST.indexOf(w);
+            Waypoint newWaypoint = new Waypoint(newWaypointPosition, nearestNodeInRadius);
+            TRANSIT_POINTS_LIST.set(indexOfOldWaypoint, newWaypoint);
+            addWaypointPane(newWaypoint, styleClass);
+        }else{
+            ERROR_REPORTER.accept("No nodes in this area (search distance in meters: " + SEARCH_DISTANCE + ")");
+        }
+    }
+
+    private void removeWaypointPane(Waypoint w, Group g){
+        PANE.getChildren().remove(g);
+        TRANSIT_POINTS_LIST.remove(w);
+    }
+
     /**
      * Adds a new waypoint at the given position in the map's coordinate system
      * @param x x position in the map coordinate system
@@ -185,14 +190,20 @@ public final class WaypointsManager {
 
     public void addWaypointMap(double x, double y){
         PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+        int nearestNodeInRadius = GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
 
-        //remove PIN_STYLE_CLASS_LAST from the previous last waypoint
-        PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
+        if(nearestNodeInRadius != -1){
+            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
 
-        Waypoint newWaypoint = new Waypoint(waypointLocalisation, GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE)); //todo gestion des erreurs
+            //remove PIN_STYLE_CLASS_LAST from the previous last waypoint and add PIN_STYLE_CLASS_MIDDLE
+            PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().remove(PIN_STYLE_CLASS_LAST);
+            PANE.getChildren().get(TRANSIT_POINTS_LIST.size() - 1).getStyleClass().add(PIN_STYLE_CLASS_MIDDLE);
 
-        //add the new waypoint to the list and draw it on the pane
-        TRANSIT_POINTS_LIST.add(newWaypoint);
-        addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
+            //add the new waypoint to the list and draw it on the pane
+            TRANSIT_POINTS_LIST.add(newWaypoint);
+            addWaypointPane(newWaypoint, PIN_STYLE_CLASS_LAST);
+        }else{
+            ERROR_REPORTER.accept("Aucun noeud à proximité");
+        }
     }
 }
