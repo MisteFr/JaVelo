@@ -60,110 +60,19 @@ public final class BaseMapManager {
         lastWidth = 0.0;
 
         //used in movement of the map todo rendre propre
-        ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
-
+        //ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
 
         CANVAS = new Canvas();
-        PANE = new Pane();
+        PANE = new Pane(); //todo utiliser mapCanvas ?
 
         PANE.getChildren().add(CANVAS);
 
-        //events
-
-        /*
-        //todo works fine ?
-        PANE.setOnMouseClicked(mouseEvent -> {
-            WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
-        });
-
-         */
-
-        //event handler for movement of the map
-        PANE.setOnMousePressed(mouseEvent -> {
-            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-        });
-
-        PANE.setOnMouseDragged(mouseEvent -> {
-            Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
-            MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-            MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
-                    oldMapViewParameters.indexTopLeftX() - delta.getX(),
-                    oldMapViewParameters.indexTopLeftY() - delta.getY()
-            );
-            MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters);
-            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-        });
-
-        PANE.setOnMouseReleased(mouseEvent -> {
-            if (!mouseEvent.isStillSincePress()) {
-                Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
-                MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-                MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
-                        oldMapViewParameters.indexTopLeftX() - delta.getX(),
-                        oldMapViewParameters.indexTopLeftY() - delta.getY()
-                );
-
-                MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParameters);
-            }else{
-                WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
-            }
-        });
-
-        //even handler for zooming in and out by scrolling
-        PANE.setOnScroll(scrollEvent -> { //todo créer méthode privée pour rendre ça plus propre ? bof
-            MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-
-            SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
-            long currentTime = System.currentTimeMillis();
-            if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 250);
-            int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
-
-            int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
-            //System.out.println("niveau de zoom actuel: " + newZoomLevel);
-            double newX;
-            double newY;
-            //System.out.println("old x: " + oldMapViewParameters.indexTopLeftX());
-            if(zoomDelta == 1){
-                newX = oldMapViewParameters.indexTopLeftX() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getX(); //todo constante à nommer ?
-                newY = oldMapViewParameters.indexTopLeftY() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getY();
-            //    System.out.println("scrollEvent.getX: " + scrollEvent.getX());
-            }else{
-                newX = oldMapViewParameters.indexTopLeftX() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getX();
-                newY = oldMapViewParameters.indexTopLeftY() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getY(); //todo possible de simplifier d'une manière ou d'une autre le calcul ?
-            }
-            //System.out.println("new x: " + newX);
-            //System.out.println("==================");
-            MapViewParameters newMapViewParameters = new MapViewParameters(
-                    newZoomLevel,
-                    newX,
-                    newY
-            );
-
-
-
-            MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
-        });
-
-
-
-
-        //when the pane width or height will change -> canvas width and height will update accordingly
-        CANVAS.widthProperty().bind(PANE.widthProperty());
-        CANVAS.heightProperty().bind(PANE.heightProperty());
-
-        CANVAS.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        });
+        installHandlers();
+        installBindings();
+        installListeners();
 
         //initial draw
         redrawOnNextPulse();
-
-        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
-            //todo assert ?
-            redrawOnNextPulse();
-        });
     }
 
     /**
@@ -230,4 +139,113 @@ public final class BaseMapManager {
         redrawNeeded = true;
         Platform.requestNextPulse();
     }
+
+
+
+    //from a delta Point2D vector and the current MapViewParameters object, creates the new MapViewParameters when moving.
+    private MapViewParameters newMapViewParametersWhenMoving(Point2D delta, MapViewParameters oldMapViewParameters){
+
+        double deltaX = delta.getX() * Math.pow(2, 12 - oldMapViewParameters.zoomLevel());
+        double deltaY = delta.getY() * Math.pow(2, 12 - oldMapViewParameters.zoomLevel());
+
+        MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
+                oldMapViewParameters.indexTopLeftX() - deltaX,
+                oldMapViewParameters.indexTopLeftY() - deltaY
+        );
+
+        return newMapViewParameters;
+    }
+
+    //installs the handlers in the constructor
+    private void installHandlers(){
+
+        ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
+        SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
+
+
+        //todo rajouter onMouseClicked selon l'énoncé ? (inutile)
+
+        //event handler for movement of the map and creation of the wayPoint
+        PANE.setOnMousePressed(mouseEvent -> {
+            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+        });
+
+
+
+        PANE.setOnMouseDragged(mouseEvent -> {
+            Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
+
+            MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParametersWhenMoving(delta, MAP_VIEW_PARAMETERS_WRAPPED.get()));
+
+            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+        });
+
+
+        //if the mouse did not move since press, create waypoint
+        PANE.setOnMouseReleased(mouseEvent -> {
+            if (!mouseEvent.isStillSincePress()) {
+                Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
+
+                MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParametersWhenMoving(delta, MAP_VIEW_PARAMETERS_WRAPPED.get()));
+            }else{
+                WAYPOINTS_MANAGER.addWaypointMap(mouseEvent.getX(), mouseEvent.getY());
+            }
+        });
+
+
+        //even handler for zooming in and out by scrolling
+        PANE.setOnScroll(scrollEvent -> {
+            MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
+
+            //compute the zoom delta using the current system time
+            long currentTime = System.currentTimeMillis();
+            if (currentTime < minScrollTime.get()) return;
+            minScrollTime.set(currentTime + 250);
+            int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
+
+            int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
+
+
+            double newX;
+            double newY;
+            if(zoomDelta == 1){
+                newX = oldMapViewParameters.indexTopLeftX() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getX(); //todo constante à nommer ?
+                newY = oldMapViewParameters.indexTopLeftY() + Math.pow(2, 12 - newZoomLevel) * scrollEvent.getY();
+            }else {
+                newX = oldMapViewParameters.indexTopLeftX() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getX();
+                newY = oldMapViewParameters.indexTopLeftY() - Math.pow(2, 12 - oldMapViewParameters.zoomLevel()) * scrollEvent.getY(); //todo possible de simplifier d'une manière ou d'une autre le calcul ?
+            }
+
+
+            MapViewParameters newMapViewParameters = new MapViewParameters(
+                    newZoomLevel,
+                    newX,
+                    newY
+            );
+
+            MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
+        });
+
+    }
+
+    //installs the bindings in the constructor
+    private void installBindings(){
+        //when the pane width or height will change -> canvas width and height will update accordingly
+        CANVAS.widthProperty().bind(PANE.widthProperty());
+        CANVAS.heightProperty().bind(PANE.heightProperty());
+    }
+
+    //installs the listeners in the constructor
+    private void installListeners(){
+        CANVAS.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+
+        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
+            //todo assert ?
+            redrawOnNextPulse();
+        });
+    }
+
 }
