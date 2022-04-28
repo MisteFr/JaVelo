@@ -76,9 +76,9 @@ public final class Functions {
 
     private static final class Sampled implements DoubleUnaryOperator {
 
-        private final float[] SAMPLES;
-        private final double X_STEPS;
-        private final double X_MAX;
+        private final float[] samples;
+        private final double x_steps;
+        private final double x_max;
 
         /**
          * Constructor for Sampled DoubleUnaryOperator. Initiate samples, xMax and xSteps variables that are used in
@@ -90,14 +90,14 @@ public final class Functions {
 
         private Sampled(float[] s, double x) {
 
-            SAMPLES = new float[s.length];
+            samples = new float[s.length];
             for (int i = 0; i < s.length; ++i) {
-                SAMPLES[i] = s[i];
+                samples[i] = s[i];
             }
 
-            X_MAX = x;
+            x_max = x;
 
-            X_STEPS = X_MAX / (s.length - 1);
+            x_steps = x_max / (s.length - 1);
         }
 
 
@@ -114,20 +114,16 @@ public final class Functions {
         public double applyAsDouble(double x) {
 
             if (x < 0) {
-                return SAMPLES[0];
-            } else if (x > X_MAX) {
-                return SAMPLES[SAMPLES.length - 1];
+                return samples[0];
+            } else if (x > x_max) {
+                return samples[samples.length - 1];
             }
 
-            double xOnUnitSteps = x / X_STEPS;
+            double xOnUnitSteps = x / x_steps;
             int lowerBound = (int) Math.floor(xOnUnitSteps);
             int upperBound = (int) Math.ceil(xOnUnitSteps);
 
-            if (lowerBound != upperBound) {
-                return Math2.interpolate(SAMPLES[lowerBound], SAMPLES[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
-            } else {
-                return SAMPLES[(int) xOnUnitSteps];
-            }
+            return Math2.interpolate(samples[lowerBound], samples[upperBound], xOnUnitSteps - Math.floor(xOnUnitSteps));
         }
     }
 }

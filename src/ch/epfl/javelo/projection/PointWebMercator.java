@@ -15,6 +15,8 @@ import ch.epfl.javelo.Preconditions;
 
 public record PointWebMercator(double x, double y) {
 
+    private static final int SIZE_MAP_ZOOM_ZERO = 8;
+
     /**
      * Compact constructor that checks for the validity of x and y.
      *
@@ -37,7 +39,7 @@ public record PointWebMercator(double x, double y) {
      */
 
     public static PointWebMercator of(int zoomLevel, double x, double y) {
-        return new PointWebMercator(Math.scalb(x, -zoomLevel - 8), Math.scalb(y, -zoomLevel - 8));
+        return new PointWebMercator(Math.scalb(x, -zoomLevel - SIZE_MAP_ZOOM_ZERO), Math.scalb(y, -zoomLevel - SIZE_MAP_ZOOM_ZERO));
     }
 
     /**
@@ -59,7 +61,7 @@ public record PointWebMercator(double x, double y) {
      */
 
     public double xAtZoomLevel(int zoomLevel) {
-        return Math.scalb(x, zoomLevel + 8);
+        return Math.scalb(x, zoomLevel + SIZE_MAP_ZOOM_ZERO);
     }
 
     /**
@@ -70,7 +72,7 @@ public record PointWebMercator(double x, double y) {
      */
 
     public double yAtZoomLevel(int zoomLevel) {
-        return Math.scalb(y, zoomLevel + 8);
+        return Math.scalb(y, zoomLevel + SIZE_MAP_ZOOM_ZERO);
     }
 
     /**

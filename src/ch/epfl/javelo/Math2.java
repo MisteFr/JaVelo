@@ -109,7 +109,7 @@ public final class Math2 {
      */
 
     public static double squaredNorm(double uX, double uY) {
-        return (uX * uX + uY * uY);
+        return dotProduct(uX, uY, uX, uY);
     }
 
     /**
@@ -121,7 +121,7 @@ public final class Math2 {
      */
 
     public static double norm(double uX, double uY) {
-        return Math.sqrt((uX * uX + uY * uY));
+        return Math.sqrt(dotProduct(uX, uY, uX, uY));
     }
 
     /**

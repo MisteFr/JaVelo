@@ -25,11 +25,11 @@ public final class Bits {
      */
 
     public static int extractSigned(int value, int start, int length) {
-        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0));
+        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > Integer.SIZE || length < 0));
         //left arithmetic shift
-        int leftArithmeticShift = value << (32 - (start + length));
+        int leftArithmeticShift = value << (Integer.SIZE - (start + length));
         //right arithmetic shift
-        return leftArithmeticShift >> (32 - length);
+        return leftArithmeticShift >> (Integer.SIZE - length);
     }
 
     /**
@@ -44,10 +44,10 @@ public final class Bits {
      */
 
     public static int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > 32 || length < 0 || length > 31));
+        Preconditions.checkArgument(!(start < 0 || start > 31 || (start + length) > Integer.SIZE || length < 0 || length > 31));
         //left arithmetic shift
-        int leftArithmeticShifted = value << (32 - (start + length));
+        int leftArithmeticShifted = value << (Integer.SIZE - (start + length));
         //right logical shift
-        return leftArithmeticShifted >>> (32 - length);
+        return leftArithmeticShifted >>> (Integer.SIZE - length);
     }
 }

@@ -26,8 +26,11 @@ public record AttributeSet(long bits) {
 
     public AttributeSet {
         //we want to make sure bits at index 62 and 63 are 0s.
-        long mask62_63 = 1L << 62 | 1L << 63;
-        Preconditions.checkArgument((bits & mask62_63) == 0);
+        long mask_inexistant_attributes = 0;
+        for(int i = Attribute.COUNT; i < Long.SIZE; i++){
+            mask_inexistant_attributes |= 1L << i;
+        }
+        Preconditions.checkArgument((bits & mask_inexistant_attributes) == 0);
     }
 
     /**

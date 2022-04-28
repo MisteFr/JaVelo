@@ -154,16 +154,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 //We want to stay 2 iterations in a row on the same portion of 16 bits and counter allows to switch from one portion of 16 bits to another when we are at 2 iterations
                 //First 16 bits are ignored as we already read them for data[0]
 
-                int counter8Bits = 1;
-                for (int i = 1; i < samplesNumber; i++) {
-                    int startIndex = (16 - (i % 2) * 8) % 16;
-                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter8Bits), startIndex, 8));
-                    data[i] = data[(i - 1)] + differenceWithLastSample;
-
-                    if (i % 2 == 0) {
-                        counter8Bits++;
-                    }
-                }
+                extractData(indexFirstSample, samplesNumber, 8, data);
                 break;
 
             case PROFILE_COMPRESSED_Q0_4:
@@ -174,16 +165,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 //We want to stay 4 iterations in a row on the same portion of 16 bits and counter allows to switch from one portion of 16 bits to another when we are at 4 iterations
                 //First 16 bits are ignored as we already read them for data[0]
 
-                int counter4Bits = 1;
-                for (int i = 1; i < samplesNumber; i++) {
-                    int startIndex = (16 - (i % 4) * 4) % 16;
-                    float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counter4Bits), startIndex, 4));
-                    data[i] = data[(i - 1)] + differenceWithLastSample;
-
-                    if (i % 4 == 0) {
-                        counter4Bits++;
-                    }
-                }
+                extractData(indexFirstSample, samplesNumber, 4, data);
                 break;
         }
 
@@ -191,19 +173,41 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         //Therefore, if the edge goes in the opposite direction of the OSM track we reverse the data array.
 
         if (isInverted(edgeId)) {
-            int i = 0;
-            int i2 = data.length - 1;
-
-            while (i < i2) {
-                float tempVal = data[i];
-                data[i] = data[i2];
-                data[i2] = tempVal;
-                ++i;
-                --i2;
-            }
+            inverseArray(data);
         }
 
         return data;
+    }
+
+    //inverse an array
+    private void inverseArray(float[] data) {
+        int i = 0;
+        int i2 = data.length - 1;
+
+        while (i < i2) {
+            float tempVal = data[i];
+            data[i] = data[i2];
+            data[i2] = tempVal;
+            ++i;
+            --i2;
+        }
+    }
+
+
+    private void extractData(int indexFirstSample, int samplesNumber, int numberOfBits, float[] data) {
+        int counterBits = 1;
+        for (int i = 1; i < samplesNumber; i++) {
+            int startIndex = numberOfBits == 4 ? (16 - (i % numberOfBits) * numberOfBits) % 16 : (16 - (i % 2) * numberOfBits) % 16;
+            float differenceWithLastSample = Q28_4.asFloat(Bits.extractSigned(elevations().get(indexFirstSample + counterBits), startIndex, numberOfBits));
+            data[i] = data[(i - 1)] + differenceWithLastSample;
+
+            if (numberOfBits == 4 && i % numberOfBits == 0) {
+                counterBits++;
+            }
+            if (numberOfBits == 8 && i % 2 == 0) {
+                counterBits++;
+            }
+        }
     }
 
     /**
