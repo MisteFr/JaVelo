@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -47,7 +48,9 @@ public final class WaypointsManager {
 
     public final static int CREATE_WAYPOINT_POSITION = -1;
 
-    private final ObjectProperty<Point2D> latestMousePosition = new SimpleObjectProperty<Point2D>(Point2D.ZERO);
+    private static final String ERROR_MESSAGE_NO_ROUTES_AROUND = "Aucune route à proximité !";
+
+    private final ObjectProperty<Point2D> latestMousePosition = new SimpleObjectProperty<>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -65,7 +68,8 @@ public final class WaypointsManager {
         PANE = new Pane();
         PANE.setPickOnBounds(false);
 
-        initializeMapParametersListener();
+        initializeListeners();
+        draw();
     }
 
     /**
@@ -78,10 +82,40 @@ public final class WaypointsManager {
     }
 
     /**
-     * Method that draws the waypoints on the pane
+     * Adds a new waypoint at the given position in the map's coordinate system
+     * @param x x position in the map coordinate system
+     * @param y y position in the map coordinate system
+     * @param position position of the waypoint in the TRANSIT_POINTS_LIST
+     *                 if -1 it is added at the else at the position requested
      */
 
-    public void draw(){
+    public void addWaypoint(double x, double y, int position){
+        PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
+        int nearestNodeInRadius = GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
+
+        if(nearestNodeInRadius != -1){
+            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
+
+            //add the new waypoint to the list and draw it on the pane
+            if(position == CREATE_WAYPOINT_POSITION){
+                TRANSIT_POINTS_LIST.add(newWaypoint);
+            }else{
+                TRANSIT_POINTS_LIST.set(position, newWaypoint);
+            }
+        }else{
+            ERROR_REPORTER.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
+            //we need to draw to reset waypoint to its old position
+            draw();
+        }
+    }
+
+    //remove a Waypoint from the map
+    private void removeWaypoint(Waypoint w){
+        TRANSIT_POINTS_LIST.remove(w);
+    }
+
+    //draw waypoints on the pane
+    private void draw(){
         PANE.getChildren().clear();
 
         Iterator<Waypoint> itr = TRANSIT_POINTS_LIST.iterator();
@@ -107,42 +141,6 @@ public final class WaypointsManager {
             PANE.getChildren().add(groupWaypoint);
             initializeGroupListeners(w, groupWaypoint);
         }
-    }
-
-    /**
-     * Adds a new waypoint at the given position in the map's coordinate system
-     * @param x x position in the map coordinate system
-     * @param y y position in the map coordinate system
-     * @param position position of the waypoint in the TRANSIT_POINTS_LIST
-     *                 if -1 it is added at the else at the position requested
-     */
-
-    public void addWaypoint(double x, double y, int position){
-        PointCh waypointLocalisation = MAP_VIEW_PARAMETERS_WRAPPED.get().pointAt(x, y).toPointCh();
-        int nearestNodeInRadius = GRAPH.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
-
-        if(nearestNodeInRadius != -1){
-            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
-
-            //add the new waypoint to the list and draw it on the pane
-            if(position == -1){
-                TRANSIT_POINTS_LIST.add(newWaypoint);
-            }else{
-                TRANSIT_POINTS_LIST.set(position, newWaypoint);
-            }
-        }else{
-            ERROR_REPORTER.accept("Aucune route à proximité !");
-        }
-
-        //we need to draw even if no nodes were found in radius
-        //to reset waypoint to its old position
-        draw();
-    }
-
-    //remove a Waypoint from the map
-    private void removeWaypoint(Waypoint w){
-        TRANSIT_POINTS_LIST.remove(w);
-        draw();
     }
 
     //Create JavaFX Group for a Waypoint w with a special pinStyleClassPosition
@@ -197,14 +195,14 @@ public final class WaypointsManager {
         });
     }
 
-    //initialize listener to MapViewParameters changes, redraw only if zoom level changed
-    private void initializeMapParametersListener(){
+    //initialize listener to MapViewParameters and TRANSIT_POINT_LIST changes
+    private void initializeListeners(){
         MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
             if(oldValue.zoomLevel() != newValue.zoomLevel()){
-                System.out.println(oldValue);
-                System.out.println(newValue);
                 draw();
             }
         });
+
+        TRANSIT_POINTS_LIST.addListener((ListChangeListener<Waypoint>) change -> draw());
     }
 }

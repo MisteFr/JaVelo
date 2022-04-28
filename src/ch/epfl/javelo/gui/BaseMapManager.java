@@ -113,9 +113,6 @@ public final class BaseMapManager {
                 }
             }
         }
-
-        //draw the waypoints
-        WAYPOINTS_MANAGER.draw();
     }
 
     //if the windows properties changed, redraw on next pulse
