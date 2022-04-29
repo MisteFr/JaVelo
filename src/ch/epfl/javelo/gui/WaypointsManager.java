@@ -9,6 +9,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
@@ -104,8 +105,8 @@ public final class WaypointsManager {
             }
         }else{
             ERROR_REPORTER.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
-            //we need to draw to reset waypoint to its old position
-            draw();
+            //we need to move waypoint to its old position
+            updatePinsPosition();
         }
     }
 
@@ -135,19 +136,36 @@ public final class WaypointsManager {
                 pinStyleClassPosition = PIN_STYLE_CLASS_MIDDLE;
             }
 
-            Group groupWaypoint = createGroupForWaypoint(w, pinStyleClassPosition);
+            Group groupWaypoint = createGroupForWaypoint(pinStyleClassPosition);
 
             //add the group to the Pane and initialize listeners
             PANE.getChildren().add(groupWaypoint);
             initializeGroupListeners(w, groupWaypoint);
         }
+
+        updatePinsPosition();
+    }
+
+    //Update the position of the pins on the Pane
+    private void updatePinsPosition(){
+        MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
+
+        int positionInWaypointsList = 0;
+        for(Node g: PANE.getChildren()){
+            if(g instanceof Group){
+                Waypoint w = TRANSIT_POINTS_LIST.get(positionInWaypointsList);
+
+                g.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
+                g.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
+
+                ++positionInWaypointsList;
+            }
+        }
     }
 
     //Create JavaFX Group for a Waypoint w with a special pinStyleClassPosition
     //corresponding to the position of the waypoint
-    private Group createGroupForWaypoint(Waypoint w, String pinStyleClassPosition){
-        MapViewParameters mapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
-
+    private Group createGroupForWaypoint(String pinStyleClassPosition){
         SVGPath svgpath_outside = new SVGPath();
         SVGPath svgpath_inside = new SVGPath();
 
@@ -158,8 +176,6 @@ public final class WaypointsManager {
         svgpath_inside.setContent(INSIDE_PIN_PATH);
 
         Group group = new Group(svgpath_outside, svgpath_inside);
-        group.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
-        group.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
 
         group.getStyleClass().add(PIN_STYLE_CLASS);
         group.getStyleClass().add(pinStyleClassPosition);
@@ -197,12 +213,7 @@ public final class WaypointsManager {
 
     //initialize listener to MapViewParameters and TRANSIT_POINT_LIST changes
     private void initializeListeners(){
-        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
-            if(oldValue.zoomLevel() != newValue.zoomLevel()){
-                draw();
-            }
-        });
-
+        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) -> updatePinsPosition());
         TRANSIT_POINTS_LIST.addListener((ListChangeListener<Waypoint>) change -> draw());
     }
 }
