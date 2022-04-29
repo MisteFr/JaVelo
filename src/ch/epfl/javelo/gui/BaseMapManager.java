@@ -59,11 +59,8 @@ public final class BaseMapManager {
         lastHeight = 0.0;
         lastWidth = 0.0;
 
-        //used in movement of the map todo rendre propre
-        //ObjectProperty<Point2D> CoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
-
         CANVAS = new Canvas();
-        PANE = new Pane(); //todo utiliser mapCanvas ?
+        PANE = new Pane();
 
         PANE.getChildren().add(CANVAS);
 
@@ -165,8 +162,15 @@ public final class BaseMapManager {
         ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
         SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
 
-
-        //todo rajouter onMouseClicked selon l'énoncé ? (inutile)
+        PANE.setOnMouseClicked(mouseEvent -> {
+            try {
+                if (mouseEvent.isStillSincePress()) {
+                    WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
+                }
+            }catch(Exception e){
+                //Clicked out of swiss bounds. todo is it the right solution ?
+            }
+        });
 
         //event handler for movement of the map and creation of the wayPoint
         PANE.setOnMousePressed(mouseEvent -> {
@@ -186,13 +190,8 @@ public final class BaseMapManager {
 
         //if the mouse did not move since press, create waypoint
         PANE.setOnMouseReleased(mouseEvent -> {
-            if (!mouseEvent.isStillSincePress()) {
-                Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
-
-                MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParametersWhenMoving(delta, MAP_VIEW_PARAMETERS_WRAPPED.get()));
-            }else{
-                WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
-            }
+            Point2D delta = new Point2D(mouseEvent.getX(), mouseEvent.getY()).subtract(mouseCoordinatesProperty.get());
+            MAP_VIEW_PARAMETERS_WRAPPED.set(newMapViewParametersWhenMoving(delta, MAP_VIEW_PARAMETERS_WRAPPED.get()));
         });
 
 
@@ -208,13 +207,13 @@ public final class BaseMapManager {
             MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
             int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
 
-            double multiplicativeFactor = (zoomDelta == 1) ? 2 : 0.5;
+            double multiplicativeFactorForZoom = Math.scalb(1, newZoomLevel - oldMapViewParameters.zoomLevel());
 
             if(!(oldMapViewParameters.zoomLevel() == newZoomLevel)){
                 MapViewParameters newMapViewParameters = new MapViewParameters(
                         newZoomLevel,
-                        (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) * multiplicativeFactor - scrollEvent.getX() , //todo constante à nommer ?
-                        (oldMapViewParameters.indexTopLeftY() + scrollEvent.getY()) * multiplicativeFactor - scrollEvent.getY()
+                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) - scrollEvent.getX() ,
+                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftY() + scrollEvent.getY()) - scrollEvent.getY()
                 );
 
                 MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
@@ -240,8 +239,8 @@ public final class BaseMapManager {
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
 
+        //when map properties are changed, redraw
         MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
-            //todo assert ?
             redrawOnNextPulse();
         });
     }
