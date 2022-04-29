@@ -60,7 +60,7 @@ public final class BaseMapManager {
         lastWidth = 0.0;
 
         //used in movement of the map todo rendre propre
-        //ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
+        //ObjectProperty<Point2D> CoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
 
         CANVAS = new Canvas();
         PANE = new Pane(); //todo utiliser mapCanvas ?
@@ -115,6 +115,8 @@ public final class BaseMapManager {
         }
     }
 
+
+
     //if the windows properties changed, redraw on next pulse
     private void redrawIfNeeded() {
         //dimensions changed
@@ -131,6 +133,8 @@ public final class BaseMapManager {
         draw();
     }
 
+
+
     //redraw on next pulse
     private void redrawOnNextPulse() {
         redrawNeeded = true;
@@ -142,8 +146,8 @@ public final class BaseMapManager {
     //from a delta Point2D vector and the current MapViewParameters object, creates the new MapViewParameters when moving.
     private MapViewParameters newMapViewParametersWhenMoving(Point2D delta, MapViewParameters oldMapViewParameters){
 
-        double deltaX = delta.getX() * Math.pow(2, 12 - oldMapViewParameters.zoomLevel());
-        double deltaY = delta.getY() * Math.pow(2, 12 - oldMapViewParameters.zoomLevel());
+        double deltaX = delta.getX();
+        double deltaY = delta.getY();
 
         MapViewParameters newMapViewParameters = oldMapViewParameters.withMinXY(
                 oldMapViewParameters.indexTopLeftX() - deltaX,
@@ -152,6 +156,8 @@ public final class BaseMapManager {
 
         return newMapViewParameters;
     }
+
+
 
     //installs the handlers in the constructor
     private void installHandlers(){
@@ -192,7 +198,6 @@ public final class BaseMapManager {
 
         //even handler for zooming in and out by scrolling
         PANE.setOnScroll(scrollEvent -> {
-            MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
 
             //compute the zoom delta using the current system time
             long currentTime = System.currentTimeMillis();
@@ -200,27 +205,24 @@ public final class BaseMapManager {
             minScrollTime.set(currentTime + 250);
             int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
 
+            MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();
             int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
 
+            double multiplicativeFactor = (zoomDelta == 1) ? 2 : 0.5;
 
-            double newX;
-            double newY;
+            if(!(oldMapViewParameters.zoomLevel() == newZoomLevel)){
+                MapViewParameters newMapViewParameters = new MapViewParameters(
+                        newZoomLevel,
+                        (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) * multiplicativeFactor - scrollEvent.getX() , //todo constante à nommer ?
+                        (oldMapViewParameters.indexTopLeftY() + scrollEvent.getY()) * multiplicativeFactor - scrollEvent.getY()
+                );
 
-
-            newX = oldMapViewParameters.indexTopLeftX() * Math.pow(2, zoomDelta); //todo constante à nommer ?
-            newY = oldMapViewParameters.indexTopLeftY() * Math.pow(2, zoomDelta);
-
-
-            MapViewParameters newMapViewParameters = new MapViewParameters(
-                    newZoomLevel,
-                    newX,
-                    newY
-            );
-
-            MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
+                MAP_VIEW_PARAMETERS_WRAPPED.setValue(newMapViewParameters);
+            }
         });
-
     }
+
+
 
     //installs the bindings in the constructor
     private void installBindings(){
@@ -228,6 +230,8 @@ public final class BaseMapManager {
         CANVAS.widthProperty().bind(PANE.widthProperty());
         CANVAS.heightProperty().bind(PANE.heightProperty());
     }
+
+
 
     //installs the listeners in the constructor
     private void installListeners(){

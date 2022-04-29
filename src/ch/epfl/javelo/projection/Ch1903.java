@@ -32,8 +32,11 @@ public final class Ch1903 {
         double lambda1 = Math.pow(10, -4) * (3600d * lon - 26782.5);
         double phi1 = Math.pow(10, -4) * (3600d * lat - 169028.66);
 
-        return (2600072.37 + 211455.93 * lambda1 - 10938.51 * lambda1 * phi1
-                - 0.36 * lambda1 * Math.pow(phi1, 2) - 44.54 * Math.pow(lambda1, 3));
+        return (2600072.37
+                + 211455.93 * lambda1
+                - 10938.51 * lambda1 * phi1
+                - 0.36 * lambda1 * Math.pow(phi1, 2)
+                - 44.54 * Math.pow(lambda1, 3));
     }
 
     /**
