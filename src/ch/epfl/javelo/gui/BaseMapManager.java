@@ -47,8 +47,9 @@ public final class BaseMapManager {
 
     /**
      * BaseMapManager constructor
-     * @param tileM TileManager to get the tiles from the map
-     * @param waypointsM WaypointManager
+     *
+     * @param tileM            TileManager to get the tiles from the map
+     * @param waypointsM       WaypointManager
      * @param mapParamsWrapped MapViewParameters wrapped into a JavaFx property
      */
 
@@ -74,6 +75,7 @@ public final class BaseMapManager {
 
     /**
      * Returns the JavaFX pane displaying the background map
+     *
      * @return Pane
      */
 
@@ -94,7 +96,7 @@ public final class BaseMapManager {
 
         //index of the bottom right tile
         int bottomRightXIndexTile = (int) ((mapViewParameters.indexTopLeftX() + CANVAS.getWidth()) / OSM_TILE_SIZE);
-        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY()  + CANVAS.getHeight()) / OSM_TILE_SIZE);
+        int bottomRightYIndexTile = (int) ((mapViewParameters.indexTopLeftY() + CANVAS.getHeight()) / OSM_TILE_SIZE);
 
         for (int xTileMap = topLeftXIndexTile; xTileMap <= bottomRightXIndexTile; xTileMap++) {
             for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
@@ -113,11 +115,9 @@ public final class BaseMapManager {
     }
 
 
-
     //if the windows properties changed, redraw on next pulse
     private void redrawIfNeeded() {
         //dimensions changed
-
         if (!(CANVAS.getHeight() == lastHeight && CANVAS.getWidth() == lastWidth)) {
             lastWidth = CANVAS.getWidth();
             lastHeight = CANVAS.getHeight();
@@ -131,7 +131,6 @@ public final class BaseMapManager {
     }
 
 
-
     //redraw on next pulse
     private void redrawOnNextPulse() {
         redrawNeeded = true;
@@ -139,9 +138,8 @@ public final class BaseMapManager {
     }
 
 
-
     //from a delta Point2D vector and the current MapViewParameters object, creates the new MapViewParameters when moving.
-    private MapViewParameters newMapViewParametersWhenMoving(Point2D delta, MapViewParameters oldMapViewParameters){
+    private MapViewParameters newMapViewParametersWhenMoving(Point2D delta, MapViewParameters oldMapViewParameters) {
 
         double deltaX = delta.getX();
         double deltaY = delta.getY();
@@ -155,9 +153,8 @@ public final class BaseMapManager {
     }
 
 
-
     //installs the handlers in the constructor
-    private void installHandlers(){
+    private void installHandlers() {
 
         ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
         SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
@@ -167,7 +164,7 @@ public final class BaseMapManager {
                 if (mouseEvent.isStillSincePress()) {
                     WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
                 }
-            }catch(Exception e){
+            } catch (Exception e) {
                 //Clicked out of swiss bounds. todo is it the right solution ?
             }
         });
@@ -176,7 +173,6 @@ public final class BaseMapManager {
         PANE.setOnMousePressed(mouseEvent -> {
             mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
-
 
 
         PANE.setOnMouseDragged(mouseEvent -> {
@@ -209,10 +205,10 @@ public final class BaseMapManager {
 
             double multiplicativeFactorForZoom = Math.scalb(1, newZoomLevel - oldMapViewParameters.zoomLevel());
 
-            if(!(oldMapViewParameters.zoomLevel() == newZoomLevel)){
+            if (!(oldMapViewParameters.zoomLevel() == newZoomLevel)) {
                 MapViewParameters newMapViewParameters = new MapViewParameters(
                         newZoomLevel,
-                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) - scrollEvent.getX() ,
+                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) - scrollEvent.getX(),
                         multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftY() + scrollEvent.getY()) - scrollEvent.getY()
                 );
 
@@ -222,25 +218,23 @@ public final class BaseMapManager {
     }
 
 
-
     //installs the bindings in the constructor
-    private void installBindings(){
+    private void installBindings() {
         //when the pane width or height will change -> canvas width and height will update accordingly
         CANVAS.widthProperty().bind(PANE.widthProperty());
         CANVAS.heightProperty().bind(PANE.heightProperty());
     }
 
 
-
     //installs the listeners in the constructor
-    private void installListeners(){
+    private void installListeners() {
         CANVAS.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
 
         //when map properties are changed, redraw
-        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) ->{
+        MAP_VIEW_PARAMETERS_WRAPPED.addListener((property, oldValue, newValue) -> {
             redrawOnNextPulse();
         });
     }
