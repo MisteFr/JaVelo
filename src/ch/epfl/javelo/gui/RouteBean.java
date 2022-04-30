@@ -23,10 +23,10 @@ public final class RouteBean {
 
     //todo voir ce qui peut être final (tout étant donné que ce sont des cellules ?)
     private ObservableList<Waypoint> waypoints; //todo initialiser ?
-    private ObjectProperty<Route> route;
+    private ObjectProperty<Route> route = new SimpleObjectProperty<>();
     private DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
     //the highlighted position must have a NaN value while no position needs to be showed.
-    private ObjectProperty<ElevationProfile> elevationProfile;
+    private ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
     private TreeMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new TreeMap<>();
 
 
