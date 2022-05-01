@@ -3,11 +3,13 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.routing.*;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -22,12 +24,12 @@ import java.util.TreeMap;
 public final class RouteBean {
 
     //todo voir ce qui peut être final (tout étant donné que ce sont des cellules ?)
-    private ObservableList<Waypoint> waypoints; //todo initialiser ?
+    private ObservableList<Waypoint> waypoints = FXCollections.observableArrayList(); //todo initialiser ?
     private ObjectProperty<Route> route = new SimpleObjectProperty<>();
     private DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
     //the highlighted position must have a NaN value while no position needs to be showed.
     private ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
-    private TreeMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new TreeMap<>();
+    private HashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new HashMap<>();
 
 
     /**
