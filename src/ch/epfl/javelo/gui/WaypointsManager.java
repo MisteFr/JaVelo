@@ -62,7 +62,8 @@ public final class WaypointsManager {
      * @param errorReporter            Object for reporting errors
      */
 
-    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParametersWrapped, ObservableList<Waypoint> transitPointsList, Consumer<String> errorReporter) {
+    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParametersWrapped,
+                            ObservableList<Waypoint> transitPointsList, Consumer<String> errorReporter) {
         this.graph = graph;
         this.mapViewParametersWrapped = mapViewParametersWrapped;
         this.transitPointsList = transitPointsList;

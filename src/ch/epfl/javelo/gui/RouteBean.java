@@ -68,7 +68,8 @@ public final class RouteBean {
      */
 
     public void setHighlightedPosition(double newValue){
-        Preconditions.checkArgument((route != null) && (newValue >= 0) && (newValue <= route.get().length())); //todo autres manières de faire ?
+        Preconditions.checkArgument((newValue >= 0)); //todo autres manières de faire ? + regarder si besoin de conditions
+                                                        //sur length de la route
         highlightedPosition.set(newValue);
     }
 
