@@ -80,10 +80,11 @@ public final class RouteManager {
         mapParametersProperty.addListener((property, oldValue, newValue) -> {
             if (polyline.isVisible()) {
                 if (oldValue.zoomLevel() == newValue.zoomLevel()) {
-                    //we just need to update the position of the polyline and the circle
-                    updatePositionPolylineAndCircle();
+                    //update the position of the polyline and the circle
+                    updatePositionPolyline();
+                    updatePositionCircle();
                 } else {
-                    //we need to update the points of the polyline
+                    //update the points of the polyline
                     updatePointsPolyline();
                 }
             }
@@ -91,8 +92,7 @@ public final class RouteManager {
 
         beanRoute.route().addListener((property, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
-                //if we have a new route and that is different from the old one, update the points
-                //of the polyline
+                //if the new route is different from the old one, update the points of the polyline
                 if (!polyline.isVisible() && !circle.isVisible()) {
                     polyline.setVisible(true);
                     circle.setVisible(true);
@@ -107,9 +107,8 @@ public final class RouteManager {
         });
 
         beanRoute.highlightedPositionProperty().addListener((property, oldValue, newValue) -> {
-            if (circle.isVisible() && !oldValue.equals(newValue)) {
-                //est ce que c ok d'update les deux
-                updatePositionPolylineAndCircle();
+            if (!oldValue.equals(newValue)) {
+                updatePositionCircle();
             }
         });
 
@@ -123,7 +122,7 @@ public final class RouteManager {
     private void addWaypointOnRoute(Point2D pInPane) {
         int nearestNodeOnRoute = beanRoute.route().get().nodeClosestTo(beanRoute.getHighlightedPosition());
 
-        //check if we already have a waypoint associated to this node, if yes abort.
+        //check if a waypoint is already associated to this node, if yes abort.
         for (Waypoint w : beanRoute.waypointsProperty()) {
             if (w.nodeId() == nearestNodeOnRoute) {
                 errorReporter.accept(WAYPOINT_ALREADY_EXIST_AT_POSITION_MESSAGE);
@@ -138,7 +137,7 @@ public final class RouteManager {
         beanRoute.waypointsProperty().add(indexToInsert, newWaypoint);
     }
 
-    //update the points of the polyline
+    //update the points of the polyline and replace circle and polyline
     private void updatePointsPolyline() {
         polyline.getPoints().clear();
 
@@ -156,14 +155,18 @@ public final class RouteManager {
 
         polyline.getPoints().setAll(pointsToAdd);
 
-        updatePositionPolylineAndCircle();
+        updatePositionPolyline();
+        updatePositionCircle();
     }
 
-    //update the position of the polyline and the highlighted circle on the map
-    private void updatePositionPolylineAndCircle() {
+    //update the position of the polyline on the map
+    private void updatePositionPolyline() {
         polyline.setLayoutX(-mapParametersProperty.get().indexTopLeftX());
         polyline.setLayoutY(-mapParametersProperty.get().indexTopLeftY());
+    }
 
+    //update the position of the highlighted circle on the map
+    private void updatePositionCircle(){
         PointCh pointCenterHighlightedPosition = beanRoute.route().get().pointAt(beanRoute.getHighlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 

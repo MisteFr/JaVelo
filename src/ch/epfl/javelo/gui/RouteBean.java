@@ -75,7 +75,8 @@ public final class RouteBean {
 
 
     /**
-     * Accessor for the ObservableList of waypoints property, corresponding to the
+     * Accessor for the ObservableList of
+     * property, corresponding to the
      * list of all the waypoints that the route needs to pass by.
      * @return waypoints property
      */
