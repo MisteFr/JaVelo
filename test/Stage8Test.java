@@ -1,6 +1,10 @@
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.gui.*;
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.routing.CityBikeCF;
+import ch.epfl.javelo.routing.CostFunction;
+import ch.epfl.javelo.routing.Route;
+import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -26,29 +30,43 @@ public final class Stage8Test extends Application {
         TileManager tileManager =
                 new TileManager(cacheBasePath, tileServerHost);
 
+        RouteBean routeBean = new RouteBean(new RouteComputer(graph, new CityBikeCF(graph)));
+        routeBean.waypointsProperty().add(new Waypoint(new PointCh(2532697, 1152350), 159049));
+        routeBean.waypointsProperty().add(new Waypoint(new PointCh(2538659, 1154350), 117669));
+        routeBean.setHighlightedPosition(2000);
+
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);
         ObjectProperty<MapViewParameters> mapViewParametersP =
                 new SimpleObjectProperty<>(mapViewParameters);
-        ObservableList<Waypoint> waypoints =
+        /*ObservableList<Waypoint> waypoints =
                 FXCollections.observableArrayList(
                         new Waypoint(new PointCh(2532697, 1152350), 159049),
-                        new Waypoint(new PointCh(2538659, 1154350), 117669));
+                        new Waypoint(new PointCh(2538659, 1154350), 117669));*/
+
         Consumer<String> errorConsumer = new ErrorConsumer();
 
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
                         mapViewParametersP,
-                        waypoints,
+                        routeBean.waypointsProperty(),
                         errorConsumer);
         BaseMapManager baseMapManager =
                 new BaseMapManager(tileManager,
                         waypointsManager,
                         mapViewParametersP);
 
-        StackPane mainPane =
-                new StackPane(baseMapManager.pane(),
-                        waypointsManager.pane());
+
+
+
+            RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP, errorConsumer);
+
+            StackPane mainPane =
+                    new StackPane(baseMapManager.pane(),
+                            waypointsManager.pane(),
+                            routeManager.pane());
+
+
 
 
         mainPane.getStylesheets().add("map.css");

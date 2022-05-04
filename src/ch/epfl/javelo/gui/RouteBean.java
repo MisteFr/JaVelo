@@ -6,12 +6,10 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * RouteBean class
@@ -29,7 +27,9 @@ public final class RouteBean {
     private DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
     //the highlighted position must have a NaN value while no position needs to be showed.
     private ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
-    private HashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new HashMap<>();
+    //todo revoir tout ça
+    private final static int CACHE_CAPACITY = 100;
+    private LinkedHashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
 
     /**
@@ -69,14 +69,13 @@ public final class RouteBean {
 
     public void setHighlightedPosition(double newValue){
         Preconditions.checkArgument((newValue >= 0)); //todo autres manières de faire ? + regarder si besoin de conditions
-                                                        //sur length de la route
+        //sur length de la route
         highlightedPosition.set(newValue);
     }
 
 
     /**
-     * Accessor for the ObservableList of
-     * property, corresponding to the
+     * Accessor for the ObservableList of waypoints property, corresponding to the
      * list of all the waypoints that the route needs to pass by.
      * @return waypoints property
      */
@@ -100,7 +99,7 @@ public final class RouteBean {
      * Accessor for the ReadOnlyObjectProperty elevationProfile property, corresponding
      * to the elevationProfile of the route.
      */
-     // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
+    // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
 
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
         return elevationProfile;
@@ -117,39 +116,53 @@ public final class RouteBean {
                 elevationProfile.set(null);
             }else{
                 List<Route> segments = new ArrayList<>();
+                boolean containsNull = false;
+                Route bestRoute;
+                //todo débugging, clean
+                //System.out.println(routeComputingBuffer.size());
                 for(int i = 0; i < waypoints.size() - 1; ++i){
-
-                    ObjectProperty<Boolean> routeHasBeenComputed = new SimpleObjectProperty<>(false);
-                    // todo ^ vérifier si cette solution est acceptable
+                    ObjectProperty<Boolean> routeHasBeenComputed = new SimpleObjectProperty<>(false); // todo vérifier si cette solution est acceptable
                     Pair<Waypoint, Waypoint> routeSegmentWaypoints = new Pair<>(waypoints.get(i), waypoints.get(i+1));
 
                     //we check if the best route between the two waypoints is stored in the buffer.
-                    routeComputingBuffer.forEach((k, v) -> {
-                        if(k == routeSegmentWaypoints){ //todo normalement la comparaison de paires est efficiente, voir code source.
-                            routeHasBeenComputed.set(true);
-                            segments.add(v);
-                        }
-                    });
+                    if(routeComputingBuffer.containsKey(routeSegmentWaypoints)){
+                        routeHasBeenComputed.set(true);
+                    }
 
                     if(!routeHasBeenComputed.get()){
-                        Route bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i+1).nodeId());
-
+                        //System.out.println("On compute une route"); todo debugging clean
+                        bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i+1).nodeId());
                         //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
                         if(bestRoute == null){
-                            route.set(null);
-                            elevationProfile.set(null);
-                        }else{
-                            segments.add(bestRoute);
-                            routeComputingBuffer.put(routeSegmentWaypoints, bestRoute);
+                            containsNull = true;
+                            break;
                         }
+                        //only executed if bestRoute != null
+                        addToCache(routeSegmentWaypoints, bestRoute);
+                    }else{
+                        bestRoute = routeComputingBuffer.get(routeSegmentWaypoints);
                     }
+                    segments.add(bestRoute);
                 }
 
-                route.set(new MultiRoute(segments));
-                elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
-                //todo quand clear le buffer des routes déjà traversées ? On aura dans tous les cas une instance de RouteBean pour chaque route qu'on souhaitera afficher, rien n'est statique.
+                if(!containsNull){
+                    route.set(new MultiRoute(segments));
+                    elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
+                }else{
+                    route.set(null);
+                    elevationProfile.set(null);
+                }
             }
         });
+    }
+
+    //for inner working, see tileManager.
+    private void addToCache(Pair<Waypoint, Waypoint> pair, Route route) {
+        if (routeComputingBuffer.size() >= CACHE_CAPACITY) {
+            //complexity is 0(1)
+            routeComputingBuffer.remove(routeComputingBuffer.entrySet().iterator().next().getKey());
+        }
+        routeComputingBuffer.put(pair, route);
     }
 }
 
