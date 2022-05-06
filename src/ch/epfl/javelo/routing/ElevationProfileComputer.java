@@ -39,9 +39,13 @@ public final class ElevationProfileComputer {
         float[] samples = initializeSamplesArray(SAMPLE_NUMBER, route, STEP_LENGTH);
 
 
-        fillInBeginningOfSamplesArray(samples);
-        fillInEndOfSamplesArray(samples);
-        getsRidOfAllNanInSamplesArray(samples);
+        int intOfFirstValidValue = fillInBeginningOfSamplesArrayAndReturnIntOfFirstValidValue(samples);
+        if(intOfFirstValidValue == samples.length){
+            return new ElevationProfile(route.length(), samples);
+        } //if all NaN, return directly.
+        int intOfLastValidValue =  fillInEndOfSamplesArrayAndReturnIntOfLastValidValue(samples);
+
+        getsRidOfAllNanInSamplesArray(samples, intOfFirstValidValue, intOfLastValidValue);
 
         return new ElevationProfile(route.length(), samples);
     }
@@ -89,33 +93,37 @@ public final class ElevationProfileComputer {
     }
 
     // Method gets rid of Nan values at the beginning and treats the case of an all NaN samples array.
-    private static void fillInBeginningOfSamplesArray(float[] samples){
+    // Return samples.length if no valid value.
+    private static int fillInBeginningOfSamplesArrayAndReturnIntOfFirstValidValue(float[] samples){
         int i = 0;
         while((i != samples.length) && Float.isNaN(samples[i])){
             i += 1;
         }
         if(i != samples.length){
             Arrays.fill(samples, 0, i, samples[i]);
+            return i;
         }else{
             Arrays.fill(samples, 0, samples.length, 0F);
+            return samples.length;
         }
     }
 
     // Method gets rid of Nan values at the end of the samples array.
-    private static void fillInEndOfSamplesArray(float[] samples){
+    private static int fillInEndOfSamplesArrayAndReturnIntOfLastValidValue(float[] samples){
         int i = 0;
         while(Float.isNaN(samples[(samples.length - 1) - i])){
             i += 1;
         }
         Arrays.fill(samples, samples.length - i, samples.length, samples[(samples.length - 1) - i]);
+        return samples.length - 1 - i;
     }
 
     // Browses the samples array a last time in order to replace intermediate NaN values by interpolated values.
-    private static void getsRidOfAllNanInSamplesArray(float[] samples){
+    private static void getsRidOfAllNanInSamplesArray(float[] samples, int start, int end){
         int beginIndex = -1;
         int xMax = 0;
         //Fill the NaN gaps. First sample cannot be NaN.
-        for(int j = 0; j < samples.length; ++j){
+        for(int j = start; j < end + 1; ++j){
             if(Float.isNaN(samples[j])){
                 if(beginIndex == -1){
                     beginIndex = j - 1;
@@ -124,8 +132,9 @@ public final class ElevationProfileComputer {
                 xMax = j - beginIndex;
                 // Initialize an array based on the two borders of the non-NaN values of the sample array.
                 // Choose an xMax to define each samples elements with an int value as x argument in f.
+                double spacingBetweenPoints = 1.0/xMax;
                 for (int k = 1; k < xMax ; ++k) {
-                    samples[beginIndex + k] = (float) Math2.interpolate(samples[beginIndex], samples[j], (((double) k)/xMax));
+                    samples[beginIndex + k] = (float) Math2.interpolate(samples[beginIndex], samples[j], k*spacingBetweenPoints);
                 }
                 beginIndex = -1;
             }

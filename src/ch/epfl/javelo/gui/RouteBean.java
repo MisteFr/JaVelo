@@ -27,7 +27,6 @@ public final class RouteBean {
     private DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
     //the highlighted position must have a NaN value while no position needs to be showed.
     private ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
-    //todo revoir tout ça
     private final static int CACHE_CAPACITY = 100;
     private LinkedHashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 

@@ -43,21 +43,21 @@ public class ElevationProfile {
         double tempTotalDescent = 0;
         double diff;
 
-        for (int i = 0; i < elevationSamples.length; ++i) {
+        for (int i = 0; i < elevationSamples.length - 1; ++i) {
             s.accept(elevationSamples[i]); // Initialize the DoubleSummaryStatistics with all the values of the array.
 
-            if (i < elevationSamples.length - 1) {
-                diff = elevationSamples[i+1] - elevationSamples[i];
-                // Verify if there is a descent or an ascent between those two elements of the array and increment
-                // the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
-                if (diff > 0) {
-                    tempTotalAscent += diff;
-                } else {
-                    tempTotalDescent -= diff;
-                }
+            diff = elevationSamples[i+1] - elevationSamples[i];
+            // Verify if there is a descent or an ascent between those two elements of the array and increment
+            // the future TOTAL_ASCENT and TOTAL_DESCENT variables accordingly.
+            if (diff > 0) {
+                tempTotalAscent += diff;
+            } else {
+                tempTotalDescent -= diff;
             }
 
         }
+
+        s.accept(elevationSamples[elevationSamples.length - 1]);
 
         // Now that the DoubleSummaryStatistics object is filled with the elements of elevationSamples
         // and the tempTotalAscent and tempTotalDescent are computed, initialize the final variables.

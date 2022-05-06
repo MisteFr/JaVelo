@@ -20,6 +20,8 @@ public final class SingleRoute implements Route {
 
     private final List<Edge> EDGES_LIST;
     private final double[] NODES_POSITION_LIST;
+    private final List<PointCh> points;
+    private final double length;
 
     /**
      * SingleRoute Constructor from a list of edges
@@ -41,8 +43,21 @@ public final class SingleRoute implements Route {
             lengthRoute += EDGES_LIST.get(i).length();
             tempNodesPositionList[(i + 1)] = lengthRoute;
         }
+        length = lengthRoute;
 
         NODES_POSITION_LIST = tempNodesPositionList;
+
+        //points is computed
+        List<PointCh> pointsList = new ArrayList<>();
+
+        //we first add every starting point of each edge
+        for (Edge e : EDGES_LIST) {
+            pointsList.add(e.fromPoint());
+        }
+        //we add the end point of the last edge
+        pointsList.add(EDGES_LIST.get(EDGES_LIST.size() - 1).toPoint());
+
+        points = List.copyOf(pointsList);
     }
 
     /**
@@ -60,10 +75,6 @@ public final class SingleRoute implements Route {
 
     @Override
     public double length() {
-        double length = 0.0;
-        for (Edge e : EDGES_LIST) {
-            length += e.length();
-        }
         return length;
     }
 
@@ -82,15 +93,7 @@ public final class SingleRoute implements Route {
 
     @Override
     public List<PointCh> points() {
-        List<PointCh> pointsList = new ArrayList<>();
-
-        //we first add every starting point of each edge
-        for (Edge e : EDGES_LIST) {
-            pointsList.add(e.fromPoint());
-        }
-        //we add the end point of the last edge
-        pointsList.add(EDGES_LIST.get(EDGES_LIST.size() - 1).toPoint());
-        return pointsList;
+        return points;
     }
 
     /**
@@ -178,7 +181,7 @@ public final class SingleRoute implements Route {
             PointCh nearestPointOnEdge = e.pointAt(lengthOfProjection);
             double distance = nearestPointOnEdge.distanceTo(point);
 
-            nearestPoint = nearestPoint.min(nearestPointOnEdge, cumulatedLength + Math2.clamp(0.0, lengthOfProjection, e.length()), distance);
+            nearestPoint = nearestPoint.min(nearestPointOnEdge, cumulatedLength + lengthOfProjection, distance);
 
             cumulatedLength += e.length();
         }

@@ -83,7 +83,7 @@ public final class Graph {
 
         //initialize attributes
         LongBuffer sectorsAttributesBuffer = loadData(basePath, "attributes.bin").asLongBuffer();
-        ArrayList<AttributeSet> attributeSets = new ArrayList<>();
+        ArrayList<AttributeSet> attributeSets = new ArrayList<>(sectorsAttributesBuffer.capacity());
         while (sectorsAttributesBuffer.hasRemaining()) {
             attributeSets.add(new AttributeSet(sectorsAttributesBuffer.get()));
         }
@@ -148,7 +148,7 @@ public final class Graph {
         //we get all the sectors in the area
         List<GraphSectors.Sector> sectorsInArea = SECTORS.sectorsInArea(point, searchDistance);
 
-        double lowestDistance = searchDistance > 0 ? Math.pow(searchDistance, 2) : 0;
+        double lowestDistance = searchDistance > 0 ? searchDistance * searchDistance : 0;
         int nearestNodeId = -1;
 
         //we loop through all the nodes of every sector to find out which one is the nearest
