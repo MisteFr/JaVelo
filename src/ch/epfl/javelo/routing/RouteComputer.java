@@ -20,8 +20,8 @@ import java.util.PriorityQueue;
 public final class RouteComputer {
 
     //All fields are initialized in the constructor
-    private float[] distance;
-    private int[] predecessor;
+    private final float[] distance;
+    private final int[] predecessor;
     private final Graph GRAPH;
     private final CostFunction COST_FUNCTION;
 
@@ -63,7 +63,7 @@ public final class RouteComputer {
         //fills the distance and predecessor arrays before computing the best route
         Preconditions.checkArgument(startNodeId != endNodeId);
         Arrays.fill(distance, 0, distance.length, Float.POSITIVE_INFINITY);
-        Arrays.fill(predecessor, 0, predecessor.length, 0);
+        //Arrays.fill(predecessor, 0, predecessor.length, 0);
         PriorityQueue<WeightedNode> enExploration = new PriorityQueue<>();
 
         //sets the values of the startNodeId

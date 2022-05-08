@@ -52,7 +52,9 @@ public final class SingleRoute implements Route {
 
         //we first add every starting point of each edge
         for (Edge e : EDGES_LIST) {
-            pointsList.add(e.fromPoint());
+            if(e.fromPoint() != null){
+                pointsList.add(e.fromPoint());
+            }
         }
         //we add the end point of the last edge
         pointsList.add(EDGES_LIST.get(EDGES_LIST.size() - 1).toPoint());

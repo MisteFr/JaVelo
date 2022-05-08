@@ -6,7 +6,6 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.scene.image.Image;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -22,13 +21,13 @@ import java.util.*;
 public final class RouteBean {
 
     //todo voir ce qui peut être final (tout étant donné que ce sont des cellules ?)
-    private ObservableList<Waypoint> waypoints = FXCollections.observableArrayList(); //todo initialiser ?
-    private ObjectProperty<Route> route = new SimpleObjectProperty<>();
-    private DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
+    private final ObservableList<Waypoint> waypoints = FXCollections.observableArrayList(); //todo initialiser ?
+    private final ObjectProperty<Route> route = new SimpleObjectProperty<>();
+    private final DoubleProperty highlightedPosition = new SimpleDoubleProperty(Double.NaN);
     //the highlighted position must have a NaN value while no position needs to be showed.
-    private ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
+    private final ObjectProperty<ElevationProfile> elevationProfile = new SimpleObjectProperty<>();
     private final static int CACHE_CAPACITY = 100;
-    private LinkedHashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
+    private final LinkedHashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
 
     /**
@@ -125,11 +124,12 @@ public final class RouteBean {
 
                     //we check if the best route between the two waypoints is stored in the buffer.
                     if(routeComputingBuffer.containsKey(routeSegmentWaypoints)){
+                        System.out.println("Cache already contains route !");
                         routeHasBeenComputed.set(true);
                     }
 
                     if(!routeHasBeenComputed.get()){
-                        //System.out.println("On compute une route"); todo debugging clean
+                        System.out.println("On compute une route");
                         bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i+1).nodeId());
                         //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
                         if(bestRoute == null){
