@@ -161,6 +161,7 @@ public final class BaseMapManager {
 
         PANE.setOnMouseClicked(mouseEvent -> {
             if (mouseEvent.isStillSincePress()) {
+                //TODO: handle case out of switzerland
                 WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
             }
         });

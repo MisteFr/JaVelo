@@ -280,7 +280,6 @@ public final class ElevationProfileManager {
     //initialize handlers on the pane (mouse management)
     private void initializeHandlers(){
         pane.getCenter().setOnMouseMoved(mouseEvent -> {
-            //TODO: check fix is valid
             if(rectangleProperty.get().contains(new Point2D(mouseEvent.getX(), mouseEvent.getY()))){
                 mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
             }else{
