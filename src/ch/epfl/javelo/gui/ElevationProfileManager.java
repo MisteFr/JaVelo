@@ -3,10 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -28,37 +25,51 @@ import static javafx.beans.binding.Bindings.*;
 
 public final class ElevationProfileManager {
 
-    private final ReadOnlyObjectProperty<ElevationProfile> profile;
-    private final DoubleProperty highlightedPosition;
-    private final ObjectProperty<Rectangle2D> rectangle;
+    private final ReadOnlyObjectProperty<ElevationProfile> profileProperty;
+    private final DoubleProperty highlightedPositionProperty;
+    private final ObjectProperty<Rectangle2D> rectangleProperty;
 
-    private ObjectProperty<Transform> screenToWorld;
-    private ObjectProperty<Transform> worldToScreen;
+    private final ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
+    private final DoubleProperty mousePositionOnProfileProperty = new SimpleDoubleProperty(Double.NaN);
+
+    private ObjectProperty<Transform> screenToWorld = new SimpleObjectProperty<>(new Affine());
+    private ObjectProperty<Transform> worldToScreen = new SimpleObjectProperty<>(new Affine());
 
     private final Polygon polygon;
     private final Line highlightedLine;
+    private final Text textStatistics;
 
     private final Insets rectangleInsets = new Insets(10, 10, 20, 40);
 
-
-    //pane containing the waypoints
+    //pane containing the elevation profile
     private final BorderPane pane;
 
-    public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profileToDisplay,
-                                   DoubleProperty highlightedPos){
-        profile = profileToDisplay;
-        highlightedPosition = highlightedPos;
+    private static final String BORDER_PANE_STYLE_CLASS = "elevation_profile.css";
+
+    public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
+                                   DoubleProperty highlightedPos) {
+        profileProperty = profile;
+        highlightedPositionProperty = highlightedPos;
 
         pane = new BorderPane();
+        pane.getStylesheets().add(BORDER_PANE_STYLE_CLASS);
         polygon = new Polygon();
         highlightedLine = new Line();
-        rectangle = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
+        textStatistics = new Text();
+
+        rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
 
         createPane();
-        updateTransformations();
         initializeListeners();
-        drawPolygon();
         initializeBindings();
+        initializeHandlers();
+
+        //only draw the polygon, update the transformation and the stats if the profile property isn't null
+        if (profileProperty.isNotNull().get()) {
+            updateTransformations();
+            updateStats();
+            drawPolygon();
+        }
     }
 
     /**
@@ -67,7 +78,7 @@ public final class ElevationProfileManager {
      * @return Pane of the Elevation Profile
      */
 
-    public Pane pane(){
+    public Pane pane() {
         return pane;
     }
 
@@ -78,24 +89,24 @@ public final class ElevationProfileManager {
      * @return position of the mouse along the profile in meters
      */
 
-    public ReadOnlyObjectProperty<Double> mousePositionOnProfileProperty(){
-        return new SimpleObjectProperty<>(highlightedPosition.get());
+    public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
+        return mousePositionOnProfileProperty;
     }
 
     //update the transformations
-    private void updateTransformations(){
+    private void updateTransformations() {
         Affine a = new Affine();
 
         //back to javafx origin
-        a.prependTranslation(-rectangleInsets.getLeft(), -rectangle.get().getMinY());
+        a.prependTranslation(-rectangleInsets.getLeft(), -rectangleProperty.get().getMinY());
 
         //scaling
-        a.prependScale(profile.get().length() / rectangle.get().getWidth(),
-                (profile.get().minElevation() - profile.get().maxElevation())
-                       / rectangle.get().getHeight());
+        a.prependScale(profileProperty.get().length() / rectangleProperty.get().getWidth(),
+                (profileProperty.get().minElevation() - profileProperty.get().maxElevation())
+                        / rectangleProperty.get().getHeight());
 
         //inverse y
-        a.prependTranslation(0, profile.get().maxElevation());
+        a.prependTranslation(0, profileProperty.get().maxElevation());
 
         screenToWorld = new SimpleObjectProperty<>(a);
 
@@ -110,45 +121,43 @@ public final class ElevationProfileManager {
     }
 
     //draw the polygon
-    private void drawPolygon(){
+    private void drawPolygon() {
         polygon.getPoints().clear();
 
         ArrayList<Double> tempListPoints = new ArrayList<>();
 
         //bottom right point
-        tempListPoints.add(rectangle.get().getMaxX());
-        tempListPoints.add(rectangle.get().getMaxY());
+        tempListPoints.add(rectangleProperty.get().getMaxX());
+        tempListPoints.add(rectangleProperty.get().getMaxY());
 
 
         //bottom left point
-        tempListPoints.add(rectangle.get().getMinX());
-        tempListPoints.add(rectangle.get().getMaxY());
+        tempListPoints.add(rectangleProperty.get().getMinX());
+        tempListPoints.add(rectangleProperty.get().getMaxY());
 
         //for loop on double are way costful
-        for(int x = (int) rectangle.get().getMinX(); x < rectangle.get().getMaxX(); x++){
+        for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
             //elevation at the x point in the real world
-            double elevationAtPos = profile.get().elevationAt(correspondingProfilePos.getX());
+            double elevationAtPos = profileProperty.get().elevationAt(correspondingProfilePos.getX());
             //y corresponding to this elevation in the screen
             Point2D coordinatePointY = worldToScreen.get().transform(correspondingProfilePos.getX(), elevationAtPos);
 
             tempListPoints.add((double) x);
             tempListPoints.add(coordinatePointY.getY());
         }
-
         polygon.getPoints().setAll(tempListPoints);
     }
 
     //create the pane with all its elements
-    private void createPane(){
+    private void createPane() {
         //est ce qu'on est sensé créer la ligne directement?
         //comment placer les points bottom left et right
 
         pane.getChildren().clear();
-        System.out.println(pane.getStylesheets());
 
-        pane.getStylesheets().add("elevation_profile.css");
+        pane.getStylesheets().add(BORDER_PANE_STYLE_CLASS);
 
         Pane p = new Pane();
         pane.setCenter(p);
@@ -180,26 +189,31 @@ public final class ElevationProfileManager {
 
 
         VBox v = new VBox();
+        v.getChildren().add(textStatistics);
         v.setId("profile_data");
-        String textStats = String.format("Longueur : %.1f km" +
-                "     Montée : %.0f m" +
-                "     Descente : %.0f m" +
-                "     Altitude : de %.0f m à %.0f m",
-                profile.get().length() / 1000,
-                profile.get().totalAscent(),
-                profile.get().totalDescent(),
-                profile.get().minElevation(),
-                profile.get().maxElevation());
-        Text t = new Text(textStats);
-        v.getChildren().add(t);
 
         pane.setBottom(v);
     }
 
-    private void initializeBindings(){
+    //update the statistics text
+    private void updateStats() {
+        String textStats = String.format("Longueur : %.1f km" +
+                        "     Montée : %.0f m" +
+                        "     Descente : %.0f m" +
+                        "     Altitude : de %.0f m à %.0f m",
+                profileProperty.get().length() / 1000,
+                profileProperty.get().totalAscent(),
+                profileProperty.get().totalDescent(),
+                profileProperty.get().minElevation(),
+                profileProperty.get().maxElevation());
+        textStatistics.setText(textStats);
+    }
+
+    //initialize the bindings on the rectangleProperty, the highlightedLine and the mousePositionOnProfileProperty
+    private void initializeBindings() {
         //each time the pane dimensions change, update the dimensions of the rectangle
         Pane centerPane = (Pane) pane.getCenter();
-        rectangle.bind(createObjectBinding(
+        rectangleProperty.bind(createObjectBinding(
                 () -> {
                     Rectangle2D r = new Rectangle2D(
                             rectangleInsets.getLeft(),
@@ -217,30 +231,62 @@ public final class ElevationProfileManager {
         );
 
         //binding of the highlightedLine
+        //TODO: check that's what should be done
         highlightedLine.layoutXProperty().bind(createDoubleBinding(
                 () -> {
-                    Point2D point2D = worldToScreen.get().transform(highlightedPosition.get(), 0);
+                    Point2D point2D = worldToScreen.get().transform(highlightedPositionProperty.get(), 0);
                     return point2D.getX();
-                }, highlightedPosition, rectangle)
+                }, highlightedPositionProperty, rectangleProperty, worldToScreen)
         );
-        highlightedLine.startYProperty().bind(Bindings.select(rectangle, "minY"));
-        highlightedLine.endYProperty().bind(Bindings.select(rectangle, "maxY"));
-        highlightedLine.visibleProperty().bind(highlightedPosition.greaterThanOrEqualTo(0.0));
+        highlightedLine.startYProperty().bind(Bindings.select(rectangleProperty, "minY"));
+        highlightedLine.endYProperty().bind(Bindings.select(rectangleProperty, "maxY"));
+        highlightedLine.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0.0));
+
+        //binding to update the position of the highlighted line according to the mouse position
+        mousePositionOnProfileProperty.bind(createDoubleBinding(
+                () -> {
+                    if(mouseCoordinatesProperty.isNotNull().get()){
+                        return screenToWorld.get().transform(mouseCoordinatesProperty.get().getX(), 0).getX();
+                    }else{
+                        return Double.NaN;
+                    }
+                }, mouseCoordinatesProperty, worldToScreen, screenToWorld
+        ));
     }
 
-    //initialize listners
-    private void initializeListeners(){
+    //initialize listeners on the rectangleProperty and the profileProperty
+    private void initializeListeners() {
         //each time the coordinates of the rectangle are updated, we need to recompute the transformations
-        rectangle.addListener(observable -> {
-            updateTransformations();
-            drawPolygon();
-            System.out.println(highlightedLine.getLayoutX());
+        rectangleProperty.addListener(observable -> {
+            if (profileProperty.isNotNull().get()) {
+                updateTransformations();
+                drawPolygon();
+            }
         });
 
-        //if the profile is modified -> update the statistics + re draw the polygon
-        profile.addListener(observable -> {
-            createPane();
-            drawPolygon();
+        profileProperty.addListener(((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                if(!newValue.equals(oldValue)){
+                    updateTransformations();
+                }
+
+                //update the statistics and draw the polygon
+                updateStats();
+                drawPolygon();
+            }
+        }));
+    }
+
+    //initialize handlers on the pane (mouse management)
+    private void initializeHandlers(){
+        pane.getCenter().setOnMouseMoved(mouseEvent -> {
+            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
+        });
+
+        //mouse went out of the map
+        //TODO: fix going out on the right
+        pane.getCenter().setOnMouseExited(mouseEvent -> {
+            mouseCoordinatesProperty.setValue(null);
         });
     }
 }

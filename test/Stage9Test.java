@@ -40,7 +40,7 @@ public final class Stage9Test extends Application {
         ObservableList<Waypoint> waypoints = routeBean.waypointsProperty();
         Consumer<String> errorConsumer = new ErrorConsumer();
 
-        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP, errorConsumer);
+        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
 
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,

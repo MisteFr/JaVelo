@@ -42,6 +42,7 @@ public final class RouteBean {
     /**
      * Accessor for the DoubleProperty wrapper of the highlightedPosition's attribute,
      * the position on the route in meters that is highlighted.
+     *
      * @return DoubleProperty property
      */
 
@@ -51,6 +52,7 @@ public final class RouteBean {
 
     /**
      * Accessor for DoubleProperty highlightedPosition's attribute, the position on the route in meters that is highlighted.
+     *
      * @return double attribute, the position in meter or Double.NaN if no correct value was stored.
      */
     //todo vérifier inconsistance dans la description du prof des standards beans
@@ -75,6 +77,7 @@ public final class RouteBean {
     /**
      * Accessor for the ObservableList of waypoints property, corresponding to the
      * list of all the waypoints that the route needs to pass by.
+     *
      * @return waypoints property
      */
     //todo vérifier les standards des beans par rapport aux objets de type ObservableList
@@ -86,21 +89,62 @@ public final class RouteBean {
     /**
      * Accessor for the ReadOnlyObjectProperty route property, corresponding to
      * the route that passes by all the given waypoints.
+     *
+     * @return
      */
     // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
 
-    public ReadOnlyObjectProperty<Route> route(){
-        return route; //todo transtypage suffit ?
+    public ReadOnlyObjectProperty<Route> routeProperty(){
+        return route;
+    }
+
+    /**
+     * Accessor for ObjectProperty route's attribute, return the route instance
+     *
+     * @return the route instance
+     */
+
+    public Route route(){
+        return route.get();
+    }
+
+    /**
+     * Accessor for ObjectProperty elevation profile's attribute, return the elevation profile instance
+     *
+     * @return the elevation profile instance
+     */
+
+    public ElevationProfile elevationProfile(){
+        return elevationProfile.get();
     }
 
     /**
      * Accessor for the ReadOnlyObjectProperty elevationProfile property, corresponding
      * to the elevationProfile of the route.
+     *
+     * @return
      */
     // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
 
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
         return elevationProfile;
+    }
+
+    /**
+     * Return the index of the segment containing a position on the route
+     *
+     * @param position position along the route
+     * @return the index of the segment containing the position
+     */
+
+    public int indexOfNonEmptySegmentAt(double position) {
+        int index = route().indexOfSegmentAt(position);
+        for (int i = 0; i <= index; i += 1) {
+            int n1 = waypoints.get(i).nodeId();
+            int n2 = waypoints.get(i + 1).nodeId();
+            if (n1 == n2) index += 1;
+        }
+        return index;
     }
 
     //todo ajouter accesseurs directs à la route et à l'elevationProfile ? Standards beans // on y a déjà accès via les propriétés.
@@ -122,14 +166,15 @@ public final class RouteBean {
                     ObjectProperty<Boolean> routeHasBeenComputed = new SimpleObjectProperty<>(false); // todo vérifier si cette solution est acceptable
                     Pair<Waypoint, Waypoint> routeSegmentWaypoints = new Pair<>(waypoints.get(i), waypoints.get(i+1));
 
+                    //System.out.println(indexOfNonEmptySegmentAt());
+                    //TODO: fix
+
                     //we check if the best route between the two waypoints is stored in the buffer.
                     if(routeComputingBuffer.containsKey(routeSegmentWaypoints)){
-                        System.out.println("Cache already contains route !");
                         routeHasBeenComputed.set(true);
                     }
 
                     if(!routeHasBeenComputed.get()){
-                        System.out.println("On compute une route");
                         bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i+1).nodeId());
                         //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
                         if(bestRoute == null){

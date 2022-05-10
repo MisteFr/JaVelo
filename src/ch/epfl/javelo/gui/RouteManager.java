@@ -10,13 +10,12 @@ import javafx.scene.shape.Polyline;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+
 
 public final class RouteManager {
 
     private final RouteBean beanRoute;
     private final ReadOnlyObjectProperty<MapViewParameters> mapParametersProperty;
-    private final Consumer<String> errorReporter;
 
     private final Polyline polyline;
     private final Circle circle;
@@ -35,14 +34,11 @@ public final class RouteManager {
      *
      * @param beanRoute     RouteBean instance
      * @param mapParameters MapViewParameters wrapped into a ReadOnlyObjectProperty
-     * @param errorReporter Object for reporting errors
      */
 
-    public RouteManager(RouteBean beanRoute, ReadOnlyObjectProperty<MapViewParameters> mapParameters,
-                        Consumer<String> errorReporter) {
+    public RouteManager(RouteBean beanRoute, ReadOnlyObjectProperty<MapViewParameters> mapParameters) {
         this.beanRoute = beanRoute;
         this.mapParametersProperty = mapParameters;
-        this.errorReporter = errorReporter;
         this.pane = new Pane();
         this.polyline = new Polyline();
         this.circle = new Circle(CIRCLE_RADIUS);
@@ -90,7 +86,7 @@ public final class RouteManager {
             }
         });
 
-        beanRoute.route().addListener((property, oldValue, newValue) -> {
+        beanRoute.routeProperty().addListener((property, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 //if the new route is different from the old one, update the points of the polyline
                 if (!polyline.isVisible() && !circle.isVisible()) {
@@ -108,7 +104,10 @@ public final class RouteManager {
 
         beanRoute.highlightedPositionProperty().addListener((property, oldValue, newValue) -> {
             if (!oldValue.equals(newValue)) {
-                updatePositionCircle();
+                //only update the position of the circle is the route exists
+                if(beanRoute.routeProperty().isNotNull().get()){
+                    updatePositionCircle();
+                }
             }
         });
 
@@ -120,17 +119,9 @@ public final class RouteManager {
 
     //add a waypoint on the route at a position
     private void addWaypointOnRoute(Point2D pInPane) {
-        int nearestNodeOnRoute = beanRoute.route().get().nodeClosestTo(beanRoute.getHighlightedPosition());
+        int nearestNodeOnRoute = beanRoute.route().nodeClosestTo(beanRoute.getHighlightedPosition());
 
-        //check if a waypoint is already associated to this node, if yes abort.
-        for (Waypoint w : beanRoute.waypointsProperty()) {
-            if (w.nodeId() == nearestNodeOnRoute) {
-                errorReporter.accept(WAYPOINT_ALREADY_EXIST_AT_POSITION_MESSAGE);
-                return;
-            }
-        }
-
-        int indexToInsert = beanRoute.route().get().indexOfSegmentAt(beanRoute.getHighlightedPosition()) + 1;
+        int indexToInsert = beanRoute.route().indexOfSegmentAt(beanRoute.getHighlightedPosition()) + 1;
         PointCh waypointLocalisation = mapParametersProperty.get()
                 .pointAt(pInPane.getX(), pInPane.getY()).toPointCh();
         Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeOnRoute);
@@ -146,7 +137,7 @@ public final class RouteManager {
         //to avoid listeners of the list to be called each time we add a point
         //we won't see half polyline on the screen too
         List<Double> pointsToAdd = new ArrayList<>();
-        for (PointCh point : beanRoute.route().get().points()) {
+        for (PointCh point : beanRoute.route().points()) {
             pointsToAdd.add(PointWebMercator.ofPointCh(point)
                     .xAtZoomLevel(mapViewParameters.zoomLevel()));
             pointsToAdd.add(PointWebMercator.ofPointCh(point)
@@ -167,7 +158,7 @@ public final class RouteManager {
 
     //update the position of the highlighted circle on the map
     private void updatePositionCircle(){
-        PointCh pointCenterHighlightedPosition = beanRoute.route().get().pointAt(beanRoute.getHighlightedPosition());
+        PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.getHighlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 
         circle.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));

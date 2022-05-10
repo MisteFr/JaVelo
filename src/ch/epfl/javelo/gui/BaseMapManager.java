@@ -157,15 +157,11 @@ public final class BaseMapManager {
     private void installHandlers() {
 
         ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
-        SimpleLongProperty minScrollTime = new SimpleLongProperty(); //todo vérifier fonctionnement sur le temps
+        SimpleLongProperty minScrollTime = new SimpleLongProperty();
 
         PANE.setOnMouseClicked(mouseEvent -> {
-            try {
-                if (mouseEvent.isStillSincePress()) {
-                    WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
-                }
-            } catch (Exception e) {
-                //Clicked out of swiss bounds. todo is it the right solution ?
+            if (mouseEvent.isStillSincePress()) {
+                WAYPOINTS_MANAGER.addWaypoint(mouseEvent.getX(), mouseEvent.getY(), WaypointsManager.CREATE_WAYPOINT_POSITION);
             }
         });
 
@@ -193,11 +189,10 @@ public final class BaseMapManager {
 
         //even handler for zooming in and out by scrolling
         PANE.setOnScroll(scrollEvent -> {
-
-            //compute the zoom delta using the current system time
+            if (scrollEvent.getDeltaY() == 0d) return;
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 250);
+            minScrollTime.set(currentTime + 200);
             int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
 
             MapViewParameters oldMapViewParameters = MAP_VIEW_PARAMETERS_WRAPPED.get();

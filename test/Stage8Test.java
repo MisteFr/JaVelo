@@ -59,7 +59,7 @@ public final class Stage8Test extends Application {
 
 
 
-            RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP, errorConsumer);
+            RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
 
             StackPane mainPane =
                     new StackPane(baseMapManager.pane(),
