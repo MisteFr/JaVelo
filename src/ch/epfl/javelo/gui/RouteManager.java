@@ -94,7 +94,7 @@ public final class RouteManager {
                 }
 
                 updatePointsPolyline();
-            } else if (polyline.isVisible() && circle.isVisible() && newValue == null && oldValue != null) {
+            } else if (newValue == null && oldValue != null) {
                 //hide the polyline and the circle
                 polyline.setVisible(false);
                 circle.setVisible(false);
