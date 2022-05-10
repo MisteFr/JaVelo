@@ -89,9 +89,8 @@ public final class RouteManager {
         beanRoute.routeProperty().addListener((property, oldValue, newValue) -> {
             if (newValue != null && newValue != oldValue) {
                 //if the new route is different from the old one, update the points of the polyline
-                if (!polyline.isVisible() && !circle.isVisible()) {
+                if (!polyline.isVisible()) {
                     polyline.setVisible(true);
-                    circle.setVisible(true);
                 }
 
                 updatePointsPolyline();
@@ -164,7 +163,6 @@ public final class RouteManager {
 
     //update the position of the highlighted circle on the map
     private void updatePositionCircle(){
-        System.out.println(beanRoute.getHighlightedPosition());
         PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.getHighlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 
