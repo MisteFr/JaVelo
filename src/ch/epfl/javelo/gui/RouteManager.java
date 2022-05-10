@@ -106,7 +106,13 @@ public final class RouteManager {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
                 if(beanRoute.routeProperty().isNotNull().get()){
-                    updatePositionCircle();
+                    //TODO: check solution
+                    if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
+                        circle.setVisible(false);
+                    }else{
+                        circle.setVisible(true);
+                        updatePositionCircle();
+                    }
                 }
             }
         });
@@ -158,6 +164,7 @@ public final class RouteManager {
 
     //update the position of the highlighted circle on the map
     private void updatePositionCircle(){
+        System.out.println(beanRoute.getHighlightedPosition());
         PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.getHighlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 

@@ -94,6 +94,8 @@ public final class AnnotatedMapManager {
                         //get the position of the nearest point on the route
                         RoutePoint routePoint = routeBean.route().pointClosestTo(point);
 
+                        //System.out.println(routePoint);
+
                         PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(routePoint.point());
 
                         //get the  coordinates of the new point on the map
