@@ -10,7 +10,7 @@ import javafx.util.Duration;
 
 public final class ErrorManager {
 
-    //pane containing the annoted map
+    //pane containing the annotated map
     private final Pane pane;
 
     //text node containing the error message
@@ -33,7 +33,7 @@ public final class ErrorManager {
      * Initialize the Pane, the Text node of the Pane and the sequential transition for the error display
      */
 
-    public ErrorManager(){
+    public ErrorManager() {
         pane = new VBox();
         text = new Text();
 
@@ -46,19 +46,21 @@ public final class ErrorManager {
 
     /**
      * Return the pane where errors are displayed
+     *
      * @return the pane where errors are displayed
      */
 
-    public Pane pane(){
+    public Pane pane() {
         return pane;
     }
 
     /**
      * Display an error with message 'messageError' and play a sound
+     *
      * @param messageError message of the error
      */
 
-    public void displayError(String messageError){
+    public void displayError(String messageError) {
         text.setText(messageError);
         java.awt.Toolkit.getDefaultToolkit().beep();
 

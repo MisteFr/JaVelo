@@ -8,6 +8,7 @@ import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+
 import java.util.function.Consumer;
 
 import static javafx.beans.binding.Bindings.createDoubleBinding;
@@ -19,7 +20,7 @@ import static javafx.beans.binding.Bindings.createDoubleBinding;
 
 public final class AnnotatedMapManager {
 
-    //pane containing the annoted map
+    //pane containing the annotated map
     private final Pane pane;
 
     private final RouteBean routeBean;
@@ -29,14 +30,16 @@ public final class AnnotatedMapManager {
 
     public static final ObjectProperty<MapViewParameters> MAP_VIEW_PARAMETERS
             = new SimpleObjectProperty<>(
-                    new MapViewParameters(12, 543200, 370650));
+            new MapViewParameters(12, 543200, 370650));
 
     private static final String MAP_CSS = "map.css";
+    private static final int DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS = 15;
 
-    public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean,
-                               Consumer<String> errorReporter){
+    public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean rteBean,
+                               Consumer<String> errorReporter) {
 
-        this.routeBean = routeBean;
+        routeBean = rteBean;
+
         RouteManager routeManager = new RouteManager(routeBean, MAP_VIEW_PARAMETERS);
 
         WaypointsManager waypointsManager =
@@ -58,19 +61,21 @@ public final class AnnotatedMapManager {
 
     /**
      * Returns the pane containing the annotated map
+     *
      * @return pane containing the annotated map
      */
 
-    public Pane pane(){
+    public Pane pane() {
         return pane;
     }
 
     /**
      * Returns the property containing the position of the mouse pointer along the route
+     *
      * @return the property containing the position of the mouse pointer along the route
      */
 
-    public ReadOnlyDoubleProperty mousePositionOnRouteProperty(){
+    public ReadOnlyDoubleProperty mousePositionOnRouteProperty() {
         return mousePositionOnRouteProperty;
     }
 
@@ -86,28 +91,33 @@ public final class AnnotatedMapManager {
 
         mousePositionOnRouteProperty.bind(createDoubleBinding(
                 () -> {
-                    if(routeBean.routeProperty().isNotNull().get()
-                            && mouseCoordinatesProperty.isNotNull().get()){
+                    if (routeBean.routeProperty().isNotNull().get()
+                            && mouseCoordinatesProperty.isNotNull().get()) {
                         PointCh point = MAP_VIEW_PARAMETERS.get().pointAt(mouseCoordinatesProperty.get().getX(),
                                 mouseCoordinatesProperty.get().getY()).toPointCh();
 
-                        //get the position of the nearest point on the route
-                        RoutePoint routePoint = routeBean.route().pointClosestTo(point);
+                        //if the point is out of Switzerland directly return Double.NaN
+                        if (point != null) {
 
-                        //System.out.println(routePoint);
+                            //get the position of the nearest point on the route
+                            RoutePoint routePoint = routeBean.route().pointClosestTo(point);
+                            PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(routePoint.point());
 
-                        PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(routePoint.point());
+                            //get the coordinates of the new point on the map
+                            Point2D newPointOnMap = new Point2D(MAP_VIEW_PARAMETERS.get().viewX(pointWebMercator),
+                                    MAP_VIEW_PARAMETERS.get().viewY(pointWebMercator));
 
-                        //get the  coordinates of the new point on the map
-                        Point2D newPointOnMap = new Point2D(MAP_VIEW_PARAMETERS.get().viewX(pointWebMercator),
-                                MAP_VIEW_PARAMETERS.get().viewY(pointWebMercator));
-
-                        if(newPointOnMap.distance(mouseCoordinatesProperty.get()) < 15){
-                            return routePoint.position();
-                        }else{
+                            if (newPointOnMap.distance(mouseCoordinatesProperty.get()) <
+                                    DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS) {
+                                return routePoint.position();
+                            } else {
+                                //we are too far from the route
+                                return Double.NaN;
+                            }
+                        } else {
                             return Double.NaN;
                         }
-                    }else{
+                    } else {
                         return Double.NaN;
                     }
                 }, mouseCoordinatesProperty, MAP_VIEW_PARAMETERS, routeBean.routeProperty()

@@ -96,9 +96,11 @@ public final class WaypointsManager {
 
     public void addWaypoint(double x, double y, int position) {
         PointCh waypointLocalisation = mapViewParametersWrapped.get().pointAt(x, y).toPointCh();
-        int nearestNodeInRadius = graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
 
-        if (nearestNodeInRadius != -1) {
+        if (waypointLocalisation != null
+                && graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE) != -1) {
+
+            int nearestNodeInRadius = graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
             Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
 
             //add the new waypoint to the list and draw it on the pane

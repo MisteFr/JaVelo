@@ -230,8 +230,7 @@ public final class ElevationProfileManager {
                 centerPane.widthProperty(), centerPane.heightProperty())
         );
 
-        //binding of the highlightedLine
-        //TODO: check that's what should be done
+        //binding of the highlightedLines
         highlightedLine.layoutXProperty().bind(createDoubleBinding(
                 () -> {
                     Point2D point2D = worldToScreen.get().transform(highlightedPositionProperty.get(), 0);

@@ -32,10 +32,11 @@ public final class RouteBean {
 
     /**
      * Constructor for new RouteBean.
+     *
      * @param routeComputer the routeComputer that will be used to dynamically adapt the route to the list of waypoints
      */
 
-    public RouteBean(RouteComputer routeComputer){
+    public RouteBean(RouteComputer routeComputer) {
         addListeners(routeComputer);
     }
 
@@ -46,7 +47,7 @@ public final class RouteBean {
      * @return DoubleProperty property
      */
 
-    public DoubleProperty highlightedPositionProperty(){
+    public DoubleProperty highlightedPositionProperty() {
         return highlightedPosition; // todo pas de copie car on veut que les modifications se répercutent sur l'objet ?
     }
 
@@ -56,18 +57,18 @@ public final class RouteBean {
      * @return double attribute, the position in meter or Double.NaN if no correct value was stored.
      */
     //todo vérifier inconsistance dans la description du prof des standards beans
-
-    public double getHighlightedPosition(){
+    public double getHighlightedPosition() {
         return highlightedPosition.get();
     }
 
     /**
      * Setter for DoubleProperty highlightedPosition's attribute, the position on the route in meters that is highlighted.
+     *
      * @param newValue the value that will be given to the DoubleProperty highlightedPosition's attribute
      *                 must be between 0 and the route's length.
      */
 
-    public void setHighlightedPosition(double newValue){
+    public void setHighlightedPosition(double newValue) {
         Preconditions.checkArgument((newValue >= 0)); //todo autres manières de faire ? + regarder si besoin de conditions
         //sur length de la route
         highlightedPosition.set(newValue);
@@ -81,8 +82,7 @@ public final class RouteBean {
      * @return waypoints property
      */
     //todo vérifier les standards des beans par rapport aux objets de type ObservableList
-
-    public ObservableList<Waypoint> waypointsProperty(){
+    public ObservableList<Waypoint> waypointsProperty() {
         return waypoints;
     }
 
@@ -93,8 +93,7 @@ public final class RouteBean {
      * @return
      */
     // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
-
-    public ReadOnlyObjectProperty<Route> routeProperty(){
+    public ReadOnlyObjectProperty<Route> routeProperty() {
         return route;
     }
 
@@ -104,7 +103,7 @@ public final class RouteBean {
      * @return the route instance
      */
 
-    public Route route(){
+    public Route route() {
         return route.get();
     }
 
@@ -114,7 +113,7 @@ public final class RouteBean {
      * @return the elevation profile instance
      */
 
-    public ElevationProfile elevationProfile(){
+    public ElevationProfile elevationProfile() {
         return elevationProfile.get();
     }
 
@@ -125,8 +124,7 @@ public final class RouteBean {
      * @return
      */
     // todo peut-être à supprimer, ou faire en sorte que ce soit immuable (dépendamment du fonctionnement de ReadOnlyObjectProperty)
-
-    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty(){
+    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
         return elevationProfile;
     }
 
@@ -153,46 +151,48 @@ public final class RouteBean {
     private void addListeners(RouteComputer routeComputer) {
         waypoints.addListener((ListChangeListener<Waypoint>) change -> {
             //if there is not enough waypoints in the ObservableList, the computed route as well as its elevationProfile are null.
-            if(waypoints.size() < 2){
+            if (waypoints.size() < 2) {
                 route.set(null);
                 elevationProfile.set(null);
-            }else{
+            } else {
                 List<Route> segments = new ArrayList<>();
                 boolean containsNull = false;
                 Route bestRoute;
                 //todo débugging, clean
                 //System.out.println(routeComputingBuffer.size());
-                for(int i = 0; i < waypoints.size() - 1; ++i){
+                for (int i = 0; i < waypoints.size() - 1; ++i) {
+                    if (waypoints.get(i).nodeId() == waypoints.get(i + 1).nodeId()) {
+                        //move to next waypoints
+                        continue;
+                    }
                     ObjectProperty<Boolean> routeHasBeenComputed = new SimpleObjectProperty<>(false); // todo vérifier si cette solution est acceptable
-                    Pair<Waypoint, Waypoint> routeSegmentWaypoints = new Pair<>(waypoints.get(i), waypoints.get(i+1));
+                    Pair<Waypoint, Waypoint> routeSegmentWaypoints = new Pair<>(waypoints.get(i), waypoints.get(i + 1));
 
-                    //System.out.println(indexOfNonEmptySegmentAt());
-                    //TODO: fix
 
                     //we check if the best route between the two waypoints is stored in the buffer.
-                    if(routeComputingBuffer.containsKey(routeSegmentWaypoints)){
+                    if (routeComputingBuffer.containsKey(routeSegmentWaypoints)) {
                         routeHasBeenComputed.set(true);
                     }
 
-                    if(!routeHasBeenComputed.get()){
-                        bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i+1).nodeId());
+                    if (!routeHasBeenComputed.get()) {
+                        bestRoute = routeComputer.bestRouteBetween(waypoints.get(i).nodeId(), waypoints.get(i + 1).nodeId());
                         //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
-                        if(bestRoute == null){
+                        if (bestRoute == null) {
                             containsNull = true;
                             break;
                         }
                         //only executed if bestRoute != null
                         addToCache(routeSegmentWaypoints, bestRoute);
-                    }else{
+                    } else {
                         bestRoute = routeComputingBuffer.get(routeSegmentWaypoints);
                     }
                     segments.add(bestRoute);
                 }
 
-                if(!containsNull){
+                if (!containsNull) {
                     route.set(new MultiRoute(segments));
                     elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
-                }else{
+                } else {
                     route.set(null);
                     elevationProfile.set(null);
                 }

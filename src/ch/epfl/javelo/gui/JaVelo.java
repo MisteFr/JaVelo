@@ -39,11 +39,10 @@ public final class JaVelo extends Application {
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of(GRAPH_DATA_DIRECTORY));
         Path cacheBasePath = Path.of(OSM_CACHE_PATH);
-        String tileServerHost = TILE_SERVER_HOST;
         CostFunction cf = new CityBikeCF(graph);
 
         TileManager tileManager =
-                new TileManager(cacheBasePath, tileServerHost);
+                new TileManager(cacheBasePath, TILE_SERVER_HOST);
 
         RouteBean routeBean = new RouteBean(new RouteComputer(graph, cf));
 
@@ -78,7 +77,7 @@ public final class JaVelo extends Application {
     }
 
     //initialize the menu
-    private MenuBar initializeMenu(RouteBean routeBean){
+    private MenuBar initializeMenu(RouteBean routeBean) {
         MenuBar menuBar = new MenuBar();
 
         Menu menu = new Menu(MENU_TITLE);
@@ -112,7 +111,7 @@ public final class JaVelo extends Application {
                     //else to the position on the profile
                     if (annotatedMapManager.mousePositionOnRouteProperty().get() > 0.0) {
                         return annotatedMapManager.mousePositionOnRouteProperty().get();
-                    }else{
+                    } else {
                         return elevationProfileManager.mousePositionOnProfileProperty().get();
                     }
                 }, annotatedMapManager.mousePositionOnRouteProperty(),
@@ -125,11 +124,11 @@ public final class JaVelo extends Application {
                                     ElevationProfileManager elevationProfileManager,
                                     SplitPane splitPane) {
         routeBean.routeProperty().addListener(((observable, oldValue, newValue) -> {
-            if(oldValue != null && newValue == null){
+            if (oldValue != null && newValue == null) {
                 splitPane.getItems().remove(ELEVATION_PROFILE_MANAGER_PANE_INDEX);
             }
 
-            if(oldValue == null && newValue != null){
+            if (oldValue == null && newValue != null) {
                 splitPane.getItems().add(ELEVATION_PROFILE_MANAGER_PANE_INDEX, elevationProfileManager.pane());
             }
         }));

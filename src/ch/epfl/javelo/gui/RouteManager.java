@@ -105,7 +105,6 @@ public final class RouteManager {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
                 if(beanRoute.routeProperty().isNotNull().get()){
-                    //TODO: check solution
                     if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
                         circle.setVisible(false);
                     }else{
@@ -126,7 +125,7 @@ public final class RouteManager {
     private void addWaypointOnRoute(Point2D pInPane) {
         int nearestNodeOnRoute = beanRoute.route().nodeClosestTo(beanRoute.getHighlightedPosition());
 
-        int indexToInsert = beanRoute.route().indexOfSegmentAt(beanRoute.getHighlightedPosition()) + 1;
+        int indexToInsert = beanRoute.indexOfNonEmptySegmentAt(beanRoute.getHighlightedPosition()) + 1;
         PointCh waypointLocalisation = mapParametersProperty.get()
                 .pointAt(pInPane.getX(), pInPane.getY()).toPointCh();
         Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeOnRoute);
