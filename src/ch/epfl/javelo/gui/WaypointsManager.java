@@ -27,9 +27,9 @@ import java.util.function.Consumer;
 public final class WaypointsManager {
 
     private final Graph graph;
-    private final ObjectProperty<MapViewParameters> mapViewParametersWrapped;
+    private final ObjectProperty<MapViewParameters> mapViewParametersProperty;
     private final ObservableList<Waypoint> transitPointsList;
-    private final Consumer<String> errorReporter;
+    private final Consumer<String> errorManager;
 
     //pane containing the waypoints
     private final Pane pane;
@@ -47,8 +47,6 @@ public final class WaypointsManager {
     private final static String PIN_STYLE_CLASS_MIDDLE = "middle";
     private final static String PIN_STYLE_CLASS_LAST = "last";
 
-    public final static int CREATE_WAYPOINT_POSITION = -1;
-
     private static final String ERROR_MESSAGE_NO_ROUTES_AROUND = "Aucune route à proximité !";
 
     private final ObjectProperty<Point2D> latestMousePosition = new SimpleObjectProperty<>(Point2D.ZERO);
@@ -56,18 +54,19 @@ public final class WaypointsManager {
     /**
      * WaypointsManager constructor.
      *
-     * @param graph                    JaVelo Graph instance
-     * @param mapViewParametersWrapped MapViewParameters wrapped into a JavaFx property
-     * @param transitPointsList        ObservableList of Waypoint(s)
+     * @param g                    JaVelo Graph instance
+     * @param mapViewParametersObjectProperty MapViewParameters wrapped into a JavaFx property
+     * @param transitPList        ObservableList of Waypoint(s)
      * @param errorReporter            Object for reporting errors
      */
 
-    public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParametersWrapped,
-                            ObservableList<Waypoint> transitPointsList, Consumer<String> errorReporter) {
-        this.graph = graph;
-        this.mapViewParametersWrapped = mapViewParametersWrapped;
-        this.transitPointsList = transitPointsList;
-        this.errorReporter = errorReporter;
+    public WaypointsManager(Graph g, ObjectProperty<MapViewParameters> mapViewParametersObjectProperty,
+                            ObservableList<Waypoint> transitPList, Consumer<String> errorReporter) {
+        graph = g;
+        mapViewParametersProperty = mapViewParametersObjectProperty;
+        transitPointsList = transitPList;
+        errorManager = errorReporter;
+
         pane = new Pane();
         pane.setPickOnBounds(false);
 
@@ -90,29 +89,30 @@ public final class WaypointsManager {
      *
      * @param x        x position in the map coordinate system
      * @param y        y position in the map coordinate system
-     * @param position position of the waypoint in the TRANSIT_POINTS_LIST
-     *                 if -1 it is added at the else at the position requested
      */
 
-    public void addWaypoint(double x, double y, int position) {
-        PointCh waypointLocalisation = mapViewParametersWrapped.get().pointAt(x, y).toPointCh();
+    public void addWaypoint(double x, double y) {
+        Waypoint newWaypoint = createWaypoint(x, y);
+
+        if(newWaypoint != null){
+            transitPointsList.add(newWaypoint);
+        } else {
+            errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
+        }
+    }
+
+    //create an instance of waypoint for the given coordinates or return null
+    private Waypoint createWaypoint(double x, double y){
+        PointCh waypointLocalisation = mapViewParametersProperty.get().pointAt(x, y).toPointCh();
 
         if (waypointLocalisation != null
                 && graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE) != -1) {
 
             int nearestNodeInRadius = graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
-            Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeInRadius);
 
-            //add the new waypoint to the list and draw it on the pane
-            if (position == CREATE_WAYPOINT_POSITION) {
-                transitPointsList.add(newWaypoint);
-            } else {
-                transitPointsList.set(position, newWaypoint);
-            }
-        } else {
-            errorReporter.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
-            //we need to move waypoint to its old position
-            updatePinsPosition();
+            return new Waypoint(waypointLocalisation, nearestNodeInRadius);
+        }else{
+            return null;
         }
     }
 
@@ -153,20 +153,16 @@ public final class WaypointsManager {
 
     //Update the position of the pins on the Pane
     private void updatePinsPosition() {
-        MapViewParameters mapViewParameters = mapViewParametersWrapped.get();
+        MapViewParameters mapViewParameters = mapViewParametersProperty.get();
 
         int positionInWaypointsList = 0;
         for (Node g : pane.getChildren()) {
-            //the pane should only contain nodes that are groups but Pane isn't immutable, so we check in case
-            //it was modified
-            if (g instanceof Group) {
-                Waypoint w = transitPointsList.get(positionInWaypointsList);
+            Waypoint w = transitPointsList.get(positionInWaypointsList);
 
-                g.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
-                g.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
+            g.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(w.point())));
+            g.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(w.point())));
 
-                ++positionInWaypointsList;
-            }
+            ++positionInWaypointsList;
         }
     }
 
@@ -191,7 +187,7 @@ public final class WaypointsManager {
     }
 
     //initialize event listeners for the waypoint's group
-    private void initializeGroupListeners(Waypoint w, Group group) {
+    private void initializeGroupListeners(Waypoint waypoint, Group group) {
         //Mouse gliding
         group.setOnMousePressed(mouseEvent -> {
             latestMousePosition.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
@@ -210,17 +206,26 @@ public final class WaypointsManager {
         group.setOnMouseReleased(mouseEvent -> {
             if (!mouseEvent.isStillSincePress()) {
                 //waypoint released and was moved since pressed, update waypoint position
-                addWaypoint(group.getLayoutX(), group.getLayoutY(), transitPointsList.indexOf(w));
+
+                Waypoint newWaypoint = createWaypoint(group.getLayoutX(), group.getLayoutY());
+
+                if(newWaypoint != null){
+                    transitPointsList.set(transitPointsList.indexOf(waypoint), newWaypoint);
+                } else {
+                    errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
+                    draw();
+                }
+
             } else {
                 //mouse didn't move from the position it was pressed at, remove the waypoint
-                removeWaypoint(w);
+                removeWaypoint(waypoint);
             }
         });
     }
 
     //initialize listener to MapViewParameters and TRANSIT_POINT_LIST changes
     private void initializeListeners() {
-        mapViewParametersWrapped.addListener((property, oldValue, newValue) -> updatePinsPosition());
+        mapViewParametersProperty.addListener(observable -> updatePinsPosition());
         transitPointsList.addListener((ListChangeListener<Waypoint>) change -> draw());
     }
 }

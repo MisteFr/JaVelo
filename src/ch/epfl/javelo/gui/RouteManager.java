@@ -11,6 +11,13 @@ import javafx.scene.shape.Polyline;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * RouteManage class
+ * Manages the display of the route and (part of) the interaction with it.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
 
 public final class RouteManager {
 
@@ -23,25 +30,23 @@ public final class RouteManager {
     //pane containing the polyline and the circle highlighted
     private final Pane pane;
 
-    private static final String WAYPOINT_ALREADY_EXIST_AT_POSITION_MESSAGE = "Un point de passage est déjà présent à cet endroit !";
     private static final String POLYLINE_ID = "route";
     private static final String CIRCLE_ID = "highlight";
     private static final int CIRCLE_RADIUS = 5;
 
-
     /**
      * RouteManager constructor.
      *
-     * @param beanRoute     RouteBean instance
+     * @param beanR     RouteBean instance
      * @param mapParameters MapViewParameters wrapped into a ReadOnlyObjectProperty
      */
 
-    public RouteManager(RouteBean beanRoute, ReadOnlyObjectProperty<MapViewParameters> mapParameters) {
-        this.beanRoute = beanRoute;
-        this.mapParametersProperty = mapParameters;
-        this.pane = new Pane();
-        this.polyline = new Polyline();
-        this.circle = new Circle(CIRCLE_RADIUS);
+    public RouteManager(RouteBean beanR, ReadOnlyObjectProperty<MapViewParameters> mapParameters) {
+        beanRoute = beanR;
+        mapParametersProperty = mapParameters;
+        pane = new Pane();
+        polyline = new Polyline();
+        circle = new Circle(CIRCLE_RADIUS);
 
         initializePane();
         initializeListeners();
@@ -69,56 +74,6 @@ public final class RouteManager {
 
         pane.getChildren().add(polyline);
         pane.getChildren().add(circle);
-    }
-
-    //initialize Listeners for the mapParameters, the route, the highlightedPositionProperty and the circle
-    private void initializeListeners() {
-        mapParametersProperty.addListener((property, oldValue, newValue) -> {
-            if (polyline.isVisible()) {
-                if (oldValue.zoomLevel() == newValue.zoomLevel()) {
-                    //update the position of the polyline and the circle
-                    updatePositionPolyline();
-                    updatePositionCircle();
-                } else {
-                    //update the points of the polyline
-                    updatePointsPolyline();
-                }
-            }
-        });
-
-        beanRoute.routeProperty().addListener((property, oldValue, newValue) -> {
-            if (newValue != null && newValue != oldValue) {
-                //if the new route is different from the old one, update the points of the polyline
-                if (!polyline.isVisible()) {
-                    polyline.setVisible(true);
-                }
-
-                updatePointsPolyline();
-            } else if (newValue == null && oldValue != null) {
-                //hide the polyline and the circle
-                polyline.setVisible(false);
-                circle.setVisible(false);
-            }
-        });
-
-        beanRoute.highlightedPositionProperty().addListener((property, oldValue, newValue) -> {
-            if (!oldValue.equals(newValue)) {
-                //only update the position of the circle is the route exists
-                if(beanRoute.routeProperty().isNotNull().get()){
-                    if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
-                        circle.setVisible(false);
-                    }else{
-                        circle.setVisible(true);
-                        updatePositionCircle();
-                    }
-                }
-            }
-        });
-
-        circle.setOnMouseClicked(mouseEvent -> {
-            Point2D pInPane = circle.localToParent(mouseEvent.getX(), mouseEvent.getY());
-            addWaypointOnRoute(pInPane);
-        });
     }
 
     //add a waypoint on the route at a position
@@ -149,9 +104,6 @@ public final class RouteManager {
         }
 
         polyline.getPoints().setAll(pointsToAdd);
-
-        updatePositionPolyline();
-        updatePositionCircle();
     }
 
     //update the position of the polyline on the map
@@ -167,5 +119,59 @@ public final class RouteManager {
 
         circle.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
         circle.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+    }
+
+    //initialize Listeners for the mapParameters, the route, the highlightedPositionProperty and the circle
+    private void initializeListeners() {
+        mapParametersProperty.addListener((property, oldValue, newValue) -> {
+            if (polyline.isVisible()) {
+                if (oldValue.zoomLevel() == newValue.zoomLevel()) {
+                    //update the position of the polyline and the circle
+                    updatePositionPolyline();
+                    updatePositionCircle();
+                } else {
+                    //update the points of the polyline, the position of the polyline and the circle
+                    updatePointsPolyline();
+                    updatePositionPolyline();
+                    updatePositionCircle();
+                }
+            }
+        });
+
+        beanRoute.routeProperty().addListener((property, oldValue, newValue) -> {
+            if (newValue != null && newValue != oldValue) {
+                //if the new route is different from the old one, update the points of the polyline
+                if (!polyline.isVisible()) {
+                    polyline.setVisible(true);
+                }
+
+                updatePointsPolyline();
+                updatePositionPolyline();
+                updatePositionCircle();
+            } else if (newValue == null && oldValue != null) {
+                //hide the polyline and the circle
+                polyline.setVisible(false);
+                circle.setVisible(false);
+            }
+        });
+
+        beanRoute.highlightedPositionProperty().addListener((property, oldValue, newValue) -> {
+            if (!oldValue.equals(newValue)) {
+                //only update the position of the circle is the route exists
+                if(beanRoute.routeProperty().isNotNull().get()){
+                    if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
+                        circle.setVisible(false);
+                    }else{
+                        circle.setVisible(true);
+                        updatePositionCircle();
+                    }
+                }
+            }
+        });
+
+        circle.setOnMouseClicked(mouseEvent -> {
+            Point2D pInPane = circle.localToParent(mouseEvent.getX(), mouseEvent.getY());
+            addWaypointOnRoute(pInPane);
+        });
     }
 }

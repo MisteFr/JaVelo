@@ -22,8 +22,8 @@ public final class RouteComputer {
     //All fields are initialized in the constructor
     private final float[] distance;
     private final int[] predecessor;
-    private final Graph GRAPH;
-    private final CostFunction COST_FUNCTION;
+    private final Graph graph;
+    private final CostFunction cost_function;
 
 
     /**
@@ -33,8 +33,8 @@ public final class RouteComputer {
      */
 
     public RouteComputer(Graph graph, CostFunction costFunction) {
-        GRAPH = graph;
-        COST_FUNCTION = costFunction;
+        this.graph = graph;
+        cost_function = costFunction;
         distance = new float[graph.nodeCount()];
         predecessor = new int[graph.nodeCount()];
     }
@@ -94,13 +94,13 @@ public final class RouteComputer {
                 return new SingleRoute(fromNodesReturnEdges(nodesOfRoute));
             }
 
-            identityOfFirstEdge = GRAPH.nodeOutEdgeId(n, 0);
-            identityOfLastEdge = GRAPH.nodeOutEdgeId(n, GRAPH.nodeOutDegree(n) - 1);
+            identityOfFirstEdge = graph.nodeOutEdgeId(n, 0);
+            identityOfLastEdge = graph.nodeOutEdgeId(n, graph.nodeOutDegree(n) - 1);
             //Browse the nodes at the end of the edges coming from the n node.
             for (int edgeId = identityOfFirstEdge; edgeId <= identityOfLastEdge; ++edgeId) {
-                nPrime = GRAPH.edgeTargetNodeId(edgeId);
-                crowDistanceOfNPrimeToEndNode = (float) GRAPH.nodePoint(endNodeId).distanceTo(GRAPH.nodePoint(nPrime));
-                d = (float) (distance[n] + COST_FUNCTION.costFactor(n, edgeId) * GRAPH.edgeLength(edgeId));
+                nPrime = graph.edgeTargetNodeId(edgeId);
+                crowDistanceOfNPrimeToEndNode = (float) graph.nodePoint(endNodeId).distanceTo(graph.nodePoint(nPrime));
+                d = (float) (distance[n] + cost_function.costFactor(n, edgeId) * graph.edgeLength(edgeId));
                 // If the distance found for the nPrime node is lower than the distance already stored,
                 // Update the distance array. In all cases, all nPrime nodes are added as WeightedNode to
                 // the enExploration priority queue.
@@ -131,11 +131,11 @@ public final class RouteComputer {
             identityOfStartingNode = nodeIds.get(nodeIds.size() - i);
             identityOfEndNode = nodeIds.get(nodeIds.size() - i - 1);
 
-            for (int j = 0; j < GRAPH.nodeOutDegree(identityOfStartingNode); ++j) {
+            for (int j = 0; j < graph.nodeOutDegree(identityOfStartingNode); ++j) {
 
-                tempEdgeId = GRAPH.nodeOutEdgeId(identityOfStartingNode, j);
-                if (GRAPH.edgeTargetNodeId(tempEdgeId) == identityOfEndNode) {
-                    edgeIds.add(Edge.of(GRAPH, tempEdgeId, identityOfStartingNode, identityOfEndNode));
+                tempEdgeId = graph.nodeOutEdgeId(identityOfStartingNode, j);
+                if (graph.edgeTargetNodeId(tempEdgeId) == identityOfEndNode) {
+                    edgeIds.add(Edge.of(graph, tempEdgeId, identityOfStartingNode, identityOfEndNode));
                     break;
                 }
 

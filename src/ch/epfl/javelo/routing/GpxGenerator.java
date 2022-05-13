@@ -20,19 +20,27 @@ import java.util.Locale;
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
  */
+
 public class GpxGenerator {
 
+    private static final String TAG_ROUTE = "rte";
+    private static final String TAG_NAME_ROUTE_POINT = "rtept";
+    private static final String TAG_LAT_ATTRIBUTE = "lat";
+    private static final String TAG_LON_ATTRIBUTE = "lon";
+    private static final String TAG_ELEMENT_ROUTE = "ele";
+
     //non-instantiable class
-    private GpxGenerator(){}
+    private GpxGenerator() {
+    }
 
     /**
      * Given a route and an elevationProfile, outputs a Gpx Document.
      *
-     * @param route Route on which the Gpx Document will be based
+     * @param route            Route on which the Gpx Document will be based
      * @param elevationProfile the ElevationProfile corresponding to the route
      * @return the Gpx Document corresponding to the given arguments
      */
-    public static Document createGpx(Route route, ElevationProfile elevationProfile){
+    public static Document createGpx(Route route, ElevationProfile elevationProfile) {
         Document doc = newDocument(); // see below
 
         Element root = doc
@@ -56,63 +64,64 @@ public class GpxGenerator {
         name.setTextContent("Route JaVelo");
 
 
-        Element rte = doc.createElement("rte");
+        Element rte = doc.createElement(TAG_ROUTE);
         root.appendChild(rte);
 
-        // The first point of the route is added outside the loop, which only adds points at the end of edges.
-        Element rtept = doc.createElement("rtept");
+        //The first point of the route is added outside the loop, which only adds points at the end of edges.
+        Element rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
         rte.appendChild(rtept);
-        rtept.setAttribute("lat", String.format(Locale.US, "%.5f",
+        rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, "%.5f",
                 Math.toDegrees(route.points().get(0).lat())));
-        rtept.setAttribute("lon", String.format(Locale.US, "%.5f",
+        rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, "%.5f",
                 Math.toDegrees(route.points().get(0).lon())));
 
-        Element ele = doc.createElement("ele");
+        Element ele = doc.createElement(TAG_ELEMENT_ROUTE);
         rtept.appendChild(ele);
-        ele.setTextContent(String.format(Locale.US, "%.2f",elevationProfile.elevationAt(0)));
+        ele.setTextContent(String.format(Locale.US, "%.2f", elevationProfile.elevationAt(0)));
 
-        // The loop navigates through the list of edges of the route, adding to the Gpx Document the data of the ending
-        // point of each edge.
+        //The loop navigates through the list of edges of the route,
+        //adding to the Gpx Document the data of the ending point of each edge.
         double position = 0;
-        for(Edge edge : route.edges()){
+        for (Edge edge : route.edges()) {
 
             position += edge.length();
-            rtept = doc.createElement("rtept");
+            rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
             rte.appendChild(rtept);
-            rtept.setAttribute("lat",  String.format(Locale.US, "%.5f",
+            rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, "%.5f",
                     Math.toDegrees(edge.toPoint().lat())));
-            rtept.setAttribute("lon", String.format(Locale.US, "%.5f",
+            rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, "%.5f",
                     Math.toDegrees(edge.toPoint().lon())));
 
-            ele = doc.createElement("ele");
+            ele = doc.createElement(TAG_ELEMENT_ROUTE);
             rtept.appendChild(ele);
-            ele.setTextContent(String.format(Locale.US, "%.2f",elevationProfile.elevationAt(position)));
+            ele.setTextContent(String.format(Locale.US, "%.2f", elevationProfile.elevationAt(position)));
         }
 
-        return doc; //todo immuability ?
+        return doc;
     }
 
     /**
      * Writes the Gpx Document based on the route and elevationProfile parameters in the fileName file.
      *
-     * @param fileName relative path starting from the base folder of the project
-     * @param route Route on which the Gpx Document will be based
+     * @param fileName         relative path starting from the base folder of the project
+     * @param route            Route on which the Gpx Document will be based
      * @param elevationProfile the ElevationProfile corresponding to the route
-     * @throws IOException  if the fileName exists but is a directory rather than a regular file,
-     *                      does not exist but cannot be created, or cannot be opened for any other reason.
+     * @throws IOException if the fileName exists but is a directory rather than a regular file,
+     *                     does not exist but cannot be created, or cannot be opened for any other reason.
      */
-    public static void writeGpx(String fileName, Route route, ElevationProfile elevationProfile) throws IOException { //todo quid de catch IOException plutôt ?
+
+    public static void writeGpx(String fileName, Route route, ElevationProfile elevationProfile) throws IOException {
         Document doc = createGpx(route, elevationProfile);
 
-        try(Writer w = new FileWriter(fileName)){ //todo try with resources adapté ici ?
+        try (Writer w = new FileWriter(fileName)) {
             Transformer transformer = TransformerFactory
                     .newDefaultInstance()
                     .newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(new DOMSource(doc),
                     new StreamResult(w));
-        } catch (TransformerException e) { //todo relire et bien vérifier la technique du prof sur le catch
-            throw new Error(e); // Should never happen
+        } catch (TransformerException e) {
+            throw new Error(e); //Should never happen
         }
     }
 
@@ -125,7 +134,7 @@ public class GpxGenerator {
                     .newDocumentBuilder()
                     .newDocument();
         } catch (ParserConfigurationException e) {
-            throw new Error(e); // Should never happen
+            throw new Error(e); //Should never happen
         }
     }
 

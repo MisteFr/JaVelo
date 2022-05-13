@@ -1,6 +1,5 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -135,7 +134,7 @@ public final class ElevationProfileManager {
         tempListPoints.add(rectangleProperty.get().getMinX());
         tempListPoints.add(rectangleProperty.get().getMaxY());
 
-        //for loop on double are way costful
+        //for loop on double are way costfull
         for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
@@ -214,19 +213,14 @@ public final class ElevationProfileManager {
         //each time the pane dimensions change, update the dimensions of the rectangle
         Pane centerPane = (Pane) pane.getCenter();
         rectangleProperty.bind(createObjectBinding(
-                () -> {
-                    Rectangle2D r = new Rectangle2D(
-                            rectangleInsets.getLeft(),
-                            rectangleInsets.getTop(),
-                            Math2.clamp(0,
-                                    centerPane.widthProperty().get() - rectangleInsets.getRight() - rectangleInsets.getLeft(),
-                                    centerPane.widthProperty().get()),
-                            Math2.clamp(0,
-                                    centerPane.heightProperty().get() - rectangleInsets.getBottom() - rectangleInsets.getTop(),
-                                    centerPane.heightProperty().get())
-                    );
-                    return r;
-                },
+                () -> new Rectangle2D(
+                        rectangleInsets.getLeft(),
+                        rectangleInsets.getTop(),
+                        Math.max(0,
+                                centerPane.widthProperty().get() - rectangleInsets.getRight() - rectangleInsets.getLeft()),
+                        Math.max(0,
+                                centerPane.heightProperty().get() - rectangleInsets.getBottom() - rectangleInsets.getTop())
+                ),
                 centerPane.widthProperty(), centerPane.heightProperty())
         );
 
@@ -249,7 +243,7 @@ public final class ElevationProfileManager {
                     }else{
                         return Double.NaN;
                     }
-                }, mouseCoordinatesProperty, worldToScreen, screenToWorld
+                }, mouseCoordinatesProperty, screenToWorld
         ));
     }
 
@@ -287,8 +281,6 @@ public final class ElevationProfileManager {
         });
 
         //mouse went out of the map
-        pane.getCenter().setOnMouseExited(mouseEvent -> {
-            mouseCoordinatesProperty.setValue(null);
-        });
+        pane.getCenter().setOnMouseExited(mouseEvent -> mouseCoordinatesProperty.setValue(null));
     }
 }

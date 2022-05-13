@@ -12,7 +12,8 @@ import java.util.LinkedHashMap;
 
 /**
  * TileManager Class
- * Represents an OSM tile manager. Its role is to get tiles from a tile server and store them in a memory cache and a disk cache.
+ * Represents an OSM tile manager.
+ * Its role is to get tiles from a tile server and store them in a memory cache and a disk cache.
  *
  * @author Arthur Bigot (324366)
  * @author Léo Paoletti (342165)
@@ -20,26 +21,37 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
 
+    //Memory cache array with access-order
+    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
+            0.75f, true);
+
+    //Path to the memory disk folder
+    private final Path pathToMemoryDisk;
+
+    //Name of the tile server where are stored tile images
+    private final String tileServerName;
+
     //Memory cache capacity
     private final static int CACHE_CAPACITY = 100;
 
-    //Memory cache array with access-order
-    private final LinkedHashMap<TileId, Image> MEMORY_CACHE = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
+    private static final String IMAGE_EXTENSION_FORMAT = ".png";
 
-    //Path to the memory disk folder
-    private final Path PATH_TO_MEMORY_DISK;
-
-    //Name of the tile server where are stored tile images
-    private final String TILE_SERVER_NAME;
+    private static final String USER_AGENT_NAME = "JaVelo";
+    private static final String PROTOCOL_NAME = "https";
+    private static final int PORT_NUMBER = 443;
+    private static final String URL_DELIMITER = "/";
+    public static final int TIMEOUT_IN_MS = 5000;
 
     /**
      * Constructor of TileManager
-     * @param pathFolder path of the disk cache
+     *
+     * @param pathFolder  path of the disk cache
      * @param tileServerN name of the tile server
      */
+
     public TileManager(Path pathFolder, String tileServerN) {
-        PATH_TO_MEMORY_DISK = pathFolder;
-        TILE_SERVER_NAME = tileServerN;
+        pathToMemoryDisk = pathFolder;
+        tileServerName = tileServerN;
     }
 
     /**
@@ -51,11 +63,11 @@ public final class TileManager {
      */
 
     private void addToCache(TileId tileIdentity, Image image) {
-        if (MEMORY_CACHE.size() >= CACHE_CAPACITY) {
+        if (memoryCache.size() >= CACHE_CAPACITY) {
             //complexity is 0(1)
-            MEMORY_CACHE.remove(MEMORY_CACHE.entrySet().iterator().next().getKey());
+            memoryCache.remove(memoryCache.entrySet().iterator().next().getKey());
         }
-        MEMORY_CACHE.put(tileIdentity, image);
+        memoryCache.put(tileIdentity, image);
     }
 
     /**
@@ -66,7 +78,7 @@ public final class TileManager {
      */
 
     private boolean cacheContains(TileId tileIdentity) {
-        return MEMORY_CACHE.containsKey(tileIdentity);
+        return memoryCache.containsKey(tileIdentity);
     }
 
     /**
@@ -80,12 +92,12 @@ public final class TileManager {
     public Image imageForTileAt(TileId tileIdentity) throws IOException {
         //look in memory cache first
         if (cacheContains(tileIdentity)) {
-            return MEMORY_CACHE.get(tileIdentity);
+            return memoryCache.get(tileIdentity);
         } else {
             //look in memory disk
-            Path pathToFile = PATH_TO_MEMORY_DISK.resolve(String.valueOf(tileIdentity.zoomLevel))
-                                    .resolve(String.valueOf(tileIdentity.indexX))
-                                    .resolve(tileIdentity.indexY + ".png");
+            Path pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileIdentity.zoomLevel))
+                    .resolve(String.valueOf(tileIdentity.indexX))
+                    .resolve(tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
 
             if (Files.exists(pathToFile)) {
                 //we load the image and place it in the memory cache
@@ -94,12 +106,14 @@ public final class TileManager {
                 return imageTile;
             } else {
                 //we are going to load the image from the tile server
-                URL u = new URL("https", TILE_SERVER_NAME, 443, "/" + tileIdentity.zoomLevel
-                        + "/" + tileIdentity.indexX + "/" + tileIdentity.indexY + ".png");
+                URL u = new URL(PROTOCOL_NAME, tileServerName, PORT_NUMBER, URL_DELIMITER + tileIdentity.zoomLevel
+                        + URL_DELIMITER + tileIdentity.indexX + URL_DELIMITER
+                        + tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
+
                 URLConnection c = u.openConnection();
-                c.setRequestProperty("User-Agent", "JaVelo");
+                c.setRequestProperty("User-Agent", USER_AGENT_NAME);
                 //5 seconds timeout in case something went wrong with url / the server isn't reachable
-                c.setConnectTimeout(5 * 1000);
+                c.setConnectTimeout(TIMEOUT_IN_MS);
 
                 try (InputStream i = c.getInputStream()) {
                     //create the directory in cache folder /zoomLevel/xIndex/
@@ -134,6 +148,7 @@ public final class TileManager {
 
         /**
          * Check if tile is valid at construction
+         *
          * @throws IllegalArgumentException if the tile parameters aren't valid
          */
 
@@ -151,7 +166,8 @@ public final class TileManager {
          */
 
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            //no restrictions concerning the zoom level (can be greater than 20) in TileId, will be restricted in the gui.
+            //no restrictions concerning the zoom level (can be greater than 20) in TileId,
+            // will be restricted in the gui.
             double maxIndex_X_and_Y = Math.pow(2, zoomLevel);
             return ((indexX + 1) <= maxIndex_X_and_Y && (indexY + 1) <= maxIndex_X_and_Y
                     && zoomLevel >= 0 && indexX >= 0 && indexY >= 0);
