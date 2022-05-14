@@ -6,19 +6,20 @@ import javafx.beans.property.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
+import javafx.scene.shape.*;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static javafx.beans.binding.Bindings.*;
 
@@ -38,6 +39,16 @@ public final class ElevationProfileManager {
     private final Line highlightedLine;
     private final Text textStatistics;
 
+
+    private Path gridNode;
+    private static final int[] POS_STEPS = // todo bonne portée etc ?
+            { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+    private static final int[] ELE_STEPS =
+            { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
+    private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
+    private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
+    private List<Text> labels = new ArrayList<>();
+
     private final Insets rectangleInsets = new Insets(10, 10, 20, 40);
 
     //pane containing the elevation profile
@@ -47,7 +58,7 @@ public final class ElevationProfileManager {
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
                                    DoubleProperty highlightedPos) {
-        profileProperty = profile;
+        profileProperty = profile; //todo à fix ? (quand null)
         highlightedPositionProperty = highlightedPos;
 
         pane = new BorderPane();
@@ -69,6 +80,10 @@ public final class ElevationProfileManager {
             updateStats();
             drawPolygon();
         }
+
+        if(profileProperty.get() != null){
+            updateGridAndLabels();
+        }
     }
 
     /**
@@ -77,7 +92,7 @@ public final class ElevationProfileManager {
      * @return Pane of the Elevation Profile
      */
 
-    public Pane pane() {
+    public Pane pane() { //todo vérifier si il faudrait pas plutôt return le borderPane ?
         return pane;
     }
 
@@ -135,7 +150,7 @@ public final class ElevationProfileManager {
         tempListPoints.add(rectangleProperty.get().getMaxY());
 
         //for loop on double are way costfull
-        for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
+        for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) { //todo and if we use getWidth ?
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
             //elevation at the x point in the real world
@@ -161,16 +176,16 @@ public final class ElevationProfileManager {
         Pane p = new Pane();
         pane.setCenter(p);
 
-        Path path = new Path();
-        path.setId("grid");
-        p.getChildren().add(path);
+        gridNode = new Path();
+        gridNode.setId("grid");
+        p.getChildren().add(gridNode);
 
 
         //passer le group en attribut de classe
         Group g = new Group();
         p.getChildren().add(g);
 
-        Text t1 = new Text("tesst1");
+        Text t1 = new Text("tesst1"); //todo quand sup problème labels
         t1.getStyleClass().add("grid_label");
         t1.getStyleClass().add("horizontal");
         g.getChildren().add(t1);
@@ -192,6 +207,80 @@ public final class ElevationProfileManager {
         v.setId("profile_data");
 
         pane.setBottom(v);
+    }
+
+    private void updateGridAndLabels() {
+
+        gridNode.getElements().clear();
+        pane().getChildren().removeAll(labels);
+
+        //Determine the values to be used for POS_STEP and ELE_STEP
+        int pos_steps_used;
+        int ele_steps_used;
+
+        int index_pos_steps = 0;
+        while(index_pos_steps < POS_STEPS.length &&
+                screenToWorld.get().deltaTransform(MIN_PIXEL_DELTA_VERTICAL_LINES, 0).getX() > POS_STEPS[index_pos_steps]){
+            ++index_pos_steps;
+        }
+        pos_steps_used = (index_pos_steps == POS_STEPS.length) ? POS_STEPS[POS_STEPS.length - 1] : POS_STEPS[index_pos_steps];
+
+        int index_ele_steps = 0;
+        while(index_ele_steps < ELE_STEPS.length &&
+                Math.abs(screenToWorld.get().deltaTransform(0, MIN_PIXEL_DELTA_HORIZONTAL_LINES).getY()) > ELE_STEPS[index_ele_steps]){ //todo clean car Math.abs
+            ++index_ele_steps;
+        }
+        ele_steps_used = (index_ele_steps == ELE_STEPS.length) ? ELE_STEPS[ELE_STEPS.length - 1] : ELE_STEPS[index_ele_steps];
+
+
+        List<PathElement> pathElements = new ArrayList<>();
+        labels = new ArrayList<>();
+
+        //create vertical lines
+        for(int i = 0; i < profileProperty.get().length(); i += pos_steps_used){
+            double x = rectangleProperty.get().getMinX() + worldToScreen.get().deltaTransform(i, 0).getX();
+            pathElements.add(new MoveTo(x, rectangleProperty.get().getMaxY()));
+            pathElements.add(new LineTo(x, rectangleProperty.get().getMinY()));
+
+            //update labels for distance
+            Text t = new Text();
+            t.getStyleClass().add("grid_label");
+            t.getStyleClass().add("horizontal");
+            t.setText(Integer.toString(i /1000));
+            t.setFont(Font.font("Avenir", 10));
+            t.setTextOrigin(VPos.TOP);
+            t.setX(x - 0.5 * t.prefWidth(0));
+            t.setY(rectangleProperty.get().getMaxY());
+
+            labels.add(t);
+        }
+
+        //create horizontal lines.
+        int FirstHorizontalLineY = ((int) profileProperty.get().minElevation()) % ele_steps_used; //todo ne pas utiliser un double pour faire une comparaison, pas de modulo avec des doubles
+        int j = FirstHorizontalLineY;
+        while(j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()){
+            double y = rectangleProperty.get().getMaxY() + worldToScreen.get().deltaTransform(0, j).getY();
+            pathElements.add(new MoveTo(rectangleProperty.get().getMinX(), y));
+            pathElements.add(new LineTo(rectangleProperty.get().getMaxX(), y));
+
+            //update labels for elevation
+            Text t = new Text();
+            t.getStyleClass().add("grid_label");
+            t.getStyleClass().add("vertical");
+            t.setFont(Font.font("Avenir", 10));
+            t.setTextOrigin(VPos.CENTER);
+            t.setText(Integer.toString((int) profileProperty.get().minElevation() + j)); //todo les conversion double int sont vraiment sales
+            t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
+            t.setY(y);
+
+            labels.add(t);
+
+            j += ele_steps_used;
+        }
+
+
+        gridNode.getElements().setAll(pathElements);
+        pane().getChildren().addAll(labels);
     }
 
     //update the statistics text
@@ -254,6 +343,9 @@ public final class ElevationProfileManager {
             if (profileProperty.isNotNull().get()) {
                 updateTransformations();
                 drawPolygon();
+                if(profileProperty.get() != null){ //todo vérifier solution avec if profileProperty
+                    updateGridAndLabels();
+                }
             }
         });
 
