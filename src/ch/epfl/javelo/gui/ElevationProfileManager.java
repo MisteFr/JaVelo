@@ -185,16 +185,6 @@ public final class ElevationProfileManager {
         Group g = new Group();
         p.getChildren().add(g);
 
-        Text t1 = new Text("tesst1"); //todo quand sup problème labels
-        t1.getStyleClass().add("grid_label");
-        t1.getStyleClass().add("horizontal");
-        g.getChildren().add(t1);
-
-        Text t2 = new Text("tesst2");
-        t2.getStyleClass().add("grid_label");
-        t2.getStyleClass().add("vertical");
-        g.getChildren().add(t2);
-        //pour les étiquettes maxElevation - minElevation / step (nombre de labels)
 
         polygon.setId("profile");
         p.getChildren().add(polygon);
@@ -256,8 +246,8 @@ public final class ElevationProfileManager {
         }
 
         //create horizontal lines.
-        int FirstHorizontalLineY = ((int) profileProperty.get().minElevation()) % ele_steps_used; //todo ne pas utiliser un double pour faire une comparaison, pas de modulo avec des doubles
-        int j = FirstHorizontalLineY;
+        double j = ele_steps_used - profileProperty.get().minElevation() % ele_steps_used; //todo del debug purposes
+        //System.out.println("profileProperty.get().minElevation(): " + profileProperty.get().minElevation() + "\n" + "ele_steps_used: " + ele_steps_used +"\n"  + "FirstHorizontalLineY: " + j);
         while(j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()){
             double y = rectangleProperty.get().getMaxY() + worldToScreen.get().deltaTransform(0, j).getY();
             pathElements.add(new MoveTo(rectangleProperty.get().getMinX(), y));
@@ -269,7 +259,7 @@ public final class ElevationProfileManager {
             t.getStyleClass().add("vertical");
             t.setFont(Font.font("Avenir", 10));
             t.setTextOrigin(VPos.CENTER);
-            t.setText(Integer.toString((int) profileProperty.get().minElevation() + j)); //todo les conversion double int sont vraiment sales
+            t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j))); //todo possible de faire sans conversion double int ? Fonctionne parfaitement en l'état.
             t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
             t.setY(y);
 
@@ -353,6 +343,7 @@ public final class ElevationProfileManager {
             if (newValue != null) {
                 if(!newValue.equals(oldValue)){
                     updateTransformations();
+                    updateGridAndLabels();
                 }
 
                 //update the statistics and draw the polygon
