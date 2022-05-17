@@ -119,7 +119,7 @@ public final class JaVelo extends Application {
         ));
     }
 
-    //initialize the listner on the routeProperty of routeBean
+    //initialize the listener on the routeProperty of routeBean
     private void initializeListener(RouteBean routeBean,
                                     ElevationProfileManager elevationProfileManager,
                                     SplitPane splitPane) {

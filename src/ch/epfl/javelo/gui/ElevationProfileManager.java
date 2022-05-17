@@ -80,9 +80,6 @@ public final class ElevationProfileManager {
             updateTransformations();
             updateStats();
             drawPolygon();
-        }
-
-        if(profileProperty.get() != null){
             updateGridAndLabels();
         }
     }
@@ -150,7 +147,8 @@ public final class ElevationProfileManager {
         tempListPoints.add(rectangleProperty.get().getMinX());
         tempListPoints.add(rectangleProperty.get().getMaxY());
 
-        //for loop on double are way costfull
+
+        //for loop on double are worst for performances
         for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
@@ -162,6 +160,7 @@ public final class ElevationProfileManager {
             tempListPoints.add((double) x);
             tempListPoints.add(coordinatePointY.getY());
         }
+
         polygon.getPoints().setAll(tempListPoints);
     }
 

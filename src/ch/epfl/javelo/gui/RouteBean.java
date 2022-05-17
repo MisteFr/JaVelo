@@ -26,11 +26,10 @@ public final class RouteBean {
 
     private final static int CACHE_CAPACITY = 100;
 
-    private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer =
-            new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
+    private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer;
 
     //used in cache
-    private record PairOfWaypoints(Waypoint w1, Waypoint w2){}
+    private record PairOfWaypoints(Waypoint w1, Waypoint w2) {}
 
     /**
      * Constructor for new RouteBean.
@@ -43,6 +42,7 @@ public final class RouteBean {
         routeProperty = new SimpleObjectProperty<>();
         highlightedPositionProperty = new SimpleDoubleProperty(Double.NaN);
         elevationProfileProperty = new SimpleObjectProperty<>();
+        routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
         addListeners(routeComputer);
     }
@@ -76,7 +76,6 @@ public final class RouteBean {
 
     public void setHighlightedPosition(double newValue) {
         Preconditions.checkArgument((newValue >= 0));
-        //sur length de la route
         highlightedPositionProperty.set(newValue);
     }
 
@@ -153,10 +152,9 @@ public final class RouteBean {
 
     //creates the listeners to update the route and elevationProfile according to the modifications of the waypoints list.
     private void addListeners(RouteComputer routeComputer) {
-        waypointsList.addListener((ListChangeListener<Waypoint>) change -> updateRouteAndElevationProfile(routeComputer));
+        waypointsList.addListener((ListChangeListener<Waypoint>) change ->
+                updateRouteAndElevationProfile(routeComputer));
     }
-
-
 
     //for inner working, see tileManager.
     private void addToCache(PairOfWaypoints pair, Route route) {
@@ -167,7 +165,7 @@ public final class RouteBean {
         routeComputingBuffer.put(pair, route);
     }
 
-    private void updateRouteAndElevationProfile(RouteComputer routeComputer){
+    private void updateRouteAndElevationProfile(RouteComputer routeComputer) {
 
         //if there is not enough waypoints in the ObservableList, the computed route as well as its elevationProfile are null.
         if (waypointsList.size() < 2) {
@@ -185,12 +183,15 @@ public final class RouteBean {
                     continue;
                 }
 
-                PairOfWaypoints routeSegmentWaypoints = new PairOfWaypoints(waypointsList.get(i), waypointsList.get(i + 1));
+                PairOfWaypoints routeSegmentWaypoints = new PairOfWaypoints(waypointsList.get(i),
+                        waypointsList.get(i + 1));
 
                 //we check if the best route between the two waypoints is stored in the buffer.
                 if (!routeComputingBuffer.containsKey(routeSegmentWaypoints)) {
-                    bestRoute = routeComputer.bestRouteBetween(waypointsList.get(i).nodeId(), waypointsList.get(i + 1).nodeId());
-                    //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
+                    bestRoute = routeComputer.bestRouteBetween(waypointsList.get(i).nodeId(),
+                            waypointsList.get(i + 1).nodeId());
+                    //if no route is found between the two waypoints,
+                    // the computed route as well as its elevationProfile are null.
                     if (bestRoute == null) {
                         containsNull = true;
                         break;
@@ -205,7 +206,8 @@ public final class RouteBean {
 
             if (!containsNull) {
                 routeProperty.set(new MultiRoute(segments));
-                elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(), 5));
+                elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(),
+                        5));
             } else {
                 routeProperty.set(null);
                 elevationProfileProperty.set(null);

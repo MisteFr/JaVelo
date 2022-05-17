@@ -34,6 +34,8 @@ public final class WaypointsManager {
     //pane containing the waypoints
     private final Pane pane;
 
+    private final ObjectProperty<Point2D> latestMousePosition;
+
     //search distance for the radius of the nearestNode function when adding a waypoint
     private final static int SEARCH_DISTANCE = 500;
 
@@ -48,8 +50,6 @@ public final class WaypointsManager {
     private final static String PIN_STYLE_CLASS_LAST = "last";
 
     private static final String ERROR_MESSAGE_NO_ROUTES_AROUND = "Aucune route à proximité !";
-
-    private final ObjectProperty<Point2D> latestMousePosition = new SimpleObjectProperty<>(Point2D.ZERO);
 
     /**
      * WaypointsManager constructor.
@@ -66,6 +66,8 @@ public final class WaypointsManager {
         mapViewParametersProperty = mapViewParametersObjectProperty;
         transitPointsList = transitPList;
         errorManager = errorReporter;
+
+        latestMousePosition = new SimpleObjectProperty<>(Point2D.ZERO);
 
         pane = new Pane();
         pane.setPickOnBounds(false);
