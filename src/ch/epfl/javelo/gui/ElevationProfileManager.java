@@ -40,14 +40,15 @@ public final class ElevationProfileManager {
     private final Text textStatistics;
 
 
-    private Path gridNode;
-    private static final int[] POS_STEPS = // todo bonne portée etc ?
+
+    private final Path gridNode = new Path();
+    private static final int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
     private static final int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
     private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
-    private List<Text> labels = new ArrayList<>();
+    private final List<Text> labels = new ArrayList<>();
 
     private final Insets rectangleInsets = new Insets(10, 10, 20, 40);
 
@@ -58,7 +59,7 @@ public final class ElevationProfileManager {
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
                                    DoubleProperty highlightedPos) {
-        profileProperty = profile; //todo à fix ? (quand null)
+        profileProperty = profile;
         highlightedPositionProperty = highlightedPos;
 
         pane = new BorderPane();
@@ -92,7 +93,7 @@ public final class ElevationProfileManager {
      * @return Pane of the Elevation Profile
      */
 
-    public Pane pane() { //todo vérifier si il faudrait pas plutôt return le borderPane ?
+    public Pane pane() {
         return pane;
     }
 
@@ -125,7 +126,7 @@ public final class ElevationProfileManager {
         screenToWorld = new SimpleObjectProperty<>(a);
 
         //create the inverse transformation
-        Transform b = null;
+        Transform b;
         try {
             b = screenToWorld.get().createInverse();
         } catch (NonInvertibleTransformException e) {
@@ -150,7 +151,7 @@ public final class ElevationProfileManager {
         tempListPoints.add(rectangleProperty.get().getMaxY());
 
         //for loop on double are way costfull
-        for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) { //todo and if we use getWidth ?
+        for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
             //elevation at the x point in the real world
@@ -176,7 +177,7 @@ public final class ElevationProfileManager {
         Pane p = new Pane();
         pane.setCenter(p);
 
-        gridNode = new Path();
+
         gridNode.setId("grid");
         p.getChildren().add(gridNode);
 
@@ -217,14 +218,14 @@ public final class ElevationProfileManager {
 
         int index_ele_steps = 0;
         while(index_ele_steps < ELE_STEPS.length &&
-                Math.abs(screenToWorld.get().deltaTransform(0, MIN_PIXEL_DELTA_HORIZONTAL_LINES).getY()) > ELE_STEPS[index_ele_steps]){ //todo clean car Math.abs
+                Math.abs(screenToWorld.get().deltaTransform(0, MIN_PIXEL_DELTA_HORIZONTAL_LINES).getY()) > ELE_STEPS[index_ele_steps]){
             ++index_ele_steps;
         }
         ele_steps_used = (index_ele_steps == ELE_STEPS.length) ? ELE_STEPS[ELE_STEPS.length - 1] : ELE_STEPS[index_ele_steps];
 
 
         List<PathElement> pathElements = new ArrayList<>();
-        labels = new ArrayList<>();
+        labels.clear();
 
         //create vertical lines
         for(int i = 0; i < profileProperty.get().length(); i += pos_steps_used){
@@ -246,8 +247,7 @@ public final class ElevationProfileManager {
         }
 
         //create horizontal lines.
-        double j = ele_steps_used - profileProperty.get().minElevation() % ele_steps_used; //todo del debug purposes
-        //System.out.println("profileProperty.get().minElevation(): " + profileProperty.get().minElevation() + "\n" + "ele_steps_used: " + ele_steps_used +"\n"  + "FirstHorizontalLineY: " + j);
+        double j = ele_steps_used - profileProperty.get().minElevation() % ele_steps_used;
         while(j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()){
             double y = rectangleProperty.get().getMaxY() + worldToScreen.get().deltaTransform(0, j).getY();
             pathElements.add(new MoveTo(rectangleProperty.get().getMinX(), y));
@@ -259,7 +259,7 @@ public final class ElevationProfileManager {
             t.getStyleClass().add("vertical");
             t.setFont(Font.font("Avenir", 10));
             t.setTextOrigin(VPos.CENTER);
-            t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j))); //todo possible de faire sans conversion double int ? Fonctionne parfaitement en l'état.
+            t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
             t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
             t.setY(y);
 
@@ -333,7 +333,7 @@ public final class ElevationProfileManager {
             if (profileProperty.isNotNull().get()) {
                 updateTransformations();
                 drawPolygon();
-                if(profileProperty.get() != null){ //todo vérifier solution avec if profileProperty
+                if(profileProperty.get() != null){
                     updateGridAndLabels();
                 }
             }

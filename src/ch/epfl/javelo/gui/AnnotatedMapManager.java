@@ -45,7 +45,7 @@ public final class AnnotatedMapManager {
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
                         MAP_VIEW_PARAMETERS,
-                        routeBean.waypointsProperty(),
+                        routeBean.waypoints(),
                         errorReporter);
 
         BaseMapManager baseMapManager =

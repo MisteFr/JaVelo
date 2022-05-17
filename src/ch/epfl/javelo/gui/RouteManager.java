@@ -78,13 +78,13 @@ public final class RouteManager {
 
     //add a waypoint on the route at a position
     private void addWaypointOnRoute(Point2D pInPane) {
-        int nearestNodeOnRoute = beanRoute.route().nodeClosestTo(beanRoute.getHighlightedPosition());
+        int nearestNodeOnRoute = beanRoute.route().nodeClosestTo(beanRoute.highlightedPosition());
 
-        int indexToInsert = beanRoute.indexOfNonEmptySegmentAt(beanRoute.getHighlightedPosition()) + 1;
+        int indexToInsert = beanRoute.indexOfNonEmptySegmentAt(beanRoute.highlightedPosition()) + 1;
         PointCh waypointLocalisation = mapParametersProperty.get()
                 .pointAt(pInPane.getX(), pInPane.getY()).toPointCh();
         Waypoint newWaypoint = new Waypoint(waypointLocalisation, nearestNodeOnRoute);
-        beanRoute.waypointsProperty().add(indexToInsert, newWaypoint);
+        beanRoute.waypoints().add(indexToInsert, newWaypoint);
     }
 
     //update the points of the polyline and replace circle and polyline
@@ -114,7 +114,7 @@ public final class RouteManager {
 
     //update the position of the highlighted circle on the map
     private void updatePositionCircle(){
-        PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.getHighlightedPosition());
+        PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.highlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 
         circle.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));

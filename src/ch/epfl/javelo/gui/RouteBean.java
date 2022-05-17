@@ -6,7 +6,6 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.util.Pair;
 
 import java.util.*;
 
@@ -27,10 +26,11 @@ public final class RouteBean {
 
     private final static int CACHE_CAPACITY = 100;
 
-    //TODO: passer sur un record
-    private final LinkedHashMap<Pair<Waypoint, Waypoint>, Route> routeComputingBuffer =
+    private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer =
             new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 
+    //used in cache
+    private record PairOfWaypoints(Waypoint w1, Waypoint w2){}
 
     /**
      * Constructor for new RouteBean.
@@ -63,8 +63,7 @@ public final class RouteBean {
      *
      * @return double attribute, the position in meter or Double.NaN if no correct value was stored.
      */
-    //todo vérifier inconsistance dans la description du prof des standards beans -> c'est normal
-    public double getHighlightedPosition() {
+    public double highlightedPosition() {
         return highlightedPositionProperty.get();
     }
 
@@ -89,7 +88,7 @@ public final class RouteBean {
      * @return waypoints property
      */
 
-    public ObservableList<Waypoint> waypointsProperty() {
+    public ObservableList<Waypoint> waypoints() {
         return waypointsList;
     }
 
@@ -152,70 +151,66 @@ public final class RouteBean {
         return index;
     }
 
-    //todo check with assistants si c'est mieux d'accéder à la proprieté puis sa valeur ou valeur directe?s
-    //todo ajouter accesseurs directs à la route et à l'elevationProfile ? Standards beans // on y a déjà accès via les propriétés.
-    //todo: méthode privée externe appelée par le listerner pour que ce soit plus propre
-
     //creates the listeners to update the route and elevationProfile according to the modifications of the waypoints list.
     private void addListeners(RouteComputer routeComputer) {
-        waypointsList.addListener((ListChangeListener<Waypoint>) change -> {
-            //if there is not enough waypoints in the ObservableList, the computed route as well as its elevationProfile are null.
-            if (waypointsList.size() < 2) {
-                routeProperty.set(null);
-                elevationProfileProperty.set(null);
-            } else {
-                List<Route> segments = new ArrayList<>();
-                boolean containsNull = false;
-                Route bestRoute;
-
-                for (int i = 0; i < waypointsList.size() - 1; ++i) {
-                    if (waypointsList.get(i).nodeId() == waypointsList.get(i + 1).nodeId()) {
-                        //move to next waypoints
-                        continue;
-                    }
-                    ObjectProperty<Boolean> routeHasBeenComputed = new SimpleObjectProperty<>(false); // todo a supprimer pas nécessaire
-                    //todo: passer sur le nouveau systeme de cache avec record
-                    Pair<Waypoint, Waypoint> routeSegmentWaypoints = new Pair<>(waypointsList.get(i), waypointsList.get(i + 1));
-
-
-                    //we check if the best route between the two waypoints is stored in the buffer.
-                    if (routeComputingBuffer.containsKey(routeSegmentWaypoints)) {
-                        routeHasBeenComputed.set(true);
-                    }
-
-                    if (!routeHasBeenComputed.get()) {
-                        bestRoute = routeComputer.bestRouteBetween(waypointsList.get(i).nodeId(), waypointsList.get(i + 1).nodeId());
-                        //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
-                        if (bestRoute == null) {
-                            containsNull = true;
-                            break;
-                        }
-                        //only executed if bestRoute != null
-                        addToCache(routeSegmentWaypoints, bestRoute);
-                    } else {
-                        bestRoute = routeComputingBuffer.get(routeSegmentWaypoints);
-                    }
-                    segments.add(bestRoute);
-                }
-
-                if (!containsNull) {
-                    routeProperty.set(new MultiRoute(segments));
-                    elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(), 5));
-                } else {
-                    routeProperty.set(null);
-                    elevationProfileProperty.set(null);
-                }
-            }
-        });
+        waypointsList.addListener((ListChangeListener<Waypoint>) change -> updateRouteAndElevationProfile(routeComputer));
     }
 
+
+
     //for inner working, see tileManager.
-    private void addToCache(Pair<Waypoint, Waypoint> pair, Route route) {
+    private void addToCache(PairOfWaypoints pair, Route route) {
         if (routeComputingBuffer.size() >= CACHE_CAPACITY) {
             //complexity is 0(1)
             routeComputingBuffer.remove(routeComputingBuffer.entrySet().iterator().next().getKey());
         }
         routeComputingBuffer.put(pair, route);
+    }
+
+    private void updateRouteAndElevationProfile(RouteComputer routeComputer){
+
+        //if there is not enough waypoints in the ObservableList, the computed route as well as its elevationProfile are null.
+        if (waypointsList.size() < 2) {
+            routeProperty.set(null);
+            elevationProfileProperty.set(null);
+        } else {
+            List<Route> segments = new ArrayList<>();
+            boolean containsNull = false;
+            Route bestRoute;
+
+            for (int i = 0; i < waypointsList.size() - 1; ++i) {
+
+                if (waypointsList.get(i).nodeId() == waypointsList.get(i + 1).nodeId()) {
+                    //move to next waypoints
+                    continue;
+                }
+
+                PairOfWaypoints routeSegmentWaypoints = new PairOfWaypoints(waypointsList.get(i), waypointsList.get(i + 1));
+
+                //we check if the best route between the two waypoints is stored in the buffer.
+                if (!routeComputingBuffer.containsKey(routeSegmentWaypoints)) {
+                    bestRoute = routeComputer.bestRouteBetween(waypointsList.get(i).nodeId(), waypointsList.get(i + 1).nodeId());
+                    //if no route is found between the two waypoints, the computed route as well as its elevationProfile are null.
+                    if (bestRoute == null) {
+                        containsNull = true;
+                        break;
+                    }
+                    //only executed if bestRoute != null
+                    addToCache(routeSegmentWaypoints, bestRoute);
+                } else {
+                    bestRoute = routeComputingBuffer.get(routeSegmentWaypoints);
+                }
+                segments.add(bestRoute);
+            }
+
+            if (!containsNull) {
+                routeProperty.set(new MultiRoute(segments));
+                elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(), 5));
+            } else {
+                routeProperty.set(null);
+                elevationProfileProperty.set(null);
+            }
+        }
     }
 }
 

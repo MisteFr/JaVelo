@@ -2,14 +2,10 @@ import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.gui.*;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.routing.CityBikeCF;
-import ch.epfl.javelo.routing.CostFunction;
-import ch.epfl.javelo.routing.Route;
 import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -31,8 +27,8 @@ public final class Stage8Test extends Application {
                 new TileManager(cacheBasePath, tileServerHost);
 
         RouteBean routeBean = new RouteBean(new RouteComputer(graph, new CityBikeCF(graph)));
-        routeBean.waypointsProperty().add(new Waypoint(new PointCh(2532697, 1152350), 159049));
-        routeBean.waypointsProperty().add(new Waypoint(new PointCh(2538659, 1154350), 117669));
+        routeBean.waypoints().add(new Waypoint(new PointCh(2532697, 1152350), 159049));
+        routeBean.waypoints().add(new Waypoint(new PointCh(2538659, 1154350), 117669));
         routeBean.setHighlightedPosition(2000);
 
         MapViewParameters mapViewParameters =
@@ -49,7 +45,7 @@ public final class Stage8Test extends Application {
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
                         mapViewParametersP,
-                        routeBean.waypointsProperty(),
+                        routeBean.waypoints(),
                         errorConsumer);
         BaseMapManager baseMapManager =
                 new BaseMapManager(tileManager,

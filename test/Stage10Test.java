@@ -32,7 +32,7 @@ public final class Stage10Test extends Application {
                 new SimpleDoubleProperty(1500);
 
         ElevationProfileManager profileManager =
-                new ElevationProfileManager(profileProperty,
+                new ElevationProfileManager(profileProperty, //todo ReadOnlyDoubleProperty pour ElevationProfileManager
                         highlightProperty);
 
         highlightProperty.bind(
