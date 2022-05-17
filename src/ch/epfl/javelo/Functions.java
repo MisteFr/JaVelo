@@ -119,7 +119,6 @@ public final class Functions {
                 return samples[samples.length - 1];
             }
 
-            //System.out.println(x);
             double xOnUnitSteps = x / x_steps;
             int lowerBound = (int) Math.floor(xOnUnitSteps);
             int upperBound = (int) Math.ceil(xOnUnitSteps);
