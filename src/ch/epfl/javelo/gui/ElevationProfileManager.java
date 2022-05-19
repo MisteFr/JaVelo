@@ -68,7 +68,7 @@ public final class ElevationProfileManager {
             "     Descente : %.0f m" +
             "     Altitude : de %.0f m à %.0f m";
 
-    private static final Insets RECTANGLE_INSETS = new Insets(FONT_SIZE, FONT_SIZE, 20, 40);
+    private static final Insets RECTANGLE_INSETS = new Insets(10, 10, 20, 40);
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
                                    DoubleProperty highlightedPos) {
@@ -381,7 +381,7 @@ public final class ElevationProfileManager {
         t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
         t.getStyleClass().add(HORIZONTAL_LABEL_STYLE_CLASS);
         t.setText(Integer.toString(i /ONE_KILOMETER_IN_METERS));
-        t.setFont(Font.font(LABEL_FONT, 10));
+        t.setFont(Font.font(LABEL_FONT, FONT_SIZE));
         t.setTextOrigin(VPos.TOP);
         t.setX(x - 0.5 * t.prefWidth(0));
         t.setY(rectangleProperty.get().getMaxY());
@@ -394,7 +394,7 @@ public final class ElevationProfileManager {
         Text t = new Text();
         t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
         t.getStyleClass().add(VERTICAL_LABEL_STYLE_CLASS);
-        t.setFont(Font.font(LABEL_FONT, 10));
+        t.setFont(Font.font(LABEL_FONT, FONT_SIZE));
         t.setTextOrigin(VPos.CENTER);
         t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
         t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
