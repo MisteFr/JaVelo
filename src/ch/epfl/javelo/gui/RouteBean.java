@@ -24,14 +24,15 @@ public final class RouteBean {
     private final ObjectProperty<ElevationProfile> elevationProfileProperty;
     private final DoubleProperty highlightedPositionProperty;
 
-    //Memory cache capacity
-    private final static int CACHE_CAPACITY = 100;
-
     //Memory cache array with access-order
     private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer;
 
+    //Memory cache capacity
+    private final static int CACHE_CAPACITY = 100;
+
     //used in cache
-    private record PairOfWaypoints(Waypoint w1, Waypoint w2) {}
+    private record PairOfWaypoints(Waypoint w1, Waypoint w2) {
+    }
 
     /**
      * Constructor for new RouteBean.
@@ -152,7 +153,8 @@ public final class RouteBean {
         return index;
     }
 
-    //creates the listeners to update the route and elevationProfile according to the modifications of the waypoints list.
+    //creates the listeners to update the route and elevationProfile according to
+    // the modifications of the waypoints list.
     private void addListeners(RouteComputer routeComputer) {
         waypointsList.addListener((ListChangeListener<Waypoint>) change ->
                 updateRouteAndElevationProfile(routeComputer));
@@ -167,9 +169,10 @@ public final class RouteBean {
         routeComputingBuffer.put(pair, route);
     }
 
-    private void updateRouteAndElevationProfile(RouteComputer routeComputer){
+    private void updateRouteAndElevationProfile(RouteComputer routeComputer) {
 
-        //if there is not enough waypoints in the ObservableList, the computed route as well as its elevationProfile are null.
+        //if there is not enough waypoints in the ObservableList, the computed route as well
+        // as its elevationProfile are null.
         if (waypointsList.size() < 2) {
             routeProperty.set(null);
             elevationProfileProperty.set(null);

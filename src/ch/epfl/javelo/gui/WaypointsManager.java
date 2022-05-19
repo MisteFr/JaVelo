@@ -54,10 +54,10 @@ public final class WaypointsManager {
     /**
      * WaypointsManager constructor.
      *
-     * @param g                    JaVelo Graph instance
+     * @param g                               JaVelo Graph instance
      * @param mapViewParametersObjectProperty MapViewParameters wrapped into a JavaFx property
-     * @param transitPList        ObservableList of Waypoint(s)
-     * @param errorReporter            Object for reporting errors
+     * @param transitPList                    ObservableList of Waypoint(s)
+     * @param errorReporter                   Object for reporting errors
      */
 
     public WaypointsManager(Graph g, ObjectProperty<MapViewParameters> mapViewParametersObjectProperty,
@@ -89,14 +89,14 @@ public final class WaypointsManager {
     /**
      * Adds a new waypoint at the given position in the map's coordinate system
      *
-     * @param x        x position in the map coordinate system
-     * @param y        y position in the map coordinate system
+     * @param x x position in the map coordinate system
+     * @param y y position in the map coordinate system
      */
 
     public void addWaypoint(double x, double y) {
         Waypoint newWaypoint = createWaypoint(x, y);
 
-        if(newWaypoint != null){
+        if (newWaypoint != null) {
             transitPointsList.add(newWaypoint);
         } else {
             errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
@@ -104,7 +104,7 @@ public final class WaypointsManager {
     }
 
     //create an instance of waypoint for the given coordinates or return null
-    private Waypoint createWaypoint(double x, double y){
+    private Waypoint createWaypoint(double x, double y) {
         PointCh waypointLocalisation = mapViewParametersProperty.get().pointAt(x, y).toPointCh();
 
         if (waypointLocalisation != null
@@ -113,7 +113,7 @@ public final class WaypointsManager {
             int nearestNodeInRadius = graph.nodeClosestTo(waypointLocalisation, SEARCH_DISTANCE);
 
             return new Waypoint(waypointLocalisation, nearestNodeInRadius);
-        }else{
+        } else {
             return null;
         }
     }
@@ -209,26 +209,31 @@ public final class WaypointsManager {
             if (!mouseEvent.isStillSincePress()) {
                 //waypoint released and was moved since pressed, update waypoint position
 
-                Waypoint newWaypoint = createWaypoint(group.getLayoutX(), group.getLayoutY());
+                //TODO: fix case whhere y < 0 or x < 0 because in some case we can throw it with incorrect layout
+                //math max?
+                Waypoint newWaypoint =
+                        createWaypoint(group.getLayoutX(), group.getLayoutY());
 
-                if(newWaypoint != null){
+                if (newWaypoint != null) {
                     transitPointsList.set(transitPointsList.indexOf(waypoint), newWaypoint);
                 } else {
                     errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
+                    //to be sure waypoints are repalced at the correct position
+                    draw();
                 }
             }
         });
 
         group.setOnMouseClicked(mouseEvent -> {
             //mouse didn't move from the position it was pressed at, remove the waypoint
-            if(mouseEvent.isStillSincePress())
+            if (mouseEvent.isStillSincePress())
                 removeWaypoint(waypoint);
         });
     }
 
     //initialize listener to MapViewParameters and TRANSIT_POINT_LIST changes
     private void initializeListeners() {
-        mapViewParametersProperty.addListener(observable -> updatePinsPosition());
+        mapViewParametersProperty.addListener((p, o, n) -> updatePinsPosition());
         transitPointsList.addListener((ListChangeListener<Waypoint>) change -> draw());
     }
 }

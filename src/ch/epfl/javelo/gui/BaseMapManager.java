@@ -221,11 +221,11 @@ public final class BaseMapManager {
         });
 
         //if the height or the width of the canvas change -> redraw
-        canvas.widthProperty().addListener(observable -> redrawOnNextPulse());
-        canvas.heightProperty().addListener(observable -> redrawOnNextPulse());
+        canvas.widthProperty().addListener((p, o, n) -> redrawOnNextPulse());
+        canvas.heightProperty().addListener((p, o, n) -> redrawOnNextPulse());
 
         //when map properties are changed, redraw
-        mapViewParametersProperty.addListener(observable -> redrawOnNextPulse());
+        mapViewParametersProperty.addListener((p, o, n) -> redrawOnNextPulse());
     }
 
 }

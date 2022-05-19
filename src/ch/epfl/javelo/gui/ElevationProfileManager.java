@@ -40,17 +40,17 @@ public final class ElevationProfileManager {
     private final Text textStatistics;
     private final Path gridNode;
 
-    private static final int ONE_KILOMETER_IN_METERS = 1000;
-
     //pane containing the elevation profile
     private final BorderPane pane;
 
+    private static final int ONE_KILOMETER_IN_METERS = 1000;
+
     private static final String BORDER_PANE_STYLE_CLASS = "elevation_profile.css";
     private static final int[] POS_STEPS =
-            { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+            {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
     public static final int FONT_SIZE = 10;
     private static final int[] ELE_STEPS =
-            { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
+            {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
     private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
     private final Group labels = new Group();
@@ -115,7 +115,8 @@ public final class ElevationProfileManager {
 
     /**
      * Returns a read-only property containing the position of the mouse pointer
-     * along the profile (in meters, rounded to the nearest integer), or NaN if the mouse pointer is not above the profile.
+     * along the profile (in meters, rounded to the nearest integer),
+     * or NaN if the mouse pointer is not above the profile.
      *
      * @return position of the mouse along the profile in meters
      */
@@ -211,7 +212,6 @@ public final class ElevationProfileManager {
     }
 
     private void updateGridAndLabels() {
-
         gridNode.getElements().clear();
         labels.getChildren().clear();
 
@@ -222,7 +222,7 @@ public final class ElevationProfileManager {
         List<Text> labelsTemp = new ArrayList<>();
 
         //create new vertical lines
-        for(int i = 0; i < profileProperty.get().length(); i += steps_used[0]){
+        for (int i = 0; i < profileProperty.get().length(); i += steps_used[0]) {
             double x = rectangleProperty.get().getMinX() + worldToScreen.get().deltaTransform(i, 0).getX();
             pathElements.add(new MoveTo(x, rectangleProperty.get().getMaxY()));
             pathElements.add(new LineTo(x, rectangleProperty.get().getMinY()));
@@ -233,7 +233,7 @@ public final class ElevationProfileManager {
 
         //create new horizontal lines.
         double j = steps_used[1] - profileProperty.get().minElevation() % steps_used[1];
-        while(j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()){
+        while (j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()) {
             double y = rectangleProperty.get().getMaxY() + worldToScreen.get().deltaTransform(0, j).getY();
             pathElements.add(new MoveTo(rectangleProperty.get().getMinX(), y));
             pathElements.add(new LineTo(rectangleProperty.get().getMaxX(), y));
@@ -270,9 +270,11 @@ public final class ElevationProfileManager {
                         RECTANGLE_INSETS.getLeft(),
                         RECTANGLE_INSETS.getTop(),
                         Math.max(0,
-                                centerPane.widthProperty().get() - RECTANGLE_INSETS.getRight() - RECTANGLE_INSETS.getLeft()),
+                                centerPane.widthProperty().get() - RECTANGLE_INSETS.getRight()
+                                        - RECTANGLE_INSETS.getLeft()),
                         Math.max(0,
-                                centerPane.heightProperty().get() - RECTANGLE_INSETS.getBottom() - RECTANGLE_INSETS.getTop())
+                                centerPane.heightProperty().get() - RECTANGLE_INSETS.getBottom()
+                                        - RECTANGLE_INSETS.getTop())
                 ),
                 centerPane.widthProperty(), centerPane.heightProperty())
         );
@@ -291,9 +293,9 @@ public final class ElevationProfileManager {
         //binding to update the position of the highlighted line according to the mouse position
         mousePositionOnProfileProperty.bind(createDoubleBinding(
                 () -> {
-                    if(mouseCoordinatesProperty.isNotNull().get()){
+                    if (mouseCoordinatesProperty.isNotNull().get()) {
                         return screenToWorld.get().transform(mouseCoordinatesProperty.get().getX(), 0).getX();
-                    }else{
+                    } else {
                         return Double.NaN;
                     }
                 }, mouseCoordinatesProperty, screenToWorld
@@ -303,18 +305,17 @@ public final class ElevationProfileManager {
     //initialize listeners on the rectangleProperty and the profileProperty
     private void initializeListeners() {
         //each time the coordinates of the rectangle are updated, we need to recompute the transformations
-        rectangleProperty.addListener(observable -> {
+        rectangleProperty.addListener((p, o, n) -> {
             if (profileProperty.isNotNull().get()) {
                 updateTransformations();
                 drawPolygon();
-                if(profileProperty.get() != null)
-                    updateGridAndLabels();
+                updateGridAndLabels();
             }
         });
 
         profileProperty.addListener(((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                if(!newValue.equals(oldValue)){
+                if (!newValue.equals(oldValue)) {
                     updateTransformations();
                     updateGridAndLabels();
                 }
@@ -327,11 +328,11 @@ public final class ElevationProfileManager {
     }
 
     //initialize handlers on the pane (mouse management)
-    private void initializeHandlers(){
+    private void initializeHandlers() {
         pane.getCenter().setOnMouseMoved(mouseEvent -> {
-            if(rectangleProperty.get().contains(new Point2D(mouseEvent.getX(), mouseEvent.getY()))){
+            if (rectangleProperty.get().contains(new Point2D(mouseEvent.getX(), mouseEvent.getY()))) {
                 mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-            }else{
+            } else {
                 mouseCoordinatesProperty.setValue(null);
             }
         });
@@ -341,7 +342,7 @@ public final class ElevationProfileManager {
     }
 
     //return the elements of pos_step (with index 0) and ele_steps (with index 1) that are used.
-    private int[] computePosAndEleStepsUsed(){
+    private int[] computePosAndEleStepsUsed() {
 
         int[] posAndEleStepsUsed = new int[2];
         int index_pos_steps = 0;
@@ -351,7 +352,7 @@ public final class ElevationProfileManager {
                         .deltaTransform(MIN_PIXEL_DELTA_VERTICAL_LINES, ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS)
                         .getX();
 
-        while(index_pos_steps < POS_STEPS.length && verticalMinPixelsInMeters > POS_STEPS[index_pos_steps]){
+        while (index_pos_steps < POS_STEPS.length && verticalMinPixelsInMeters > POS_STEPS[index_pos_steps]) {
             ++index_pos_steps;
         }
         posAndEleStepsUsed[0] = (index_pos_steps == POS_STEPS.length)
@@ -365,7 +366,7 @@ public final class ElevationProfileManager {
                         .deltaTransform(ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS, MIN_PIXEL_DELTA_HORIZONTAL_LINES)
                         .getY());
 
-        while(index_ele_steps < ELE_STEPS.length && horizontalMinPixelsInMeters > ELE_STEPS[index_ele_steps]){
+        while (index_ele_steps < ELE_STEPS.length && horizontalMinPixelsInMeters > ELE_STEPS[index_ele_steps]) {
             ++index_ele_steps;
         }
         posAndEleStepsUsed[1] = (index_ele_steps == ELE_STEPS.length)
@@ -376,11 +377,11 @@ public final class ElevationProfileManager {
     }
 
     //create horizontal text
-    private Text createHorizontalText(double x, int i){
+    private Text createHorizontalText(double x, int i) {
         Text t = new Text();
         t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
         t.getStyleClass().add(HORIZONTAL_LABEL_STYLE_CLASS);
-        t.setText(Integer.toString(i /ONE_KILOMETER_IN_METERS));
+        t.setText(Integer.toString(i / ONE_KILOMETER_IN_METERS));
         t.setFont(Font.font(LABEL_FONT, FONT_SIZE));
         t.setTextOrigin(VPos.TOP);
         t.setX(x - 0.5 * t.prefWidth(0));
@@ -390,7 +391,7 @@ public final class ElevationProfileManager {
     }
 
     //create vertical text
-    private Text createVerticalText(double y, double j){
+    private Text createVerticalText(double y, double j) {
         Text t = new Text();
         t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
         t.getStyleClass().add(VERTICAL_LABEL_STYLE_CLASS);

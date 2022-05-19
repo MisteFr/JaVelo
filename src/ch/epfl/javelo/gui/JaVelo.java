@@ -12,6 +12,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -23,8 +24,13 @@ import static javafx.beans.binding.Bindings.createDoubleBinding;
 import static javafx.scene.control.SplitPane.setResizableWithParent;
 
 /**
- * Non-instantiable class that is used to launch the Javelo application with JavaFX GUI
+ * JaVelo class
+ * The main class of the application.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
  */
+
 public final class JaVelo extends Application {
 
     private static final String GRAPH_DATA_DIRECTORY = "javelo-data";
@@ -34,7 +40,9 @@ public final class JaVelo extends Application {
     private static final String MENU_TITLE = "Fichier";
     private static final String MENU_ACTION_TEXT = "Exporter GPX";
     private static final String GPX_FILE_EXPORTED_NAME = "javelo.gpx";
+
     private static final int ELEVATION_PROFILE_MANAGER_PANE_INDEX = 1;
+
     private static final int WINDOW_MIN_WIDTH = 800;
     private static final int WINDOW_MIN_HEIGHT = 600;
 
@@ -60,17 +68,21 @@ public final class JaVelo extends Application {
         //when resizing vertically elevationProfileManager pane won't be resized
         setResizableWithParent(elevationProfileManager.pane(), false);
 
+        BorderPane borderPane = new BorderPane();
 
         //we first initialize it without the elevationProfileManager pane() as the route won't exist
         SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
         splitPane.setOrientation(Orientation.VERTICAL);
+        borderPane.setCenter(splitPane);
 
         MenuBar menuBar = initializeMenu(routeBean);
+        borderPane.setTop(menuBar);
+
         initializeBinding(routeBean,
                 annotatedMapManager, elevationProfileManager);
         initializeListener(routeBean, elevationProfileManager, splitPane);
 
-        StackPane stackPane = new StackPane(splitPane, menuBar, errorManager.pane());
+        StackPane stackPane = new StackPane(borderPane, errorManager.pane());
 
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);

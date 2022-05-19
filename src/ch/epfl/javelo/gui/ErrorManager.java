@@ -8,6 +8,14 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * ErrorManager class
+ * Manages the display of error messages.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
+ */
+
 public final class ErrorManager {
 
     //pane containing the annotated map
@@ -71,13 +79,15 @@ public final class ErrorManager {
 
     //create the sequential transition
     private SequentialTransition createSequentialTransitions() {
-        FadeTransition firstFadeTransition = new FadeTransition(Duration.seconds(DURATION_FIRST_FADE_TRANSITION_IN_SECS), pane);
+        FadeTransition firstFadeTransition = new FadeTransition(Duration.seconds(
+                DURATION_FIRST_FADE_TRANSITION_IN_SECS), pane);
         firstFadeTransition.setFromValue(INVISIBLE_VALUE_FADE_TRANSITION);
         firstFadeTransition.setToValue(VISIBLE_VALUE_FADE_TRANSITION);
 
         PauseTransition pauseTransition = new PauseTransition(Duration.seconds(DURATION_PAUSE_TRANSITION_IN_SECS));
 
-        FadeTransition secondFadeTransition = new FadeTransition(Duration.seconds(DURATION_SECOND_FADE_TRANSITION_IN_SECS), pane);
+        FadeTransition secondFadeTransition = new FadeTransition(Duration.seconds(
+                DURATION_SECOND_FADE_TRANSITION_IN_SECS), pane);
         secondFadeTransition.setFromValue(VISIBLE_VALUE_FADE_TRANSITION);
         secondFadeTransition.setToValue(INVISIBLE_VALUE_FADE_TRANSITION);
 

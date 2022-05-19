@@ -67,6 +67,7 @@ public final class RouteManager {
     private void initializePane() {
         pane.setPickOnBounds(false);
 
+        //TODO: bind visibility à l'existence d'un itineraire pour la polyline?
         polyline.setId(POLYLINE_ID);
         polyline.setVisible(false);
 
@@ -115,7 +116,7 @@ public final class RouteManager {
     }
 
     //update the position of the highlighted circle on the map
-    private void updatePositionCircle(){
+    private void updatePositionCircle() {
         PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(beanRoute.highlightedPosition());
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 
@@ -126,7 +127,7 @@ public final class RouteManager {
     //initialize Listeners for the mapParameters, the route, the highlightedPositionProperty and the circle
     private void initializeListeners() {
         mapParametersProperty.addListener((property, oldValue, newValue) -> {
-            if (polyline.isVisible() && circle.isVisible()) {
+            if (polyline.isVisible()) {
                 if (oldValue.zoomLevel() != newValue.zoomLevel()) {
                     updatePointsPolyline();
                 }
@@ -156,11 +157,10 @@ public final class RouteManager {
         beanRoute.highlightedPositionProperty().addListener((property, oldValue, newValue) -> {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
-                if(beanRoute.routeProperty().isNotNull().get()){
-                //if(beanRoute.routeProperty().get() != null){ todo what about beanRoute.routeProperty().get() != null ? Seems clearer and is functional
-                    if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
+                if (beanRoute.routeProperty().get() != null) {
+                    if (Double.isNaN(beanRoute.highlightedPositionProperty().get())) {
                         circle.setVisible(false);
-                    }else{
+                    } else {
                         circle.setVisible(true);
                         updatePositionCircle();
                     }

@@ -15,7 +15,12 @@ import static javafx.beans.binding.Bindings.createDoubleBinding;
 
 
 /**
- * Class that manages the display of the "annotated" map
+ * AnnotatedMapManager class
+ * Manages the display of the "annotated" map,
+ * i.e. the background map on which the route and waypoints are displayed.
+ *
+ * @author Arthur Bigot (324366)
+ * @author Léo Paoletti (342165)
  */
 
 public final class AnnotatedMapManager {
@@ -34,6 +39,15 @@ public final class AnnotatedMapManager {
 
     private static final String MAP_CSS = "map.css";
     private static final int DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS = 15;
+
+    /**
+     * Constructor of AnnotatedMapManager
+     *
+     * @param graph         Graph instance
+     * @param tileManager   TileManager instance
+     * @param rteBean       RouteBean instance
+     * @param errorReporter Consumer<String> instance
+     */
 
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean rteBean,
                                Consumer<String> errorReporter) {
