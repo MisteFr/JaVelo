@@ -115,7 +115,7 @@ public final class Functions {
 
             if (x < 0) {
                 return samples[0];
-            } else if (x > x_max) {
+            } else if (x >= x_max) {
                 return samples[samples.length - 1];
             }
 

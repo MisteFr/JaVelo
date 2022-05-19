@@ -62,6 +62,7 @@ public final class ErrorManager {
 
     public void displayError(String messageError) {
         text.setText(messageError);
+
         java.awt.Toolkit.getDefaultToolkit().beep();
 
         paneErrorTransition.stop();

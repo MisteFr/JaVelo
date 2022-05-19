@@ -22,8 +22,7 @@ import java.util.LinkedHashMap;
 public final class TileManager {
 
     //Memory cache array with access-order
-    private final LinkedHashMap<TileId, Image> memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
-            0.75f, true);
+    private final LinkedHashMap<TileId, Image> memoryCache;
 
     //Path to the memory disk folder
     private final Path pathToMemoryDisk;
@@ -52,6 +51,9 @@ public final class TileManager {
     public TileManager(Path pathFolder, String tileServerN) {
         pathToMemoryDisk = pathFolder;
         tileServerName = tileServerN;
+
+        memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
+                0.75f, true);
     }
 
     /**

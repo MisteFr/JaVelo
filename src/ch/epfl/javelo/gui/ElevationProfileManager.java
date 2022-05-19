@@ -29,21 +29,26 @@ public final class ElevationProfileManager {
     private final DoubleProperty highlightedPositionProperty;
     private final ObjectProperty<Rectangle2D> rectangleProperty;
 
-    private final ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
-    private final DoubleProperty mousePositionOnProfileProperty = new SimpleDoubleProperty(Double.NaN);
+    private final ObjectProperty<Point2D> mouseCoordinatesProperty;
+    private final DoubleProperty mousePositionOnProfileProperty;
 
-    private ObjectProperty<Transform> screenToWorld = new SimpleObjectProperty<>(new Affine());
-    private ObjectProperty<Transform> worldToScreen = new SimpleObjectProperty<>(new Affine());
+    private ObjectProperty<Transform> screenToWorld;
+    private ObjectProperty<Transform> worldToScreen;
 
     private final Polygon polygon;
     private final Line highlightedLine;
     private final Text textStatistics;
+    private final Path gridNode;
 
     private static final int ONE_KILOMETER_IN_METERS = 1000;
 
-    private final Path gridNode = new Path();
+    //pane containing the elevation profile
+    private final BorderPane pane;
+
+    private static final String BORDER_PANE_STYLE_CLASS = "elevation_profile.css";
     private static final int[] POS_STEPS =
             { 1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000 };
+    public static final int FONT_SIZE = 10;
     private static final int[] ELE_STEPS =
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
     private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
@@ -51,12 +56,19 @@ public final class ElevationProfileManager {
     private final Group labels = new Group();
     private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
 
-    private final Insets rectangleInsets = new Insets(10, 10, 20, 40);
+    private static final String GRID_NODE_ID = "grid";
+    private static final String POLYGON_NODE_ID = "profile";
+    private static final String PROFILE_NODE_ID = "profile_data";
+    private static final String GRID_LABEL_STYLE_CLASS = "grid_label";
+    private static final String HORIZONTAL_LABEL_STYLE_CLASS = "horizontal";
+    private static final String LABEL_FONT = "Avenir";
+    private static final String VERTICAL_LABEL_STYLE_CLASS = "vertical";
+    private static final String STATS_TEXT = "Longueur : %.1f km" +
+            "     Montée : %.0f m" +
+            "     Descente : %.0f m" +
+            "     Altitude : de %.0f m à %.0f m";
 
-    //pane containing the elevation profile
-    private final BorderPane pane;
-
-    private static final String BORDER_PANE_STYLE_CLASS = "elevation_profile.css";
+    private static final Insets RECTANGLE_INSETS = new Insets(FONT_SIZE, FONT_SIZE, 20, 40);
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
                                    DoubleProperty highlightedPos) {
@@ -68,8 +80,14 @@ public final class ElevationProfileManager {
         polygon = new Polygon();
         highlightedLine = new Line();
         textStatistics = new Text();
+        gridNode = new Path();
+
 
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
+        mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
+        mousePositionOnProfileProperty = new SimpleDoubleProperty(Double.NaN);
+        screenToWorld = new SimpleObjectProperty<>(new Affine());
+        worldToScreen = new SimpleObjectProperty<>(new Affine());
 
         createPane();
         initializeListeners();
@@ -81,9 +99,6 @@ public final class ElevationProfileManager {
             updateTransformations();
             updateStats();
             drawPolygon();
-        }
-
-        if(profileProperty.get() != null){
             updateGridAndLabels();
         }
     }
@@ -114,7 +129,7 @@ public final class ElevationProfileManager {
         Affine a = new Affine();
 
         //back to javafx origin
-        a.prependTranslation(-rectangleInsets.getLeft(), -rectangleProperty.get().getMinY());
+        a.prependTranslation(-RECTANGLE_INSETS.getLeft(), -rectangleProperty.get().getMinY());
 
         //scaling
         a.prependScale(profileProperty.get().length() / rectangleProperty.get().getWidth(),
@@ -151,7 +166,8 @@ public final class ElevationProfileManager {
         tempListPoints.add(rectangleProperty.get().getMinX());
         tempListPoints.add(rectangleProperty.get().getMaxY());
 
-        //for loop on double are way costfull
+
+        //for loop on double are worst for performances
         for (int x = (int) rectangleProperty.get().getMinX(); x < rectangleProperty.get().getMaxX(); x++) {
             //y is a don't care here, goal is to get x in the real world
             Point2D correspondingProfilePos = screenToWorld.get().transform(x, 0);
@@ -163,30 +179,25 @@ public final class ElevationProfileManager {
             tempListPoints.add((double) x);
             tempListPoints.add(coordinatePointY.getY());
         }
+
         polygon.getPoints().setAll(tempListPoints);
     }
 
     //create the pane with all its elements
     private void createPane() {
-        //est ce qu'on est sensé créer la ligne directement?
-        //comment placer les points bottom left et right
-
         pane.getChildren().clear();
-
         pane.getStylesheets().add(BORDER_PANE_STYLE_CLASS);
 
         Pane p = new Pane();
         pane.setCenter(p);
 
-
-        gridNode.setId("grid");
+        gridNode.setId(GRID_NODE_ID);
         p.getChildren().add(gridNode);
 
 
         p.getChildren().add(labels);
 
-
-        polygon.setId("profile");
+        polygon.setId(POLYGON_NODE_ID);
         p.getChildren().add(polygon);
 
         p.getChildren().add(highlightedLine);
@@ -194,7 +205,7 @@ public final class ElevationProfileManager {
 
         VBox v = new VBox();
         v.getChildren().add(textStatistics);
-        v.setId("profile_data");
+        v.setId(PROFILE_NODE_ID);
 
         pane.setBottom(v);
     }
@@ -240,15 +251,13 @@ public final class ElevationProfileManager {
 
     //update the statistics text
     private void updateStats() {
-        String textStats = String.format("Longueur : %.1f km" +
-                        "     Montée : %.0f m" +
-                        "     Descente : %.0f m" +
-                        "     Altitude : de %.0f m à %.0f m",
+        String textStats = String.format(STATS_TEXT,
                 profileProperty.get().length() / ONE_KILOMETER_IN_METERS,
                 profileProperty.get().totalAscent(),
                 profileProperty.get().totalDescent(),
                 profileProperty.get().minElevation(),
                 profileProperty.get().maxElevation());
+
         textStatistics.setText(textStats);
     }
 
@@ -258,12 +267,12 @@ public final class ElevationProfileManager {
         Pane centerPane = (Pane) pane.getCenter();
         rectangleProperty.bind(createObjectBinding(
                 () -> new Rectangle2D(
-                        rectangleInsets.getLeft(),
-                        rectangleInsets.getTop(),
+                        RECTANGLE_INSETS.getLeft(),
+                        RECTANGLE_INSETS.getTop(),
                         Math.max(0,
-                                centerPane.widthProperty().get() - rectangleInsets.getRight() - rectangleInsets.getLeft()),
+                                centerPane.widthProperty().get() - RECTANGLE_INSETS.getRight() - RECTANGLE_INSETS.getLeft()),
                         Math.max(0,
-                                centerPane.heightProperty().get() - rectangleInsets.getBottom() - rectangleInsets.getTop())
+                                centerPane.heightProperty().get() - RECTANGLE_INSETS.getBottom() - RECTANGLE_INSETS.getTop())
                 ),
                 centerPane.widthProperty(), centerPane.heightProperty())
         );

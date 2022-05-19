@@ -8,8 +8,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * RouteManager class
@@ -37,7 +38,7 @@ public final class RouteManager {
     /**
      * RouteManager constructor.
      *
-     * @param beanR     RouteBean instance
+     * @param beanR         RouteBean instance
      * @param mapParameters MapViewParameters wrapped into a ReadOnlyObjectProperty
      */
 
@@ -87,24 +88,25 @@ public final class RouteManager {
         beanRoute.waypoints().add(indexToInsert, newWaypoint);
     }
 
-    //update the points of the polyline and replace circle and polyline
+    //update the points of the polyline
     private void updatePointsPolyline() {
         polyline.getPoints().clear();
 
         MapViewParameters mapViewParameters = mapParametersProperty.get();
 
-        //to avoid listeners of the list to be called each time we add a point
-        //we won't see half polyline on the screen too
-        List<Double> pointsToAdd = new ArrayList<>();
-        for (PointCh point : beanRoute.route().points()) {
-            pointsToAdd.add(PointWebMercator.ofPointCh(point)
-                    .xAtZoomLevel(mapViewParameters.zoomLevel()));
-            pointsToAdd.add(PointWebMercator.ofPointCh(point)
-                    .yAtZoomLevel(mapViewParameters.zoomLevel()));
-        }
+        List<Double> pointsToAdd = beanRoute.route().points().stream().flatMap(
+                point -> {
+                    double x = PointWebMercator.ofPointCh(point)
+                            .xAtZoomLevel(mapViewParameters.zoomLevel());
+                    double y = PointWebMercator.ofPointCh(point)
+                            .yAtZoomLevel(mapViewParameters.zoomLevel());
+                    return Stream.of(x, y);
+                }
+        ).collect(Collectors.toList());
 
         polyline.getPoints().setAll(pointsToAdd);
     }
+
 
     //update the position of the polyline on the map
     private void updatePositionPolyline() {
@@ -124,11 +126,11 @@ public final class RouteManager {
     //initialize Listeners for the mapParameters, the route, the highlightedPositionProperty and the circle
     private void initializeListeners() {
         mapParametersProperty.addListener((property, oldValue, newValue) -> {
-            if (polyline.isVisible()) {
-                if (oldValue.zoomLevel() == newValue.zoomLevel())
-                    updatePointsPolyline(); //update the points of the polyline
+            if (polyline.isVisible() && circle.isVisible()) {
+                if (oldValue.zoomLevel() != newValue.zoomLevel()) {
+                    updatePointsPolyline();
+                }
 
-                //update the position of the polyline and the circle
                 updatePositionPolyline();
                 updatePositionCircle();
             }

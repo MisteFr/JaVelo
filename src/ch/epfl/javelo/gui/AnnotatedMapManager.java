@@ -25,8 +25,8 @@ public final class AnnotatedMapManager {
 
     private final RouteBean routeBean;
 
-    private final ObjectProperty<Point2D> mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
-    private final DoubleProperty mousePositionOnRouteProperty = new SimpleDoubleProperty(Double.NaN);
+    private final ObjectProperty<Point2D> mouseCoordinatesProperty;
+    private final DoubleProperty mousePositionOnRouteProperty;
 
     public static final ObjectProperty<MapViewParameters> MAP_VIEW_PARAMETERS
             = new SimpleObjectProperty<>(
@@ -37,8 +37,9 @@ public final class AnnotatedMapManager {
 
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean rteBean,
                                Consumer<String> errorReporter) {
-
         routeBean = rteBean;
+        mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
+        mousePositionOnRouteProperty = new SimpleDoubleProperty(Double.NaN);
 
         RouteManager routeManager = new RouteManager(routeBean, MAP_VIEW_PARAMETERS);
 
