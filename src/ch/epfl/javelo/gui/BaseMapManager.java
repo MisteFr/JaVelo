@@ -39,6 +39,11 @@ public final class BaseMapManager {
     //size of an OSM Tile in pixels
     private final static int OSM_TILE_SIZE = 256;
 
+    private final static int MINIMUM_ZOOM_LEVEL = 8;
+    private final static int MAXIMUM_ZOOM_LEVEL = 19;
+
+    private final static int SCALB_CONSTANT_FOR_ZOOM = 1;
+
     /**
      * BaseMapManager constructor
      *
@@ -95,11 +100,15 @@ public final class BaseMapManager {
             for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
                 try {
                     //get the image corresponding to each tile displayed (at least partially) on the map portion
-                    Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(), xTileMap, yTileMap));
+                    Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(),
+                            xTileMap,
+                            yTileMap));
 
 
                     //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image, xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(), yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
+                    graphicsContext.drawImage(image,
+                            xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(),
+                            yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
@@ -123,13 +132,9 @@ public final class BaseMapManager {
 
     //from a delta Point2D vector and the current MapViewParameters object, creates the new MapViewParameters when moving.
     private MapViewParameters newMapViewParametersWhenMoving(Point2D delta, MapViewParameters oldMapViewParameters) {
-
-        double deltaX = delta.getX();
-        double deltaY = delta.getY();
-
         return oldMapViewParameters.withMinXY(
-                oldMapViewParameters.indexTopLeftX() - deltaX,
-                oldMapViewParameters.indexTopLeftY() - deltaY
+                oldMapViewParameters.indexTopLeftX() - delta.getX(),
+                oldMapViewParameters.indexTopLeftY() - delta.getY()
         );
     }
 
@@ -146,7 +151,7 @@ public final class BaseMapManager {
             }
         });
 
-        //event handler for movement of the map and creation of the wayPoint
+        //event handler for movement of the map
         pane.setOnMousePressed(mouseEvent -> {
             mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
@@ -170,6 +175,7 @@ public final class BaseMapManager {
 
         //even handler for zooming in and out by scrolling
         pane.setOnScroll(scrollEvent -> {
+
             if (scrollEvent.getDeltaY() == 0d) return;
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
@@ -177,15 +183,20 @@ public final class BaseMapManager {
             int zoomDelta = (int) Math.signum(scrollEvent.getDeltaY());
 
             MapViewParameters oldMapViewParameters = mapViewParametersProperty.get();
-            int newZoomLevel = Math2.clamp(8, oldMapViewParameters.zoomLevel() + zoomDelta, 19);
+            int newZoomLevel = Math2.clamp(MINIMUM_ZOOM_LEVEL,
+                    oldMapViewParameters.zoomLevel() + zoomDelta,
+                    MAXIMUM_ZOOM_LEVEL);
 
-            double multiplicativeFactorForZoom = Math.scalb(1, newZoomLevel - oldMapViewParameters.zoomLevel());
+            double multiplicativeFactorForZoom = Math.scalb(SCALB_CONSTANT_FOR_ZOOM
+                    , newZoomLevel - oldMapViewParameters.zoomLevel());
 
             if (!(oldMapViewParameters.zoomLevel() == newZoomLevel)) {
                 MapViewParameters newMapViewParameters = new MapViewParameters(
                         newZoomLevel,
-                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX() + scrollEvent.getX()) - scrollEvent.getX(),
-                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftY() + scrollEvent.getY()) - scrollEvent.getY()
+                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX()
+                                + scrollEvent.getX()) - scrollEvent.getX(),
+                        multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftY()
+                                + scrollEvent.getY()) - scrollEvent.getY()
                 );
 
                 mapViewParametersProperty.setValue(newMapViewParameters);

@@ -39,7 +39,7 @@ public final class ElevationProfileManager {
     private final Line highlightedLine;
     private final Text textStatistics;
 
-
+    private static final int ONE_KILOMETER_IN_METERS = 1000;
 
     private final Path gridNode = new Path();
     private static final int[] POS_STEPS =
@@ -48,7 +48,8 @@ public final class ElevationProfileManager {
             { 5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000 };
     private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
-    private final List<Text> labels = new ArrayList<>();
+    private final Group labels = new Group();
+    private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
 
     private final Insets rectangleInsets = new Insets(10, 10, 20, 40);
 
@@ -182,9 +183,7 @@ public final class ElevationProfileManager {
         p.getChildren().add(gridNode);
 
 
-        //passer le group en attribut de classe
-        Group g = new Group();
-        p.getChildren().add(g);
+        p.getChildren().add(labels);
 
 
         polygon.setId("profile");
@@ -203,74 +202,40 @@ public final class ElevationProfileManager {
     private void updateGridAndLabels() {
 
         gridNode.getElements().clear();
-        pane().getChildren().removeAll(labels);
+        labels.getChildren().clear();
 
         //Determine the values to be used for POS_STEP and ELE_STEP
-        int pos_steps_used;
-        int ele_steps_used;
-
-        int index_pos_steps = 0;
-        while(index_pos_steps < POS_STEPS.length &&
-                screenToWorld.get().deltaTransform(MIN_PIXEL_DELTA_VERTICAL_LINES, 0).getX() > POS_STEPS[index_pos_steps]){
-            ++index_pos_steps;
-        }
-        pos_steps_used = (index_pos_steps == POS_STEPS.length) ? POS_STEPS[POS_STEPS.length - 1] : POS_STEPS[index_pos_steps];
-
-        int index_ele_steps = 0;
-        while(index_ele_steps < ELE_STEPS.length &&
-                Math.abs(screenToWorld.get().deltaTransform(0, MIN_PIXEL_DELTA_HORIZONTAL_LINES).getY()) > ELE_STEPS[index_ele_steps]){
-            ++index_ele_steps;
-        }
-        ele_steps_used = (index_ele_steps == ELE_STEPS.length) ? ELE_STEPS[ELE_STEPS.length - 1] : ELE_STEPS[index_ele_steps];
-
+        int[] steps_used = computePosAndEleStepsUsed();
 
         List<PathElement> pathElements = new ArrayList<>();
-        labels.clear();
+        List<Text> labelsTemp = new ArrayList<>();
 
-        //create vertical lines
-        for(int i = 0; i < profileProperty.get().length(); i += pos_steps_used){
+        //create new vertical lines
+        for(int i = 0; i < profileProperty.get().length(); i += steps_used[0]){
             double x = rectangleProperty.get().getMinX() + worldToScreen.get().deltaTransform(i, 0).getX();
             pathElements.add(new MoveTo(x, rectangleProperty.get().getMaxY()));
             pathElements.add(new LineTo(x, rectangleProperty.get().getMinY()));
 
-            //update labels for distance
-            Text t = new Text();
-            t.getStyleClass().add("grid_label");
-            t.getStyleClass().add("horizontal");
-            t.setText(Integer.toString(i /1000));
-            t.setFont(Font.font("Avenir", 10));
-            t.setTextOrigin(VPos.TOP);
-            t.setX(x - 0.5 * t.prefWidth(0));
-            t.setY(rectangleProperty.get().getMaxY());
-
-            labels.add(t);
+            //create new labels for distance
+            labelsTemp.add(createHorizontalText(x, i));
         }
 
-        //create horizontal lines.
-        double j = ele_steps_used - profileProperty.get().minElevation() % ele_steps_used;
+        //create new horizontal lines.
+        double j = steps_used[1] - profileProperty.get().minElevation() % steps_used[1];
         while(j < profileProperty.get().maxElevation() - profileProperty.get().minElevation()){
             double y = rectangleProperty.get().getMaxY() + worldToScreen.get().deltaTransform(0, j).getY();
             pathElements.add(new MoveTo(rectangleProperty.get().getMinX(), y));
             pathElements.add(new LineTo(rectangleProperty.get().getMaxX(), y));
 
-            //update labels for elevation
-            Text t = new Text();
-            t.getStyleClass().add("grid_label");
-            t.getStyleClass().add("vertical");
-            t.setFont(Font.font("Avenir", 10));
-            t.setTextOrigin(VPos.CENTER);
-            t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
-            t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
-            t.setY(y);
+            //create new labels for elevation
+            labelsTemp.add(createVerticalText(y, j));
 
-            labels.add(t);
-
-            j += ele_steps_used;
+            j += steps_used[1];
         }
 
-
+        //update lines and labels
         gridNode.getElements().setAll(pathElements);
-        pane().getChildren().addAll(labels);
+        labels.getChildren().addAll(labelsTemp);
     }
 
     //update the statistics text
@@ -279,7 +244,7 @@ public final class ElevationProfileManager {
                         "     Montée : %.0f m" +
                         "     Descente : %.0f m" +
                         "     Altitude : de %.0f m à %.0f m",
-                profileProperty.get().length() / 1000,
+                profileProperty.get().length() / ONE_KILOMETER_IN_METERS,
                 profileProperty.get().totalAscent(),
                 profileProperty.get().totalDescent(),
                 profileProperty.get().minElevation(),
@@ -333,9 +298,8 @@ public final class ElevationProfileManager {
             if (profileProperty.isNotNull().get()) {
                 updateTransformations();
                 drawPolygon();
-                if(profileProperty.get() != null){
+                if(profileProperty.get() != null)
                     updateGridAndLabels();
-                }
             }
         });
 
@@ -365,5 +329,68 @@ public final class ElevationProfileManager {
 
         //mouse went out of the map
         pane.getCenter().setOnMouseExited(mouseEvent -> mouseCoordinatesProperty.setValue(null));
+    }
+
+    //return the elements of pos_step (with index 0) and ele_steps (with index 1) that are used.
+    private int[] computePosAndEleStepsUsed(){
+
+        int[] posAndEleStepsUsed = new int[2];
+        int index_pos_steps = 0;
+        double verticalMinPixelsInMeters =
+                screenToWorld
+                        .get()
+                        .deltaTransform(MIN_PIXEL_DELTA_VERTICAL_LINES, ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS)
+                        .getX();
+
+        while(index_pos_steps < POS_STEPS.length && verticalMinPixelsInMeters > POS_STEPS[index_pos_steps]){
+            ++index_pos_steps;
+        }
+        posAndEleStepsUsed[0] = (index_pos_steps == POS_STEPS.length)
+                ? POS_STEPS[POS_STEPS.length - 1]
+                : POS_STEPS[index_pos_steps];
+
+        int index_ele_steps = 0;
+        double horizontalMinPixelsInMeters =
+                Math.abs(screenToWorld
+                        .get()
+                        .deltaTransform(ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS, MIN_PIXEL_DELTA_HORIZONTAL_LINES)
+                        .getY());
+
+        while(index_ele_steps < ELE_STEPS.length && horizontalMinPixelsInMeters > ELE_STEPS[index_ele_steps]){
+            ++index_ele_steps;
+        }
+        posAndEleStepsUsed[1] = (index_ele_steps == ELE_STEPS.length)
+                ? ELE_STEPS[ELE_STEPS.length - 1]
+                : ELE_STEPS[index_ele_steps];
+
+        return posAndEleStepsUsed;
+    }
+
+    //create horizontal text
+    private Text createHorizontalText(double x, int i){
+        Text t = new Text();
+        t.getStyleClass().add("grid_label");
+        t.getStyleClass().add("horizontal");
+        t.setText(Integer.toString(i /ONE_KILOMETER_IN_METERS));
+        t.setFont(Font.font("Avenir", 10));
+        t.setTextOrigin(VPos.TOP);
+        t.setX(x - 0.5 * t.prefWidth(0));
+        t.setY(rectangleProperty.get().getMaxY());
+
+        return t;
+    }
+
+    //create vertical text
+    private Text createVerticalText(double y, double j){
+        Text t = new Text();
+        t.getStyleClass().add("grid_label");
+        t.getStyleClass().add("vertical");
+        t.setFont(Font.font("Avenir", 10));
+        t.setTextOrigin(VPos.CENTER);
+        t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
+        t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
+        t.setY(y);
+
+        return t;
     }
 }

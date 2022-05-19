@@ -41,7 +41,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
     }
 
     /**
-     * Return a new PointWebMercator point based on the x and y coordinates of a point in the map portion.
+     * Returns a new PointWebMercator point based on the x and y coordinates of a point in the map portion.
      *
      * @param xCoordinate x-coordinate of the point in the map portion
      * @param yCoordinate y-coordinate of the point in the map portion
@@ -56,7 +56,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
     }
 
     /**
-     * Return the corresponding x coordinate to a PointWebMercator point in the map portion
+     * Returns the corresponding x coordinate to a PointWebMercator point in the map portion
      *
      * @param point instance of the PointWebMercator
      * @return corresponding coordinate in the map portion
@@ -67,7 +67,7 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
     }
 
     /**
-     * Return the corresponding y coordinate to a PointWebMercator point in the map portion
+     * Returns the corresponding y coordinate to a PointWebMercator point in the map portion
      *
      * @param point instance of the PointWebMercator
      * @return corresponding coordinate in the map portion

@@ -32,7 +32,7 @@ public final class TileManager {
     private final String tileServerName;
 
     //Memory cache capacity
-    private final static int CACHE_CAPACITY = 100;
+    private static final int CACHE_CAPACITY = 100;
 
     private static final String IMAGE_EXTENSION_FORMAT = ".png";
 
@@ -56,7 +56,7 @@ public final class TileManager {
 
     /**
      * Add a pair of tileId and its corresponding image to the memory cache
-     * If the memory cache, we remove the first pair
+     * If the memory cache is at maximum capacity, we remove the first pair
      *
      * @param tileIdentity identity of the tile associated to the image
      * @param image        image of the tile
@@ -71,7 +71,7 @@ public final class TileManager {
     }
 
     /**
-     * Return if the memory cache contains the image corresponding to a tile identity
+     * Returns true if the memory cache contains the image corresponding to the given tile identity
      *
      * @param tileIdentity identity of the tile
      * @return if the memory cache contains the image of this tile
@@ -166,11 +166,13 @@ public final class TileManager {
          */
 
         public static boolean isValid(int zoomLevel, int indexX, int indexY) {
-            //no restrictions concerning the zoom level (can be greater than 20) in TileId,
+            // no restrictions concerning the zoom level (can be greater than 20) in TileId,
             // will be restricted in the gui.
             double maxIndex_X_and_Y = Math.pow(2, zoomLevel);
-            return ((indexX + 1) <= maxIndex_X_and_Y && (indexY + 1) <= maxIndex_X_and_Y
-                    && zoomLevel >= 0 && indexX >= 0 && indexY >= 0);
+            return ((indexX + 1) <= maxIndex_X_and_Y
+                    && (indexY + 1) <= maxIndex_X_and_Y
+                    && zoomLevel >= 0 && indexX >= 0
+                    && indexY >= 0);
         }
     }
 }

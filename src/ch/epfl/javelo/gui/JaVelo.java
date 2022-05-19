@@ -22,6 +22,9 @@ import java.nio.file.Path;
 import static javafx.beans.binding.Bindings.createDoubleBinding;
 import static javafx.scene.control.SplitPane.setResizableWithParent;
 
+/**
+ * Non-instantiable class that is used to launch the Javelo application with JavaFX GUI
+ */
 public final class JaVelo extends Application {
 
     private static final String GRAPH_DATA_DIRECTORY = "javelo-data";
@@ -119,7 +122,7 @@ public final class JaVelo extends Application {
         ));
     }
 
-    //initialize the listner on the routeProperty of routeBean
+    //initialize the listener on the routeProperty of routeBean
     private void initializeListener(RouteBean routeBean,
                                     ElevationProfileManager elevationProfileManager,
                                     SplitPane splitPane) {

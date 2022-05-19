@@ -188,7 +188,7 @@ public final class WaypointsManager {
 
     //initialize event listeners for the waypoint's group
     private void initializeGroupListeners(Waypoint waypoint, Group group) {
-        //Mouse gliding
+
         group.setOnMousePressed(mouseEvent -> {
             latestMousePosition.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
         });
@@ -213,13 +213,14 @@ public final class WaypointsManager {
                     transitPointsList.set(transitPointsList.indexOf(waypoint), newWaypoint);
                 } else {
                     errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
-                    draw();
                 }
-
-            } else {
-                //mouse didn't move from the position it was pressed at, remove the waypoint
-                removeWaypoint(waypoint);
             }
+        });
+
+        group.setOnMouseClicked(mouseEvent -> {
+            //mouse didn't move from the position it was pressed at, remove the waypoint
+            if(mouseEvent.isStillSincePress())
+                removeWaypoint(waypoint);
         });
     }
 

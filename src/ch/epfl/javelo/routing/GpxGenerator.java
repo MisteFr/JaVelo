@@ -28,6 +28,8 @@ public class GpxGenerator {
     private static final String TAG_LAT_ATTRIBUTE = "lat";
     private static final String TAG_LON_ATTRIBUTE = "lon";
     private static final String TAG_ELEMENT_ROUTE = "ele";
+    private static final String FORMAT_FOR_LAT_AND_LON = "%.5f";
+    private static final String FORMAT_FOR_ELEVATION = "%.2f";
 
     //non-instantiable class
     private GpxGenerator() {
@@ -40,8 +42,9 @@ public class GpxGenerator {
      * @param elevationProfile the ElevationProfile corresponding to the route
      * @return the Gpx Document corresponding to the given arguments
      */
+
     public static Document createGpx(Route route, ElevationProfile elevationProfile) {
-        Document doc = newDocument(); // see below
+        Document doc = newDocument();
 
         Element root = doc
                 .createElementNS("http://www.topografix.com/GPX/1/1",
@@ -63,38 +66,18 @@ public class GpxGenerator {
         metadata.appendChild(name);
         name.setTextContent("Route JaVelo");
 
-
         Element rte = doc.createElement(TAG_ROUTE);
         root.appendChild(rte);
 
         //The first point of the route is added outside the loop, which only adds points at the end of edges.
-        Element rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
-        rte.appendChild(rtept);
-        rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, "%.5f",
-                Math.toDegrees(route.points().get(0).lat())));
-        rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, "%.5f",
-                Math.toDegrees(route.points().get(0).lon())));
-
-        Element ele = doc.createElement(TAG_ELEMENT_ROUTE);
-        rtept.appendChild(ele);
-        ele.setTextContent(String.format(Locale.US, "%.2f", elevationProfile.elevationAt(0)));
+        addFirstPoint(doc, rte, route, elevationProfile);
 
         //The loop navigates through the list of edges of the route,
         //adding to the Gpx Document the data of the ending point of each edge.
         double position = 0;
         for (Edge edge : route.edges()) {
-
             position += edge.length();
-            rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
-            rte.appendChild(rtept);
-            rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, "%.5f",
-                    Math.toDegrees(edge.toPoint().lat())));
-            rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, "%.5f",
-                    Math.toDegrees(edge.toPoint().lon())));
-
-            ele = doc.createElement(TAG_ELEMENT_ROUTE);
-            rtept.appendChild(ele);
-            ele.setTextContent(String.format(Locale.US, "%.2f", elevationProfile.elevationAt(position)));
+            addToPointOfEdge(doc, rte, edge, position, elevationProfile);
         }
 
         return doc;
@@ -125,6 +108,33 @@ public class GpxGenerator {
         }
     }
 
+    //add first point element with elevation label to route element
+    private static void addFirstPoint(Document doc, Element rte, Route route, ElevationProfile elevationProfile){
+        Element rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
+        rte.appendChild(rtept);
+        rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, FORMAT_FOR_LAT_AND_LON,
+                Math.toDegrees(route.points().get(0).lat())));
+        rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, FORMAT_FOR_LAT_AND_LON,
+                Math.toDegrees(route.points().get(0).lon())));
+
+        Element ele = doc.createElement(TAG_ELEMENT_ROUTE);
+        rtept.appendChild(ele);
+        ele.setTextContent(String.format(Locale.US, FORMAT_FOR_ELEVATION, elevationProfile.elevationAt(0)));
+    }
+
+    //add toPoint of edge point element with elevation label to route element
+    private static void addToPointOfEdge(Document doc, Element rte, Edge edge, double position, ElevationProfile elevationProfile){
+        Element rtept = doc.createElement(TAG_NAME_ROUTE_POINT);
+        rte.appendChild(rtept);
+        rtept.setAttribute(TAG_LAT_ATTRIBUTE, String.format(Locale.US, FORMAT_FOR_LAT_AND_LON,
+                Math.toDegrees(edge.toPoint().lat())));
+        rtept.setAttribute(TAG_LON_ATTRIBUTE, String.format(Locale.US, FORMAT_FOR_LAT_AND_LON,
+                Math.toDegrees(edge.toPoint().lon())));
+
+        Element ele = doc.createElement(TAG_ELEMENT_ROUTE);
+        rtept.appendChild(ele);
+        ele.setTextContent(String.format(Locale.US, FORMAT_FOR_ELEVATION, elevationProfile.elevationAt(position)));
+    }
 
     //Creates new document, used in createGpx
     private static Document newDocument() {

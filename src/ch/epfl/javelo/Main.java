@@ -23,7 +23,8 @@ public class Main {
 
         System.out.println(e.totalAscent());
         System.out.println(e.totalDescent());
-        GpxGenerator.writeGpx("output.gpx",r, e);
+        GpxGenerator.writeGpx("newOutput2.gpx",r, e);
+
 
 
     }

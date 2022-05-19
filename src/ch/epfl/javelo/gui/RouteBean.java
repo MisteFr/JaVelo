@@ -24,8 +24,10 @@ public final class RouteBean {
     private final ObjectProperty<ElevationProfile> elevationProfileProperty;
     private final DoubleProperty highlightedPositionProperty;
 
+    //Memory cache capacity
     private final static int CACHE_CAPACITY = 100;
 
+    //Memory cache array with access-order
     private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer =
             new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
 

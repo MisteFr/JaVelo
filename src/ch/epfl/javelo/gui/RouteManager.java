@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RouteManage class
+ * RouteManager class
  * Manages the display of the route and (part of) the interaction with it.
  *
  * @author Arthur Bigot (324366)
@@ -125,16 +125,12 @@ public final class RouteManager {
     private void initializeListeners() {
         mapParametersProperty.addListener((property, oldValue, newValue) -> {
             if (polyline.isVisible()) {
-                if (oldValue.zoomLevel() == newValue.zoomLevel()) {
-                    //update the position of the polyline and the circle
-                    updatePositionPolyline();
-                    updatePositionCircle();
-                } else {
-                    //update the points of the polyline, the position of the polyline and the circle
-                    updatePointsPolyline();
-                    updatePositionPolyline();
-                    updatePositionCircle();
-                }
+                if (oldValue.zoomLevel() == newValue.zoomLevel())
+                    updatePointsPolyline(); //update the points of the polyline
+
+                //update the position of the polyline and the circle
+                updatePositionPolyline();
+                updatePositionCircle();
             }
         });
 
@@ -159,6 +155,7 @@ public final class RouteManager {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
                 if(beanRoute.routeProperty().isNotNull().get()){
+                //if(beanRoute.routeProperty().get() != null){ todo what about beanRoute.routeProperty().get() != null ? Seems clearer and is functional
                     if(Double.isNaN(beanRoute.highlightedPositionProperty().get())){
                         circle.setVisible(false);
                     }else{
