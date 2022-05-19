@@ -378,10 +378,10 @@ public final class ElevationProfileManager {
     //create horizontal text
     private Text createHorizontalText(double x, int i){
         Text t = new Text();
-        t.getStyleClass().add("grid_label");
-        t.getStyleClass().add("horizontal");
+        t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
+        t.getStyleClass().add(HORIZONTAL_LABEL_STYLE_CLASS);
         t.setText(Integer.toString(i /ONE_KILOMETER_IN_METERS));
-        t.setFont(Font.font("Avenir", 10));
+        t.setFont(Font.font(LABEL_FONT, 10));
         t.setTextOrigin(VPos.TOP);
         t.setX(x - 0.5 * t.prefWidth(0));
         t.setY(rectangleProperty.get().getMaxY());
@@ -392,9 +392,9 @@ public final class ElevationProfileManager {
     //create vertical text
     private Text createVerticalText(double y, double j){
         Text t = new Text();
-        t.getStyleClass().add("grid_label");
-        t.getStyleClass().add("vertical");
-        t.setFont(Font.font("Avenir", 10));
+        t.getStyleClass().add(GRID_LABEL_STYLE_CLASS);
+        t.getStyleClass().add(VERTICAL_LABEL_STYLE_CLASS);
+        t.setFont(Font.font(LABEL_FONT, 10));
         t.setTextOrigin(VPos.CENTER);
         t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
         t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
