@@ -46,6 +46,15 @@ public final class JaVelo extends Application {
     private static final int WINDOW_MIN_WIDTH = 800;
     private static final int WINDOW_MIN_HEIGHT = 600;
 
+    /**
+     * Main function to launch Javelo
+     * @param args args to launch
+     */
+    public static void main(String[] args) { launch(args); }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of(GRAPH_DATA_DIRECTORY));
