@@ -30,6 +30,13 @@ public final class RouteBean {
     //Memory cache capacity
     private final static int CACHE_CAPACITY = 100;
 
+    //max step length for the elevation profile
+    private static final int MAX_STEP_LENGTH = 5;
+
+    private static final int MIN_NUMBER_OF_WAYPOINTS = 2;
+
+    private static final float LOAD_FACTOR = 0.75f;
+
     //used in cache
     private record PairOfWaypoints(Waypoint w1, Waypoint w2) {
     }
@@ -45,7 +52,7 @@ public final class RouteBean {
         routeProperty = new SimpleObjectProperty<>();
         highlightedPositionProperty = new SimpleDoubleProperty(Double.NaN);
         elevationProfileProperty = new SimpleObjectProperty<>();
-        routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, 0.75f, true);
+        routeComputingBuffer = new LinkedHashMap<>(CACHE_CAPACITY, LOAD_FACTOR, true);
 
         addListeners(routeComputer);
     }
@@ -170,10 +177,9 @@ public final class RouteBean {
     }
 
     private void updateRouteAndElevationProfile(RouteComputer routeComputer) {
-
         //if there is not enough waypoints in the ObservableList, the computed route as well
         // as its elevationProfile are null.
-        if (waypointsList.size() < 2) {
+        if (waypointsList.size() < MIN_NUMBER_OF_WAYPOINTS) {
             routeProperty.set(null);
             elevationProfileProperty.set(null);
         } else {
@@ -212,7 +218,7 @@ public final class RouteBean {
             if (!containsNull) {
                 routeProperty.set(new MultiRoute(segments));
                 elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(),
-                        5));
+                        MAX_STEP_LENGTH));
             } else {
                 routeProperty.set(null);
                 elevationProfileProperty.set(null);

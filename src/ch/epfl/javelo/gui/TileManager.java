@@ -39,7 +39,8 @@ public final class TileManager {
     private static final String PROTOCOL_NAME = "https";
     private static final int PORT_NUMBER = 443;
     private static final String URL_DELIMITER = "/";
-    public static final int TIMEOUT_IN_MS = 5000;
+    private static final int TIMEOUT_IN_MS = 5000;
+    private static final float LOAD_FACTOR = 0.75f;
 
     /**
      * Constructor of TileManager
@@ -53,7 +54,7 @@ public final class TileManager {
         tileServerName = tileServerN;
 
         memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
-                0.75f, true);
+                LOAD_FACTOR, true);
     }
 
     /**

@@ -101,9 +101,8 @@ public final class AnnotatedMapManager {
     //initialize handlers on the pane for the mouse events
     private void initializeHandlers() {
         //update the latest position of the mouse
-        pane.setOnMouseMoved(mouseEvent -> {
-            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-        });
+        pane.setOnMouseMoved(mouseEvent -> mouseCoordinatesProperty.setValue(
+                new Point2D(mouseEvent.getX(), mouseEvent.getY())));
 
         //mouse went out of the map
         pane.setOnMouseExited(mouseEvent -> mouseCoordinatesProperty.setValue(null));
@@ -129,16 +128,12 @@ public final class AnnotatedMapManager {
                             if (newPointOnMap.distance(mouseCoordinatesProperty.get()) <
                                     DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS) {
                                 return routePoint.position();
-                            } else {
-                                //we are too far from the route
-                                return Double.NaN;
                             }
-                        } else {
-                            return Double.NaN;
                         }
-                    } else {
-                        return Double.NaN;
                     }
+
+                    return Double.NaN;
+
                 }, mouseCoordinatesProperty, mapViewParametersProperty, routeBean.routeProperty()
         ));
     }

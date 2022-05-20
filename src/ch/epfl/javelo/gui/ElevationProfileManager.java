@@ -39,6 +39,7 @@ public final class ElevationProfileManager {
     private final Line highlightedLine;
     private final Text textStatistics;
     private final Path gridNode;
+    private final Group labels;
 
     //pane containing the elevation profile
     private final BorderPane pane;
@@ -53,7 +54,6 @@ public final class ElevationProfileManager {
             {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
     private static final int MIN_PIXEL_DELTA_HORIZONTAL_LINES = 25;
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
-    private final Group labels = new Group();
     private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
     private static final double CENTERING_CONSTANT = 0.5;
 
@@ -82,6 +82,7 @@ public final class ElevationProfileManager {
         highlightedLine = new Line();
         textStatistics = new Text();
         gridNode = new Path();
+        labels = new Group();
 
 
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
@@ -195,7 +196,6 @@ public final class ElevationProfileManager {
 
         gridNode.setId(GRID_NODE_ID);
         p.getChildren().add(gridNode);
-
 
         p.getChildren().add(labels);
 

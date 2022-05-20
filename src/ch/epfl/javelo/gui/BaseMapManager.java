@@ -151,9 +151,8 @@ public final class BaseMapManager {
         });
 
         //event handler for movement of the map
-        pane.setOnMousePressed(mouseEvent -> {
-            mouseCoordinatesProperty.setValue(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-        });
+        pane.setOnMousePressed(mouseEvent -> mouseCoordinatesProperty.setValue(
+                new Point2D(mouseEvent.getX(), mouseEvent.getY())));
 
 
         pane.setOnMouseDragged(mouseEvent -> {

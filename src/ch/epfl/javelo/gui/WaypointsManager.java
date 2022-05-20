@@ -168,7 +168,7 @@ public final class WaypointsManager {
         }
     }
 
-    //Create JavaFX Group for a Waypoint w with a special pinStyleClassPosition
+    //Create JavaFX Group for a Waypoint with a special pinStyleClassPosition
     //corresponding to the position of the waypoint
     private Group createGroupForWaypoint(String pinStyleClassPosition) {
         SVGPath svgpath_outside = new SVGPath();
@@ -191,9 +191,8 @@ public final class WaypointsManager {
     //initialize event listeners for the waypoint's group
     private void initializeGroupListeners(Waypoint waypoint, Group group) {
 
-        group.setOnMousePressed(mouseEvent -> {
-            latestMousePosition.set(new Point2D(mouseEvent.getX(), mouseEvent.getY()));
-        });
+        group.setOnMousePressed(mouseEvent -> latestMousePosition.set(
+                new Point2D(mouseEvent.getX(), mouseEvent.getY())));
 
         //Mouse dragging
         group.setOnMouseDragged(mouseEvent -> {
@@ -230,7 +229,7 @@ public final class WaypointsManager {
         });
     }
 
-    //initialize listener to MapViewParameters and TRANSIT_POINT_LIST changes
+    //initialize listener to MapViewParameters and transitPointsList changes
     private void initializeListeners() {
         mapViewParametersProperty.addListener((p, o, n) -> updatePinsPosition());
         transitPointsList.addListener((ListChangeListener<Waypoint>) change -> draw());
