@@ -51,7 +51,6 @@ public record MapViewParameters(int zoomLevel, double indexTopLeftX, double inde
      */
 
     public PointWebMercator pointAt(double xCoordinate, double yCoordinate) {
-        Preconditions.checkArgument(xCoordinate >= 0 && yCoordinate >= 0);
         return PointWebMercator.of(zoomLevel, xCoordinate + indexTopLeftX, yCoordinate + indexTopLeftY);
     }
 

@@ -67,7 +67,6 @@ public final class RouteManager {
     private void initializePane() {
         pane.setPickOnBounds(false);
 
-        //TODO: bind visibility à l'existence d'un itineraire pour la polyline?
         polyline.setId(POLYLINE_ID);
         polyline.setVisible(false);
 

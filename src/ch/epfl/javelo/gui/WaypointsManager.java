@@ -209,8 +209,8 @@ public final class WaypointsManager {
             if (!mouseEvent.isStillSincePress()) {
                 //waypoint released and was moved since pressed, update waypoint position
 
-                //TODO: fix case whhere y < 0 or x < 0 because in some case we can throw it with incorrect layout
-                //math max?
+                //TODO: fix case where y < 0 or x < 0 because in some case we can throw it with incorrect layout -> piazza
+
                 Waypoint newWaypoint =
                         createWaypoint(group.getLayoutX(), group.getLayoutY());
 
@@ -218,9 +218,10 @@ public final class WaypointsManager {
                     transitPointsList.set(transitPointsList.indexOf(waypoint), newWaypoint);
                 } else {
                     errorManager.accept(ERROR_MESSAGE_NO_ROUTES_AROUND);
-                    //to be sure waypoints are repalced at the correct position
+                    //to be sure waypoints are replaced at the correct position
                     draw();
                 }
+
             }
         });
 
