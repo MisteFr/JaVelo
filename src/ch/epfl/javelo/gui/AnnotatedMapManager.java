@@ -32,10 +32,11 @@ public final class AnnotatedMapManager {
 
     private final ObjectProperty<Point2D> mouseCoordinatesProperty;
     private final DoubleProperty mousePositionOnRouteProperty;
+    private final ObjectProperty<MapViewParameters> mapViewParametersProperty;
 
-    public static final ObjectProperty<MapViewParameters> MAP_VIEW_PARAMETERS
-            = new SimpleObjectProperty<>(
-            new MapViewParameters(12, 543200, 370650));
+    private static final int INITIAL_ZOOM_LEVEL = 12;
+    private static final int INITIAL_INDEX_TOP_LEFT_X = 543200;
+    private static final int INITIAL_INDEX_TOP_LEFT_Y = 370650;
 
     private static final String MAP_CSS = "map.css";
     private static final int DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS = 15;
@@ -54,19 +55,22 @@ public final class AnnotatedMapManager {
         routeBean = rteBean;
         mouseCoordinatesProperty = new SimpleObjectProperty<>(Point2D.ZERO);
         mousePositionOnRouteProperty = new SimpleDoubleProperty(Double.NaN);
+        mapViewParametersProperty = new SimpleObjectProperty<>(
+                new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_INDEX_TOP_LEFT_X,
+                        INITIAL_INDEX_TOP_LEFT_Y));
 
-        RouteManager routeManager = new RouteManager(routeBean, MAP_VIEW_PARAMETERS);
+        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersProperty);
 
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
-                        MAP_VIEW_PARAMETERS,
+                        mapViewParametersProperty,
                         routeBean.waypoints(),
                         errorReporter);
 
         BaseMapManager baseMapManager =
                 new BaseMapManager(tileManager,
                         waypointsManager,
-                        MAP_VIEW_PARAMETERS);
+                        mapViewParametersProperty);
 
         pane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         pane.getStylesheets().add(MAP_CSS);
@@ -108,7 +112,7 @@ public final class AnnotatedMapManager {
                 () -> {
                     if (routeBean.routeProperty().isNotNull().get()
                             && mouseCoordinatesProperty.isNotNull().get()) {
-                        PointCh point = MAP_VIEW_PARAMETERS.get().pointAt(mouseCoordinatesProperty.get().getX(),
+                        PointCh point = mapViewParametersProperty.get().pointAt(mouseCoordinatesProperty.get().getX(),
                                 mouseCoordinatesProperty.get().getY()).toPointCh();
 
                         //if the point is out of Switzerland directly return Double.NaN
@@ -119,8 +123,8 @@ public final class AnnotatedMapManager {
                             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(routePoint.point());
 
                             //get the coordinates of the new point on the map
-                            Point2D newPointOnMap = new Point2D(MAP_VIEW_PARAMETERS.get().viewX(pointWebMercator),
-                                    MAP_VIEW_PARAMETERS.get().viewY(pointWebMercator));
+                            Point2D newPointOnMap = new Point2D(mapViewParametersProperty.get().viewX(pointWebMercator),
+                                    mapViewParametersProperty.get().viewY(pointWebMercator));
 
                             if (newPointOnMap.distance(mouseCoordinatesProperty.get()) <
                                     DISTANCE_ALLOWED_TO_ROUTE_IN_PIXELS) {
@@ -135,7 +139,7 @@ public final class AnnotatedMapManager {
                     } else {
                         return Double.NaN;
                     }
-                }, mouseCoordinatesProperty, MAP_VIEW_PARAMETERS, routeBean.routeProperty()
+                }, mouseCoordinatesProperty, mapViewParametersProperty, routeBean.routeProperty()
         ));
     }
 }

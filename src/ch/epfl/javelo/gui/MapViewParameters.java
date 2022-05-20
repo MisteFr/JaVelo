@@ -1,6 +1,5 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.geometry.Point2D;
 

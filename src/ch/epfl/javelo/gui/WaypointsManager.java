@@ -209,8 +209,6 @@ public final class WaypointsManager {
             if (!mouseEvent.isStillSincePress()) {
                 //waypoint released and was moved since pressed, update waypoint position
 
-                //TODO: fix case where y < 0 or x < 0 because in some case we can throw it with incorrect layout -> piazza
-
                 Waypoint newWaypoint =
                         createWaypoint(group.getLayoutX(), group.getLayoutY());
 
