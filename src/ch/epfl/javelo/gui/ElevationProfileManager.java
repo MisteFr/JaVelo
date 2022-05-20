@@ -55,6 +55,7 @@ public final class ElevationProfileManager {
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
     private final Group labels = new Group();
     private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
+    private static final double CENTERING_CONSTANT = 0.5;
 
     private static final String GRID_NODE_ID = "grid";
     private static final String POLYGON_NODE_ID = "profile";
@@ -384,7 +385,7 @@ public final class ElevationProfileManager {
         t.setText(Integer.toString(i / ONE_KILOMETER_IN_METERS));
         t.setFont(Font.font(LABEL_FONT, FONT_SIZE));
         t.setTextOrigin(VPos.TOP);
-        t.setX(x - 0.5 * t.prefWidth(0));
+        t.setX(x - CENTERING_CONSTANT * t.prefWidth(0));
         t.setY(rectangleProperty.get().getMaxY());
 
         return t;
@@ -397,7 +398,7 @@ public final class ElevationProfileManager {
         t.getStyleClass().add(VERTICAL_LABEL_STYLE_CLASS);
         t.setFont(Font.font(LABEL_FONT, FONT_SIZE));
         t.setTextOrigin(VPos.CENTER);
-        t.setText(Integer.toString((int) (profileProperty.get().minElevation() + j)));
+        t.setText(String.format("%.0f", profileProperty.get().minElevation() + j));
         t.setX(rectangleProperty.get().getMinX() - t.prefWidth(0) - 2);
         t.setY(y);
 
