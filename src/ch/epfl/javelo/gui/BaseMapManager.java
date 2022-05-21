@@ -5,9 +5,11 @@ import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
@@ -44,6 +46,13 @@ public final class BaseMapManager {
 
     private final static int SCALB_CONSTANT_FOR_ZOOM = 1;
 
+    private static final String ZOOM_IN_TEXT = "+";
+    private static final String ZOOM_OUT_TEXT = "-";
+    private static final int ZOOM_IN_X_TRANSLATION = 5;
+    private static final int ZOOM_IN_Y_TRANSLATION = 10;
+    private static final int ZOOM_OUT_Y_TRANSLATION = 45;
+    private static final String ZOOM_BUTTON_STYLE_CLASS = "zoom_button";
+
     /**
      * BaseMapManager constructor
      *
@@ -62,9 +71,11 @@ public final class BaseMapManager {
 
         pane.getChildren().add(canvas);
 
+
         installHandlers();
         installBindings();
         installListeners();
+        installZoomButtons();
 
         //initial draw
         redrawOnNextPulse();
@@ -185,10 +196,10 @@ public final class BaseMapManager {
                     oldMapViewParameters.zoomLevel() + zoomDelta,
                     MAXIMUM_ZOOM_LEVEL);
 
-            double multiplicativeFactorForZoom = Math.scalb(SCALB_CONSTANT_FOR_ZOOM
-                    , newZoomLevel - oldMapViewParameters.zoomLevel());
-
             if (!(oldMapViewParameters.zoomLevel() == newZoomLevel)) {
+                double multiplicativeFactorForZoom = Math.scalb(SCALB_CONSTANT_FOR_ZOOM
+                        , newZoomLevel - oldMapViewParameters.zoomLevel());
+
                 MapViewParameters newMapViewParameters = new MapViewParameters(
                         newZoomLevel,
                         multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX()
@@ -224,6 +235,56 @@ public final class BaseMapManager {
 
         //when map properties are changed, redraw
         mapViewParametersProperty.addListener((p, o, n) -> redrawOnNextPulse());
+    }
+
+    //add zoom buttons to the pane and initialize its handlers
+    private void installZoomButtons() {
+        Button buttonZoomIn = new Button(ZOOM_IN_TEXT);
+        Button buttonZoomOut = new Button(ZOOM_OUT_TEXT);
+
+        buttonZoomIn.setTranslateX(ZOOM_IN_X_TRANSLATION);
+        buttonZoomIn.setTranslateY(ZOOM_IN_Y_TRANSLATION);
+
+        buttonZoomOut.setTranslateX(ZOOM_IN_X_TRANSLATION);
+        buttonZoomOut.setTranslateY(ZOOM_OUT_Y_TRANSLATION);
+
+        buttonZoomIn.setPadding(Insets.EMPTY);
+        buttonZoomOut.setPadding(Insets.EMPTY);
+
+        buttonZoomIn.getStyleClass().add(ZOOM_BUTTON_STYLE_CLASS);
+        buttonZoomOut.getStyleClass().add(ZOOM_BUTTON_STYLE_CLASS);
+
+        buttonZoomIn.setOnMouseClicked(mouseEvent -> {
+            zoom(1);
+        });
+
+        buttonZoomOut.setOnMouseClicked(mouseEvent -> {
+            zoom(-1);
+        });
+
+        pane.getChildren().add(buttonZoomIn);
+        pane.getChildren().add(buttonZoomOut);
+    }
+
+    private void zoom(int zoomDelta) {
+        MapViewParameters oldMapViewParameters = mapViewParametersProperty.get();
+        int newZoomLevel = Math2.clamp(MINIMUM_ZOOM_LEVEL,
+                oldMapViewParameters.zoomLevel() + zoomDelta,
+                MAXIMUM_ZOOM_LEVEL);
+
+        if (!(oldMapViewParameters.zoomLevel() == newZoomLevel)) {
+            double multiplicativeFactorForZoom = (zoomDelta == 1) ? 2.0 : 0.5;
+
+            MapViewParameters newMapViewParameters = new MapViewParameters(
+                    newZoomLevel,
+                    multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX()
+                            + pane.getWidth() / 2) - pane.getWidth() / 2,
+                    multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftY()
+                            + pane.getHeight() / 2) - pane.getHeight() / 2
+            );
+
+            mapViewParametersProperty.setValue(newMapViewParameters);
+        }
     }
 
 }

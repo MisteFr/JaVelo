@@ -42,3 +42,15 @@
 .pin_inside {
     -fx-fill: white;
 }
+
+.zoom_button {
+    -fx-font-size: 20;
+    -fx-pref-width: 30px;
+    -fx-pref-height: 30px;
+}
+
+.zoom_button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-scale-z: 1.1;
+}
