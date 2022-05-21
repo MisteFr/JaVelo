@@ -38,8 +38,10 @@ public final class ElevationProfileManager {
     private final Polygon polygon;
     private final Line highlightedLine;
     private final Text textStatistics;
+    private final Text textExtStatistics;
     private final Path gridNode;
     private final Group labels;
+    private final VBox statsBox;
 
     //pane containing the elevation profile
     private final BorderPane pane;
@@ -69,6 +71,10 @@ public final class ElevationProfileManager {
             "     Descente : %.0f m" +
             "     Altitude : de %.0f m à %.0f m";
 
+    private static final String EXT_STATS_TEXT = "Position : %.1f km" +
+            "\nAltitude : %.0f m" +
+            "\nPente : %.0f %%";
+
     private static final Insets RECTANGLE_INSETS = new Insets(10, 10, 20, 40);
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
@@ -81,8 +87,10 @@ public final class ElevationProfileManager {
         polygon = new Polygon();
         highlightedLine = new Line();
         textStatistics = new Text();
+        textExtStatistics = new Text();
         gridNode = new Path();
         labels = new Group();
+        statsBox = new VBox();
 
 
         rectangleProperty = new SimpleObjectProperty<>(Rectangle2D.EMPTY);
@@ -205,6 +213,9 @@ public final class ElevationProfileManager {
         p.getChildren().add(highlightedLine);
 
 
+        statsBox.getChildren().add(textExtStatistics);
+        p.getChildren().add(statsBox);
+
         VBox v = new VBox();
         v.getChildren().add(textStatistics);
         v.setId(PROFILE_NODE_ID);
@@ -301,6 +312,54 @@ public final class ElevationProfileManager {
                     }
                 }, mouseCoordinatesProperty, screenToWorld
         ));
+
+        //EXTENSIONS PART
+        statsBox.layoutXProperty().bind(highlightedLine.layoutXProperty());
+        statsBox.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0.0));
+
+        textExtStatistics.textProperty().bind(createStringBinding(
+                () -> {
+                    if(profileProperty.isNotNull().get()){
+                        //calculate the slope using a delta of 20 meters
+                        //centered on the highlightedPosition
+                        double x1 = highlightedPositionProperty.get() - 10;
+                        double x2 = highlightedPositionProperty.get() + 10;
+
+                        double y1 = profileProperty.get().elevationAt(x1);
+                        double y2 = profileProperty.get().elevationAt(x2);
+
+                        return String.format(EXT_STATS_TEXT,
+                                highlightedPositionProperty.get() / ONE_KILOMETER_IN_METERS,
+                                profileProperty.get().elevationAt(highlightedPositionProperty.get()),
+                                (y2 - y1) / (x2 - x1) * 100);
+                    }else{
+                        return "";
+                    }
+
+                }, highlightedPositionProperty, rectangleProperty
+        ));
+
+        /*
+        TODO trouver un moyen de rendre ça fonctionnel
+        statsBox.layoutYProperty().bind(createDoubleBinding(
+                () -> {
+                    if(profileProperty.isNotNull().get() && !Double.isNaN(highlightedPositionProperty.get())){
+                        double elevationAtPos = profileProperty.get().elevationAt(highlightedPositionProperty.get());
+                        //y corresponding to this elevation in the screen
+                        Point2D coordinatePointY = worldToScreen.get().transform(highlightedPositionProperty.get(),
+                                elevationAtPos);
+
+                        System.out.println(highlightedPositionProperty);
+                        return coordinatePointY.getY();
+                    }else{
+                        return Double.NaN;
+                    }
+                }, highlightedLine.layoutXProperty(), rectangleProperty, worldToScreen)
+        );
+        */
+
+
+
     }
 
     //initialize listeners on the rectangleProperty and the profileProperty
