@@ -185,10 +185,10 @@ public final class BaseMapManager {
                     oldMapViewParameters.zoomLevel() + zoomDelta,
                     MAXIMUM_ZOOM_LEVEL);
 
-            double multiplicativeFactorForZoom = Math.scalb(SCALB_CONSTANT_FOR_ZOOM
-                    , newZoomLevel - oldMapViewParameters.zoomLevel());
-
             if (!(oldMapViewParameters.zoomLevel() == newZoomLevel)) {
+                double multiplicativeFactorForZoom = Math.scalb(SCALB_CONSTANT_FOR_ZOOM
+                        , newZoomLevel - oldMapViewParameters.zoomLevel());
+
                 MapViewParameters newMapViewParameters = new MapViewParameters(
                         newZoomLevel,
                         multiplicativeFactorForZoom * (oldMapViewParameters.indexTopLeftX()

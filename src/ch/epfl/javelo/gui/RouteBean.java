@@ -215,7 +215,7 @@ public final class RouteBean {
                 segments.add(bestRoute);
             }
 
-            if (!containsNull) {
+            if (!containsNull && !segments.isEmpty()) {
                 routeProperty.set(new MultiRoute(segments));
                 elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(),
                         MAX_STEP_LENGTH));
