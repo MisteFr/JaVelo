@@ -10,6 +10,12 @@
     -fx-stroke-width: 2;
 }
 
+#indication {
+    -fx-fill: white;
+    -fx-stroke: blue;
+    -fx-stroke-width: 2;
+}
+
 .pin {
     -fx-opacity: 0.8;
 }

@@ -6,6 +6,7 @@ import ch.epfl.javelo.routing.CostFunction;
 import ch.epfl.javelo.routing.GpxGenerator;
 import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
@@ -109,6 +110,25 @@ public final class JaVelo extends Application {
 
         MenuItem menuItem = new MenuItem(MENU_ACTION_TEXT);
         menu.getItems().add(menuItem);
+
+        //EXTENSIONS
+        Menu menuOptions = new Menu("Options");
+        menuBar.getMenus().add(menuOptions);
+
+        //delete waypoint
+        MenuItem removeWaypointsItem = new MenuItem("Supprimer les waypoints");
+        menuOptions.getItems().add(removeWaypointsItem);
+
+        removeWaypointsItem.setOnAction(action -> routeBean.waypoints().clear());
+
+        //inverse route
+        MenuItem inverseRouteItem = new MenuItem("Inverser l'itinéraire");
+        menuOptions.getItems().add(inverseRouteItem);
+
+        inverseRouteItem.setOnAction(action -> {
+            FXCollections.reverse(routeBean.waypoints());
+        });
+
 
         menuItem.setOnAction(action -> {
             //export the GPX file

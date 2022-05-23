@@ -4,6 +4,7 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
@@ -27,6 +28,7 @@ public final class RouteManager {
 
     private final Polyline polyline;
     private final Circle circle;
+    private final Group indicators;
 
     //pane containing the polyline and the circle highlighted
     private final Pane pane;
@@ -48,6 +50,7 @@ public final class RouteManager {
         pane = new Pane();
         polyline = new Polyline();
         circle = new Circle(CIRCLE_RADIUS);
+        indicators = new Group();
 
         initializePane();
         initializeListeners();
@@ -73,6 +76,7 @@ public final class RouteManager {
         circle.setId(CIRCLE_ID);
         circle.setVisible(false);
 
+        pane.getChildren().add(indicators);
         pane.getChildren().add(polyline);
         pane.getChildren().add(circle);
     }
@@ -107,6 +111,26 @@ public final class RouteManager {
         polyline.getPoints().setAll(pointsToAdd);
     }
 
+    private void updateIndicatorsList() {
+        MapViewParameters mapViewParameters = mapParametersProperty.get();
+        indicators.getChildren().clear();
+
+        //TODO: changer la constante en fonction du niveau de zoom
+        double factor = Math.pow(2, 12 - mapViewParameters.zoomLevel());
+        for(int i = 0; i <= beanRoute.route().length(); i += 1000 * factor){
+            PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(i);
+
+            Circle circleIndicator = new Circle(CIRCLE_RADIUS);
+            circleIndicator.setId("indication");
+
+            indicators.getChildren().add(circleIndicator);
+
+
+            circleIndicator.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+            circleIndicator.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+        }
+    }
+
 
     //update the position of the polyline on the map
     private void updatePositionPolyline() {
@@ -133,6 +157,9 @@ public final class RouteManager {
 
                 updatePositionPolyline();
                 updatePositionCircle();
+
+                //extensions
+                updateIndicatorsList();
             }
         });
 
@@ -146,10 +173,15 @@ public final class RouteManager {
                 updatePointsPolyline();
                 updatePositionPolyline();
                 updatePositionCircle();
+
+                //extensions
+                updateIndicatorsList();
             } else if (newValue == null && oldValue != null) {
                 //hide the polyline and the circle
                 polyline.setVisible(false);
                 circle.setVisible(false);
+
+                indicators.getChildren().clear();
             }
         });
 
