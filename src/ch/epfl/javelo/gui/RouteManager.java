@@ -116,19 +116,19 @@ public final class RouteManager {
         indicators.getChildren().clear();
 
         //TODO: changer la constante en fonction du niveau de zoom
-        double factor = Math.pow(2, 12 - mapViewParameters.zoomLevel());
-        for(int i = 0; i <= beanRoute.route().length(); i += 1000 * factor){
-            PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(i);
+        if(mapViewParameters.zoomLevel() > 10){
+            for(int i = 0; i <= beanRoute.route().length(); i += 1000){
+                PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(i);
+                Circle circleIndicator = new Circle(2);
+                circleIndicator.setId("indication");
 
-            Circle circleIndicator = new Circle(CIRCLE_RADIUS);
-            circleIndicator.setId("indication");
+                indicators.getChildren().add(circleIndicator);
 
-            indicators.getChildren().add(circleIndicator);
-
-
-            circleIndicator.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
-            circleIndicator.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+                circleIndicator.setLayoutX(mapViewParameters.viewX(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+                circleIndicator.setLayoutY(mapViewParameters.viewY(PointWebMercator.ofPointCh(pointCenterHighlightedPosition)));
+            }
         }
+
     }
 
 

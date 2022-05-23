@@ -11,7 +11,7 @@
 }
 
 #indication {
-    -fx-fill: white;
+    -fx-fill: blue;
     -fx-stroke: blue;
     -fx-stroke-width: 2;
 }
