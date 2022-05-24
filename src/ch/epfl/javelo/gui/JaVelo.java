@@ -78,26 +78,25 @@ public final class JaVelo extends Application {
         //when resizing vertically elevationProfileManager pane won't be resized
         setResizableWithParent(elevationProfileManager.pane(), false);
 
-        BorderPane borderPane = new BorderPane();
 
         //we first initialize it without the elevationProfileManager pane() as the route won't exist
         SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
         splitPane.setOrientation(Orientation.VERTICAL);
-        borderPane.setCenter(splitPane);
 
         MenuBar menuBar = initializeMenu(routeBean);
-        borderPane.setTop(menuBar);
 
         initializeBinding(routeBean,
                 annotatedMapManager, elevationProfileManager);
         initializeListener(routeBean, elevationProfileManager, splitPane);
 
-        StackPane stackPane = new StackPane(borderPane, errorManager.pane());
+        StackPane stackPane = new StackPane(splitPane, errorManager.pane());
+
+        BorderPane borderPane = new BorderPane(stackPane, menuBar, null, null, null);
 
         primaryStage.setMinWidth(WINDOW_MIN_WIDTH);
         primaryStage.setMinHeight(WINDOW_MIN_HEIGHT);
         primaryStage.setTitle(MAIN_WINDOW_TITLE);
-        primaryStage.setScene(new Scene(stackPane));
+        primaryStage.setScene(new Scene(borderPane));
         primaryStage.show();
     }
 
@@ -140,7 +139,6 @@ public final class JaVelo extends Application {
         });
 
         menuItem.disableProperty().bind(routeBean.routeProperty().isNull());
-        menuBar.setUseSystemMenuBar(true);
 
         return menuBar;
     }
