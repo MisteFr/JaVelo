@@ -110,16 +110,18 @@ public final class BaseMapManager {
         for (int xTileMap = topLeftXIndexTile; xTileMap <= bottomRightXIndexTile; xTileMap++) {
             for (int yTileMap = topLeftYIndexTile; yTileMap <= bottomRightYIndexTile; yTileMap++) {
                 try {
-                    //get the image corresponding to each tile displayed (at least partially) on the map portion
-                    Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(),
-                            xTileMap,
-                            yTileMap));
+                    if(TileManager.TileId.isValid(mapViewParameters.zoomLevel(), xTileMap, yTileMap)){
+                        //get the image corresponding to each tile displayed (at least partially) on the map portion
+                        Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(),
+                                xTileMap,
+                                yTileMap));
 
 
-                    //draw the image to the corresponding position using the topLeft point
-                    graphicsContext.drawImage(image,
-                            xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(),
-                            yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
+                        //draw the image to the corresponding position using the topLeft point
+                        graphicsContext.drawImage(image,
+                                xTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftX(),
+                                yTileMap * OSM_TILE_SIZE - mapViewParameters.indexTopLeftY());
+                    }
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
