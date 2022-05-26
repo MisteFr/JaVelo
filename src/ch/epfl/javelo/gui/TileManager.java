@@ -135,7 +135,7 @@ public final class TileManager {
                         .resolve(String.valueOf(tileIdentity.zoomLevel))
                         .resolve(String.valueOf(tileIdentity.indexX))
                         .resolve(tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
-                System.out.println(pathToFile);
+                //System.out.println(pathToFile);
             }
 
             if (Files.exists(pathToFile)) {
@@ -153,8 +153,8 @@ public final class TileManager {
                         + URL_DELIMITER
                         + tileIdentity.indexY
                         + IMAGE_EXTENSION_FORMAT);
-                System.out.println("New URL is used"); //todo del debug
-                System.out.println(u);
+                //System.out.println("New URL is used"); //todo del debug
+                //System.out.println(u);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", USER_AGENT_NAME);
                 //5 seconds timeout in case something went wrong with url / the server isn't reachable

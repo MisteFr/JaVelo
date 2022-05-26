@@ -130,18 +130,22 @@ public final class BaseMapManager {
         }
     }
 
+    /**
+     * EXTENSIONS (this function is now public)
+     * Redraw the map on next pulse
+     */
+
+    public void redrawOnNextPulse() {
+        redrawNeeded = true;
+        Platform.requestNextPulse();
+    }
+
     //if the windows properties changed, redraw on next pulse
     private void redrawIfNeeded() {
         if (!redrawNeeded) return;
         redrawNeeded = false;
 
         draw();
-    }
-
-    //redraw on next pulse
-    private void redrawOnNextPulse() {
-        redrawNeeded = true;
-        Platform.requestNextPulse();
     }
 
     //from a delta Point2D vector and the current MapViewParameters object, creates the new MapViewParameters when moving.
@@ -238,6 +242,8 @@ public final class BaseMapManager {
 
         //when map properties are changed, redraw
         mapViewParametersProperty.addListener((p, o, n) -> redrawOnNextPulse());
+
+
     }
 
     //add zoom buttons to the pane and initialize its handlers

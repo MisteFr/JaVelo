@@ -182,8 +182,7 @@ public final class RouteBean {
         if (waypointsList.size() < MIN_NUMBER_OF_WAYPOINTS) {
             routeProperty.set(null);
             elevationProfileProperty.set(null);
-        }
-        else {
+        } else {
             List<Route> segments = new ArrayList<>();
             boolean containsNull = false;
             Route bestRoute;
@@ -231,3 +230,4 @@ public final class RouteBean {
         }
     }
 }
+

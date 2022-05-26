@@ -76,6 +76,9 @@ public final class ElevationProfileManager {
             "\nAltitude : %.0f m" +
             "\nPente : %.0f %%";
 
+    //EXTENSIONS
+    private static final String EXT_STATS_BOX_ID = "stats";
+
     private static final Insets RECTANGLE_INSETS = new Insets(10, 10, 20, 40);
 
     public ElevationProfileManager(ReadOnlyObjectProperty<ElevationProfile> profile,
@@ -213,7 +216,7 @@ public final class ElevationProfileManager {
 
         p.getChildren().add(highlightedLine);
 
-
+        statsBox.setId(EXT_STATS_BOX_ID);
         statsBox.getChildren().add(textExtStatistics);
         p.getChildren().add(statsBox);
 
@@ -328,6 +331,8 @@ public final class ElevationProfileManager {
                         double y1 = profileProperty.get().elevationAt(x1);
                         double y2 = profileProperty.get().elevationAt(x2);
 
+                        
+
                         return String.format(EXT_STATS_TEXT,
                                 highlightedPositionProperty.get() / ONE_KILOMETER_IN_METERS,
                                 profileProperty.get().elevationAt(highlightedPositionProperty.get()),
@@ -338,27 +343,6 @@ public final class ElevationProfileManager {
 
                 }, highlightedPositionProperty, rectangleProperty
         ));
-
-        /*
-        TODO trouver un moyen de rendre ça fonctionnel
-        statsBox.layoutYProperty().bind(createDoubleBinding(
-                () -> {
-                    if(profileProperty.isNotNull().get() && !Double.isNaN(highlightedPositionProperty.get())){
-                        double elevationAtPos = profileProperty.get().elevationAt(highlightedPositionProperty.get());
-                        //y corresponding to this elevation in the screen
-                        Point2D coordinatePointY = worldToScreen.get().transform(highlightedPositionProperty.get(),
-                                elevationAtPos);
-
-                        System.out.println(highlightedPositionProperty);
-                        return coordinatePointY.getY();
-                    }else{
-                        return Double.NaN;
-                    }
-                }, highlightedLine.layoutXProperty(), rectangleProperty, worldToScreen)
-        );
-        */
-
-
 
     }
 

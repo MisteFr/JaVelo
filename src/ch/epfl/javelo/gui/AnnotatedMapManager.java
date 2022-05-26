@@ -29,6 +29,7 @@ public final class AnnotatedMapManager {
     private final Pane pane;
 
     private final RouteBean routeBean;
+    private final BaseMapManager baseMapManager;
 
     private final ObjectProperty<Point2D> mouseCoordinatesProperty;
     private final DoubleProperty mousePositionOnRouteProperty;
@@ -67,7 +68,7 @@ public final class AnnotatedMapManager {
                         routeBean.waypoints(),
                         errorReporter);
 
-        BaseMapManager baseMapManager =
+        baseMapManager =
                 new BaseMapManager(tileManager,
                         waypointsManager,
                         mapViewParametersProperty);
@@ -96,6 +97,15 @@ public final class AnnotatedMapManager {
 
     public ReadOnlyDoubleProperty mousePositionOnRouteProperty() {
         return mousePositionOnRouteProperty;
+    }
+
+    /**
+     * EXTENSION (function to draw the map on tile server changes)
+     * Method to redraw the map on next pulse
+     */
+
+    public void draw() {
+        baseMapManager.redrawOnNextPulse();
     }
 
     //initialize handlers on the pane for the mouse events

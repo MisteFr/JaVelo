@@ -92,15 +92,12 @@ public final class JaVelo extends Application {
 
 
         //we first initialize it without the elevationProfileManager pane() as the route won't exist
-        //SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
         SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
 
         splitPane.setOrientation(Orientation.VERTICAL);
 
-        MenuBar menuBar = initializeMenu(routeBean, graph, errorManager);
+        MenuBar menuBar = initializeMenu(routeBean, annotatedMapManager);
 
-        /*initializeBinding(routeBean,
-                annotatedMapManager, elevationProfileManager);*/
         initializeBinding(routeBean,
                 annotatedMapManager, elevationProfileManager);
         initializeListener(routeBean, elevationProfileManager, splitPane);
@@ -117,7 +114,7 @@ public final class JaVelo extends Application {
     }
 
     //initialize the menu
-    private MenuBar initializeMenu(RouteBean routeBean, Graph graph, ErrorManager errorManager) {
+    private MenuBar initializeMenu(RouteBean routeBean, AnnotatedMapManager annotatedMapManager) {
         MenuBar menuBar = new MenuBar();
 
         Menu menu = new Menu(MENU_TITLE);
@@ -150,30 +147,40 @@ public final class JaVelo extends Application {
         MenuItem originalMap = new MenuItem("Carte originale OpenStreetMap");
         menuMap.getItems().add(originalMap);
 
-        originalMap.setOnAction(action ->
-                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_OSM)
+        originalMap.setOnAction(action -> {
+                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_OSM);
+                annotatedMapManager.draw();
+            }
         );
 
         MenuItem blackAndWhiteMap = new MenuItem("Carte en noir et blanc");
         menuMap.getItems().add(blackAndWhiteMap);
 
-        blackAndWhiteMap.setOnAction(action ->
+        blackAndWhiteMap.setOnAction(action -> {
                 tileManagerObjectProperty.get()
-                        .changeServerConfigurations(TILE_SERVER_HOST_BLACK_AND_WHITE, DIR_BLACK_AND_WHITE)
+                    .changeServerConfigurations(TILE_SERVER_HOST_BLACK_AND_WHITE, DIR_BLACK_AND_WHITE);
+                annotatedMapManager.draw();
+            }
         );
 
         MenuItem cylOsmMap = new MenuItem("Carte CyclOSM");
         menuMap.getItems().add(cylOsmMap);
 
-        cylOsmMap.setOnAction(action ->
-                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_CYCLOSM, DIR_CYCLOSM)
+        cylOsmMap.setOnAction(action -> {
+                tileManagerObjectProperty.get()
+                        .changeServerConfigurations(TILE_SERVER_HOST_CYCLOSM, DIR_CYCLOSM);
+                annotatedMapManager.draw();
+            }
         );
 
         MenuItem darkMap = new MenuItem("Carte en mode sombre");
         menuMap.getItems().add(darkMap);
 
-        darkMap.setOnAction(action ->
-                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_DARK_MODE, DIR_DARK_MODE)
+        darkMap.setOnAction(action -> {
+                tileManagerObjectProperty.get()
+                        .changeServerConfigurations(TILE_SERVER_HOST_DARK_MODE, DIR_DARK_MODE);
+                annotatedMapManager.draw();
+            }
         );
 
 

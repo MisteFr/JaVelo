@@ -37,6 +37,9 @@ public final class RouteManager {
     private static final String CIRCLE_ID = "highlight";
     private static final int CIRCLE_RADIUS = 5;
 
+    //EXTENSIONS
+    private static final int ZOOM_CONSTANT_FOR_RENDERING_INDICATORS = 10;
+
     /**
      * RouteManager constructor.
      *
@@ -115,8 +118,7 @@ public final class RouteManager {
         MapViewParameters mapViewParameters = mapParametersProperty.get();
         indicators.getChildren().clear();
 
-        //TODO: changer la constante en fonction du niveau de zoom
-        if(mapViewParameters.zoomLevel() > 10){
+        if(mapViewParameters.zoomLevel() > ZOOM_CONSTANT_FOR_RENDERING_INDICATORS){
             for(int i = 0; i <= beanRoute.route().length(); i += 1000){
                 PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(i);
                 Circle circleIndicator = new Circle(2);
@@ -156,7 +158,11 @@ public final class RouteManager {
                 }
 
                 updatePositionPolyline();
-                updatePositionCircle();
+
+                //the circle position needs to be updated
+                if(!Double.isNaN(beanRoute.highlightedPosition())){
+                    updatePositionCircle();
+                }
 
                 //extensions
                 updateIndicatorsList();
@@ -172,7 +178,11 @@ public final class RouteManager {
 
                 updatePointsPolyline();
                 updatePositionPolyline();
-                updatePositionCircle();
+
+                //the circle position needs to be updated
+                if(!Double.isNaN(beanRoute.highlightedPosition())){
+                    updatePositionCircle();
+                }
 
                 //extensions
                 updateIndicatorsList();
@@ -189,7 +199,7 @@ public final class RouteManager {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
                 if (beanRoute.routeProperty().get() != null) {
-                    if (Double.isNaN(beanRoute.highlightedPositionProperty().get())) {
+                    if (Double.isNaN(beanRoute.highlightedPosition())) {
                         circle.setVisible(false);
                     } else {
                         circle.setVisible(true);
