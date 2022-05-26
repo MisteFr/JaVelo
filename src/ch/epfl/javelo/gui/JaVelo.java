@@ -123,24 +123,18 @@ public final class JaVelo extends Application {
         MenuItem menuItem = new MenuItem(MENU_ACTION_TEXT);
         menu.getItems().add(menuItem);
 
-        //EXTENSIONS
-        Menu menuOptions = new Menu("Options");
-        menuBar.getMenus().add(menuOptions);
-
-        //delete waypoint
-        MenuItem removeWaypointsItem = new MenuItem("Supprimer les waypoints");
-        menuOptions.getItems().add(removeWaypointsItem);
-
-        removeWaypointsItem.setOnAction(action -> routeBean.waypoints().clear());
-
-        //inverse route
-        MenuItem inverseRouteItem = new MenuItem("Inverser l'itinéraire");
-        menuOptions.getItems().add(inverseRouteItem);
-
-        inverseRouteItem.setOnAction(action -> {
-            FXCollections.reverse(routeBean.waypoints());
+        menuItem.setOnAction(action -> {
+            //export the GPX file
+            try {
+                GpxGenerator.writeGpx(GPX_FILE_EXPORTED_NAME, routeBean.route(), routeBean.elevationProfile());
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         });
 
+        menuItem.disableProperty().bind(routeBean.routeProperty().isNull());
+
+        //EXTENSIONS
         Menu menuMap = new Menu("Fonds de carte");
         menuBar.getMenus().add(menuMap);
 
@@ -183,17 +177,22 @@ public final class JaVelo extends Application {
             }
         );
 
+        Menu menuOptions = new Menu("Options");
+        menuBar.getMenus().add(menuOptions);
 
-        menuItem.setOnAction(action -> {
-            //export the GPX file
-            try {
-                GpxGenerator.writeGpx(GPX_FILE_EXPORTED_NAME, routeBean.route(), routeBean.elevationProfile());
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        //delete waypoint
+        MenuItem removeWaypointsItem = new MenuItem("Supprimer les waypoints");
+        menuOptions.getItems().add(removeWaypointsItem);
+
+        removeWaypointsItem.setOnAction(action -> routeBean.waypoints().clear());
+
+        //inverse route
+        MenuItem inverseRouteItem = new MenuItem("Inverser l'itinéraire");
+        menuOptions.getItems().add(inverseRouteItem);
+
+        inverseRouteItem.setOnAction(action -> {
+            FXCollections.reverse(routeBean.waypoints());
         });
-
-        menuItem.disableProperty().bind(routeBean.routeProperty().isNull());
 
         return menuBar;
     }
