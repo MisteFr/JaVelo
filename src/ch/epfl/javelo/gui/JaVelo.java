@@ -6,6 +6,8 @@ import ch.epfl.javelo.routing.CostFunction;
 import ch.epfl.javelo.routing.GpxGenerator;
 import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -36,11 +38,20 @@ public final class JaVelo extends Application {
 
     private static final String GRAPH_DATA_DIRECTORY = "javelo-data";
     private static final String OSM_CACHE_PATH = "osm-cache";
-    private static final String TILE_SERVER_HOST = "tile.openstreetmap.org";
+    private static final String TILE_SERVER_HOST_OSM = "tile.openstreetmap.org";
+    private static final String TILE_SERVER_HOST_CYCLOSM = "a.tile-cyclosm.openstreetmap.fr";
+    private static final String DIR_CYCLOSM = "cyclosm";
+    private static final String TILE_SERVER_HOST_BLACK_AND_WHITE = "stamen-tiles.a.ssl.fastly.net";
+    private static final String DIR_BLACK_AND_WHITE = "toner";
+    private static final String TILE_SERVER_HOST_DARK_MODE = "cartodb-basemaps-a.global.ssl.fastly.net";
+    private static final String DIR_DARK_MODE = "dark_all";
+
     private static final String MAIN_WINDOW_TITLE = "JaVelo";
     private static final String MENU_TITLE = "Fichier";
     private static final String MENU_ACTION_TEXT = "Exporter GPX";
     private static final String GPX_FILE_EXPORTED_NAME = "javelo.gpx";
+
+    private final ObjectProperty<TileManager> tileManagerObjectProperty = new SimpleObjectProperty<>();
 
     private static final int ELEVATION_PROFILE_MANAGER_PANE_INDEX = 1;
 
@@ -62,15 +73,16 @@ public final class JaVelo extends Application {
         Path cacheBasePath = Path.of(OSM_CACHE_PATH);
         CostFunction cf = new CityBikeCF(graph);
 
-        TileManager tileManager =
-                new TileManager(cacheBasePath, TILE_SERVER_HOST);
+        tileManagerObjectProperty.set(new TileManager(cacheBasePath, TILE_SERVER_HOST_OSM)); //todo ici j'ai changé qque chose
 
         RouteBean routeBean = new RouteBean(new RouteComputer(graph, cf));
 
         ErrorManager errorManager = new ErrorManager();
 
-        AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager(graph, tileManager,
+
+        AnnotatedMapManager annotatedMapManager = new AnnotatedMapManager(graph, tileManagerObjectProperty.get(),
                 routeBean, errorManager::displayError);
+
 
         ElevationProfileManager elevationProfileManager = new ElevationProfileManager(
                 routeBean.elevationProfileProperty(), routeBean.highlightedPositionProperty());
@@ -80,11 +92,15 @@ public final class JaVelo extends Application {
 
 
         //we first initialize it without the elevationProfileManager pane() as the route won't exist
+        //SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
         SplitPane splitPane = new SplitPane(annotatedMapManager.pane());
+
         splitPane.setOrientation(Orientation.VERTICAL);
 
-        MenuBar menuBar = initializeMenu(routeBean);
+        MenuBar menuBar = initializeMenu(routeBean, graph, errorManager);
 
+        /*initializeBinding(routeBean,
+                annotatedMapManager, elevationProfileManager);*/
         initializeBinding(routeBean,
                 annotatedMapManager, elevationProfileManager);
         initializeListener(routeBean, elevationProfileManager, splitPane);
@@ -101,7 +117,7 @@ public final class JaVelo extends Application {
     }
 
     //initialize the menu
-    private MenuBar initializeMenu(RouteBean routeBean) {
+    private MenuBar initializeMenu(RouteBean routeBean, Graph graph, ErrorManager errorManager) {
         MenuBar menuBar = new MenuBar();
 
         Menu menu = new Menu(MENU_TITLE);
@@ -127,6 +143,38 @@ public final class JaVelo extends Application {
         inverseRouteItem.setOnAction(action -> {
             FXCollections.reverse(routeBean.waypoints());
         });
+
+        Menu menuMap = new Menu("Fonds de carte");
+        menuBar.getMenus().add(menuMap);
+
+        MenuItem originalMap = new MenuItem("Carte originale OpenStreetMap");
+        menuMap.getItems().add(originalMap);
+
+        originalMap.setOnAction(action ->
+                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_OSM)
+        );
+
+        MenuItem blackAndWhiteMap = new MenuItem("Carte en noir et blanc");
+        menuMap.getItems().add(blackAndWhiteMap);
+
+        blackAndWhiteMap.setOnAction(action ->
+                tileManagerObjectProperty.get()
+                        .changeServerConfigurations(TILE_SERVER_HOST_BLACK_AND_WHITE, DIR_BLACK_AND_WHITE)
+        );
+
+        MenuItem cylOsmMap = new MenuItem("Carte CyclOSM");
+        menuMap.getItems().add(cylOsmMap);
+
+        cylOsmMap.setOnAction(action ->
+                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_CYCLOSM, DIR_CYCLOSM)
+        );
+
+        MenuItem darkMap = new MenuItem("Carte en mode sombre");
+        menuMap.getItems().add(darkMap);
+
+        darkMap.setOnAction(action ->
+                tileManagerObjectProperty.get().changeServerConfigurations(TILE_SERVER_HOST_DARK_MODE, DIR_DARK_MODE)
+        );
 
 
         menuItem.setOnAction(action -> {

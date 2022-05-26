@@ -18,41 +18,43 @@ public final class TestTileManager extends Application {
         TileManager tm = new TileManager(
                 Path.of("cache"), "tile.openstreetmap.org");
         Image tileImage = tm.imageForTileAt(
-                new TileManager.TileId(19, 271725, 185422));
+                new TileManager.TileId(19, 271725, 185422, tm.getServerConfiguration()));
 
         for(int y = 271725; y < (271725+101); y++){
             //I checked that the memoryCache was working as intended
-           tm.imageForTileAt(new TileManager.TileId(19, 271725, y));
+           tm.imageForTileAt(new TileManager.TileId(19, 271725, y, tm.getServerConfiguration()));
         }
         Platform.exit();
     }
 
     @Test
     void testValidityTileId(){
+        TileManager tm = new TileManager(
+                Path.of("cache"), "tile.openstreetmap.org");
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(1, 2, 1);
+            new TileManager.TileId(1, 2, 1, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(1, 1, 2);
+            new TileManager.TileId(1, 1, 2, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(2, 3, 4);
+            new TileManager.TileId(2, 3, 4, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(2, 4, 3);
+            new TileManager.TileId(2, 4, 3, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(-1, 4, 3);
+            new TileManager.TileId(-1, 4, 3, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(2, -3, 3);
+            new TileManager.TileId(2, -3, 3, tm.getServerConfiguration());
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            new TileManager.TileId(2, 2, -3);
+            new TileManager.TileId(2, 2, -3, tm.getServerConfiguration());
         });
 
 
-        new TileManager.TileId(1, 1, 1);
-        new TileManager.TileId(2, 3, 3);
+        new TileManager.TileId(1, 1, 1, tm.getServerConfiguration());
+        new TileManager.TileId(2, 3, 3, tm.getServerConfiguration());
     }
 }

@@ -114,7 +114,8 @@ public final class BaseMapManager {
                         //get the image corresponding to each tile displayed (at least partially) on the map portion
                         Image image = tileManager.imageForTileAt(new TileManager.TileId(mapViewParameters.zoomLevel(),
                                 xTileMap,
-                                yTileMap));
+                                yTileMap,
+                                tileManager.getServerConfiguration()));
 
 
                         //draw the image to the corresponding position using the topLeft point

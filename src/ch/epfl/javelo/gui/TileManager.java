@@ -28,7 +28,10 @@ public final class TileManager {
     private final Path pathToMemoryDisk;
 
     //Name of the tile server where are stored tile images
-    private final String tileServerName;
+    private String tileServerName;
+
+    //optional parameter in URL
+    private String directory;
 
     //Memory cache capacity
     private static final int CACHE_CAPACITY = 100;
@@ -41,6 +44,25 @@ public final class TileManager {
     private static final String URL_DELIMITER = "/";
     private static final int TIMEOUT_IN_MS = 5000;
     private static final float LOAD_FACTOR = 0.75f;
+    private static final String NO_DIRECTORY_IS_USED = "";
+    private static final String STANDARD_TILE_SERVER_NAME = "tile.openstreetmap.org";
+
+
+    /**
+     * Constructor of TileManager
+     *
+     * @param pathFolder path of the disk cache
+     * @param tileServerN name of the tile server
+     * @param dir optional parameter in URL
+     */
+
+    public TileManager(Path pathFolder, String tileServerN, String dir) {
+        pathToMemoryDisk = pathFolder;
+        tileServerName = tileServerN;
+        memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
+                LOAD_FACTOR, true);
+        directory = dir;
+    }
 
     /**
      * Constructor of TileManager
@@ -50,11 +72,7 @@ public final class TileManager {
      */
 
     public TileManager(Path pathFolder, String tileServerN) {
-        pathToMemoryDisk = pathFolder;
-        tileServerName = tileServerN;
-
-        memoryCache = new LinkedHashMap<>(CACHE_CAPACITY,
-                LOAD_FACTOR, true);
+        this(pathFolder, tileServerN, NO_DIRECTORY_IS_USED);
     }
 
     /**
@@ -84,6 +102,15 @@ public final class TileManager {
         return memoryCache.containsKey(tileIdentity);
     }
 
+
+    public void changeServerConfigurations(String newTileServerName, String newDirectory){
+        tileServerName = newTileServerName;
+        directory = newDirectory;
+    }
+
+    public void changeServerConfigurations(String newTileServerName){
+        changeServerConfigurations(newTileServerName, NO_DIRECTORY_IS_USED);
+    }
     /**
      * Returns the image associated to a tile identity
      *
@@ -98,9 +125,18 @@ public final class TileManager {
             return memoryCache.get(tileIdentity);
         } else {
             //look in memory disk
-            Path pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileIdentity.zoomLevel))
-                    .resolve(String.valueOf(tileIdentity.indexX))
-                    .resolve(tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
+            Path pathToFile;
+            if(tileServerName == STANDARD_TILE_SERVER_NAME){
+                pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileIdentity.zoomLevel))
+                        .resolve(String.valueOf(tileIdentity.indexX))
+                        .resolve(tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
+            }else{
+                pathToFile = pathToMemoryDisk.resolve(String.valueOf(tileServerName))
+                        .resolve(String.valueOf(tileIdentity.zoomLevel))
+                        .resolve(String.valueOf(tileIdentity.indexX))
+                        .resolve(tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
+                System.out.println(pathToFile);
+            }
 
             if (Files.exists(pathToFile)) {
                 //we load the image and place it in the memory cache
@@ -109,15 +145,20 @@ public final class TileManager {
                 return imageTile;
             } else {
                 //we are going to load the image from the tile server
-                URL u = new URL(PROTOCOL_NAME, tileServerName, PORT_NUMBER, URL_DELIMITER + tileIdentity.zoomLevel
-                        + URL_DELIMITER + tileIdentity.indexX + URL_DELIMITER
-                        + tileIdentity.indexY + IMAGE_EXTENSION_FORMAT);
-
+                URL u = new URL(PROTOCOL_NAME, tileServerName, PORT_NUMBER, URL_DELIMITER
+                        + ((directory.length() == 0) ? "" : directory + URL_DELIMITER)
+                        + tileIdentity.zoomLevel
+                        + URL_DELIMITER
+                        + tileIdentity.indexX
+                        + URL_DELIMITER
+                        + tileIdentity.indexY
+                        + IMAGE_EXTENSION_FORMAT);
+                System.out.println("New URL is used"); //todo del debug
+                System.out.println(u);
                 URLConnection c = u.openConnection();
                 c.setRequestProperty("User-Agent", USER_AGENT_NAME);
                 //5 seconds timeout in case something went wrong with url / the server isn't reachable
                 c.setConnectTimeout(TIMEOUT_IN_MS);
-
                 try (InputStream i = c.getInputStream()) {
                     //create the directory in cache folder /zoomLevel/xIndex/
                     Files.createDirectories(pathToFile.getParent());
@@ -138,6 +179,10 @@ public final class TileManager {
         }
     }
 
+    public String getServerConfiguration(){
+        return tileServerName + directory;
+    }
+
     /**
      * TileId Record
      * Represents the identity of an OSM Tile
@@ -147,7 +192,7 @@ public final class TileManager {
      * @param indexY    index y of the tile
      */
 
-    public record TileId(int zoomLevel, int indexX, int indexY) {
+    public record TileId(int zoomLevel, int indexX, int indexY, String serverInfo) {
 
         /**
          * Check if tile is valid at construction

@@ -58,6 +58,7 @@ public final class ElevationProfileManager {
     private static final int MIN_PIXEL_DELTA_VERTICAL_LINES = 50;
     private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
     private static final double CENTERING_CONSTANT = 0.5;
+    private static final double OFFSET_IN_PIXELS_FOR_AESTHETIC_PURPOSES = 2d;
 
     private static final String GRID_NODE_ID = "grid";
     private static final String POLYGON_NODE_ID = "profile";
@@ -314,7 +315,6 @@ public final class ElevationProfileManager {
         ));
 
         //EXTENSIONS PART
-        statsBox.layoutXProperty().bind(highlightedLine.layoutXProperty());
         statsBox.visibleProperty().bind(highlightedPositionProperty.greaterThanOrEqualTo(0.0));
 
         textExtStatistics.textProperty().bind(createStringBinding(
@@ -385,6 +385,14 @@ public final class ElevationProfileManager {
                 drawPolygon();
             }
         }));
+
+        //EXTENSIONS PART
+        highlightedLine.layoutXProperty().addListener((p, oV, nV) -> statsBox.layoutXProperty().set(
+                (nV.doubleValue() + statsBox.getWidth() + OFFSET_IN_PIXELS_FOR_AESTHETIC_PURPOSES < rectangleProperty.get().getMaxX())
+                        ? nV.doubleValue() + OFFSET_IN_PIXELS_FOR_AESTHETIC_PURPOSES
+                        : nV.doubleValue() - statsBox.getWidth() - OFFSET_IN_PIXELS_FOR_AESTHETIC_PURPOSES)
+        );
+
     }
 
     //initialize handlers on the pane (mouse management)
