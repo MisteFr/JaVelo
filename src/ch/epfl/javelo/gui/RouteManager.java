@@ -132,7 +132,11 @@ public final class RouteManager {
                 }
 
                 updatePositionPolyline();
-                updatePositionCircle();
+
+                //update the position of the circle if needed
+                if(!Double.isNaN(beanRoute.highlightedPosition())){
+                    updatePositionCircle();
+                }
             }
         });
 
@@ -145,7 +149,11 @@ public final class RouteManager {
 
                 updatePointsPolyline();
                 updatePositionPolyline();
-                updatePositionCircle();
+
+                //update the position of the circle if needed
+                if(!Double.isNaN(beanRoute.highlightedPosition())){
+                    updatePositionCircle();
+                }
             } else if (newValue == null && oldValue != null) {
                 //hide the polyline and the circle
                 polyline.setVisible(false);
@@ -157,7 +165,7 @@ public final class RouteManager {
             if (!oldValue.equals(newValue)) {
                 //only update the position of the circle is the route exists
                 if (beanRoute.routeProperty().get() != null) {
-                    if (Double.isNaN(beanRoute.highlightedPositionProperty().get())) {
+                    if (Double.isNaN(beanRoute.highlightedPosition())) {
                         circle.setVisible(false);
                     } else {
                         circle.setVisible(true);
