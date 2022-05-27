@@ -19,10 +19,10 @@ import java.util.*;
 
 public final class RouteBean {
 
-    public final ObservableList<Waypoint> waypointsList;
-    public final ObjectProperty<Route> routeProperty;
-    public final ObjectProperty<ElevationProfile> elevationProfileProperty;
-    public final DoubleProperty highlightedPositionProperty;
+    private final ObservableList<Waypoint> waypointsList;
+    private final ObjectProperty<Route> routeProperty;
+    private final ObjectProperty<ElevationProfile> elevationProfileProperty;
+    private final DoubleProperty highlightedPositionProperty;
 
     //Memory cache array with access-order
     private final LinkedHashMap<PairOfWaypoints, Route> routeComputingBuffer;
@@ -182,8 +182,7 @@ public final class RouteBean {
         if (waypointsList.size() < MIN_NUMBER_OF_WAYPOINTS) {
             routeProperty.set(null);
             elevationProfileProperty.set(null);
-        }
-        else {
+        } else {
             List<Route> segments = new ArrayList<>();
             boolean containsNull = false;
             Route bestRoute;
@@ -217,11 +216,7 @@ public final class RouteBean {
             }
 
             if (!containsNull && !segments.isEmpty()) {
-                if(segments.size() == 1){
-                    routeProperty.set(new SingleRoute(segments.get(0).edges()));
-                }else{
-                    routeProperty.set(new MultiRoute(segments));
-                }
+                routeProperty.set(new MultiRoute(segments));
                 elevationProfileProperty.set(ElevationProfileComputer.elevationProfile(routeProperty.get(),
                         MAX_STEP_LENGTH));
             } else {
