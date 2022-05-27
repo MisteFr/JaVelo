@@ -59,6 +59,7 @@ public final class ElevationProfileManager {
     private static final int ZERO_CONSTANT_FOR_UNIDIMENSIONAL_VECTORS = 0;
     private static final double CENTERING_CONSTANT = 0.5;
     private static final double OFFSET_IN_PIXELS_FOR_AESTHETIC_PURPOSES = 2d;
+    private static final int RADIUS_SLOPE = 10;
 
     private static final String GRID_NODE_ID = "grid";
     private static final String POLYGON_NODE_ID = "profile";
@@ -325,13 +326,12 @@ public final class ElevationProfileManager {
                     if(profileProperty.isNotNull().get()){
                         //calculate the slope using a delta of 20 meters
                         //centered on the highlightedPosition
-                        double x1 = highlightedPositionProperty.get() - 10;
-                        double x2 = highlightedPositionProperty.get() + 10;
+                        double x1 = highlightedPositionProperty.get() - RADIUS_SLOPE;
+                        double x2 = highlightedPositionProperty.get() + RADIUS_SLOPE;
 
                         double y1 = profileProperty.get().elevationAt(x1);
                         double y2 = profileProperty.get().elevationAt(x2);
 
-                        
 
                         return String.format(EXT_STATS_TEXT,
                                 highlightedPositionProperty.get() / ONE_KILOMETER_IN_METERS,

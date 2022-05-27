@@ -105,7 +105,7 @@ public final class AnnotatedMapManager {
      */
 
     public void draw() {
-        baseMapManager.redrawOnNextPulse();
+        baseMapManager.redrawOnMapChange();
     }
 
     //initialize handlers on the pane for the mouse events

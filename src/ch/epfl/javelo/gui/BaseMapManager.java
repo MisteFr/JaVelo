@@ -131,11 +131,15 @@ public final class BaseMapManager {
     }
 
     /**
-     * EXTENSIONS (this function is now public)
+     * EXTENSIONS
      * Redraw the map on next pulse
      */
 
-    public void redrawOnNextPulse() {
+    public void redrawOnMapChange() {
+        redrawOnNextPulse();
+    }
+
+    private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
     }
