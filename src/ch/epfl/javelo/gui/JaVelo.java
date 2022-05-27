@@ -73,7 +73,7 @@ public final class JaVelo extends Application {
         Path cacheBasePath = Path.of(OSM_CACHE_PATH);
         CostFunction cf = new CityBikeCF(graph);
 
-        tileManagerObjectProperty.set(new TileManager(cacheBasePath, TILE_SERVER_HOST_OSM)); //todo ici j'ai changé qque chose
+        tileManagerObjectProperty.set(new TileManager(cacheBasePath, TILE_SERVER_HOST_OSM));
 
         RouteBean routeBean = new RouteBean(new RouteComputer(graph, cf));
 
