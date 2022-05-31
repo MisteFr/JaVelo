@@ -39,6 +39,9 @@ public final class RouteManager {
 
     //EXTENSIONS
     private static final int ZOOM_CONSTANT_FOR_RENDERING_INDICATORS = 10;
+    private static final String CIRCLE_INDICATOR_ID = "indication";
+    //radius of the indicator circles
+    private static final int RADIUS_CIRCLE_INDICATOR = 2;
 
     /**
      * RouteManager constructor.
@@ -121,8 +124,8 @@ public final class RouteManager {
         if(mapViewParameters.zoomLevel() > ZOOM_CONSTANT_FOR_RENDERING_INDICATORS){
             for(int i = 0; i <= beanRoute.route().length(); i += 1000){
                 PointCh pointCenterHighlightedPosition = beanRoute.route().pointAt(i);
-                Circle circleIndicator = new Circle(2);
-                circleIndicator.setId("indication");
+                Circle circleIndicator = new Circle(RADIUS_CIRCLE_INDICATOR);
+                circleIndicator.setId(CIRCLE_INDICATOR_ID);
 
                 indicators.getChildren().add(circleIndicator);
 
